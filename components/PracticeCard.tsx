@@ -6,15 +6,15 @@ const platformStyles: Record<
   { badge: string; label: string }
 > = {
   leetcode: {
-    badge: "bg-[#fff0cf] text-[#8a5a00] border-[#efc773]",
+    badge: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-400 dark:border-amber-800/50",
     label: "LeetCode",
   },
   cses: {
-    badge: "bg-[#dce8ff] text-[#2d4f95] border-[#9eb9ee]",
+    badge: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-blue-800/50",
     label: "CSES",
   },
   other: {
-    badge: "bg-[#eee4d2] text-[#6f6255] border-[#d6c7ad]",
+    badge: "bg-[--bg-sunken] text-[--text-secondary] border-[--border-default]",
     label: "Practice",
   },
 };
@@ -31,7 +31,7 @@ export function PracticeCard({ problem }: PracticeCardProps) {
       href={problem.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex items-center justify-between gap-3 rounded-xl border border-[#dfd4bf] bg-white px-4 py-3 shadow-sm transition hover:border-[#171411]"
+      className="group flex items-center justify-between gap-3 rounded-xl border border-[--border-subtle] bg-[--bg-surface] px-4 py-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[--border-default] hover:shadow-md"
     >
       <div className="min-w-0">
         <span
@@ -39,11 +39,11 @@ export function PracticeCard({ problem }: PracticeCardProps) {
         >
           {style.label}
         </span>
-        <p className="truncate text-sm font-bold text-[#171411]">
+        <p className="truncate text-sm font-bold text-[--text-primary]">
           {problem.label}
         </p>
       </div>
-      <ExternalLink className="h-4 w-4 shrink-0 text-[#8d7c6a] group-hover:text-[#171411]" />
+      <ExternalLink className="h-4 w-4 shrink-0 text-[--text-faint] transition group-hover:text-[--accent-purple]" />
     </a>
   );
 }

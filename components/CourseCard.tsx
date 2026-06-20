@@ -17,54 +17,63 @@ export function CourseCard({ course }: CourseCardProps) {
   const allComplete = stats.completed === stats.total;
 
   return (
-    <article className="flex flex-col rounded-2xl border border-[#dfd4bf] bg-white p-5 shadow-[0_12px_34px_rgba(89,50,23,0.07)] transition hover:border-[#171411]">
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <p className="inline-flex rounded-full bg-[#e6ddff] px-3 py-1 text-xs font-black uppercase text-[#593217]">
-            {course.totalDays}-day quest
-          </p>
-          <h2 className="mt-3 text-xl font-black text-[#171411]">
-            {course.title}
-          </h2>
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-[--border-subtle] bg-[--bg-surface] shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-[--border-default] hover:shadow-md">
+      {/* top accent line */}
+      <div className="h-0.5 w-full bg-gradient-to-r from-[--accent-purple] via-[--accent-blue] to-[--accent-green]" />
+
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <p className="inline-flex rounded-full bg-gradient-to-r from-[--accent-purple]/15 to-[--accent-blue]/10 px-3 py-1 text-xs font-black uppercase tracking-wide text-[--accent-purple] ring-1 ring-[--accent-purple]/20">
+              {course.totalDays}-day quest
+            </p>
+            <h2 className="mt-3 text-xl font-black tracking-tight text-[--text-primary]">
+              {course.title}
+            </h2>
+          </div>
+          {hydrated && <CircularProgress percent={stats.percent} />}
         </div>
-        {hydrated && <CircularProgress percent={stats.percent} />}
-      </div>
 
-      <p className="mb-6 flex-1 text-sm font-medium leading-relaxed text-[#6f6255]">
-        {course.description}
-      </p>
+        <p className="mb-5 flex-1 text-sm font-medium leading-relaxed text-[--text-muted]">
+          {course.description}
+        </p>
 
-      <div className="mb-5 rounded-xl bg-[#f6f1dd] p-4 text-sm text-[#171411]">
-        {hydrated ? (
-          <span className="inline-flex items-center gap-2">
-            <Sparkles className="h-4 w-4 text-[#9d61df]" />
-            <span className="font-black text-[#75b064]">
-              {stats.completed}
+        {/* Progress row */}
+        <div className="mb-5 flex items-center gap-2 rounded-xl border border-[--border-subtle] bg-[--bg-raised] px-4 py-3 text-sm">
+          {hydrated ? (
+            <span className="inline-flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[--accent-purple]" />
+              <span className="font-black text-[--accent-green]">
+                {stats.completed}
+              </span>
+              <span className="font-medium text-[--text-muted]">
+                / {stats.total} days complete
+              </span>
             </span>
-            {" / "}
-            {stats.total} days complete
-          </span>
-        ) : (
-          <span className="text-[#7b6c5c]">Loading progress...</span>
-        )}
-      </div>
+          ) : (
+            <span className="text-[--text-muted]">Loading progress…</span>
+          )}
+        </div>
 
-      <div className="flex flex-wrap gap-3">
-        <Link
-          href={`/courses/${course.id}`}
-          className="inline-flex items-center gap-2 rounded-xl border border-[#d6c7ad] px-4 py-2 text-sm font-black text-[#171411] transition hover:border-[#171411] hover:bg-[#fff7df]"
-        >
-          View curriculum
-        </Link>
-        {!allComplete && (
+        <div className="flex flex-wrap gap-3">
           <Link
-            href={`/courses/${course.id}/day/${nextDay}`}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#171411] px-4 py-2 text-sm font-black text-white transition hover:bg-[#593217]"
+            href={`/courses/${course.id}`}
+            id={`view-curriculum-${course.id}`}
+            className="inline-flex items-center gap-2 rounded-xl border border-[--border-default] bg-[--bg-raised] px-4 py-2 text-sm font-bold text-[--text-secondary] transition hover:border-[--border-strong] hover:bg-[--bg-sunken] hover:text-[--text-primary]"
           >
-            Continue
-            <ArrowRight className="h-4 w-4" />
+            View curriculum
           </Link>
-        )}
+          {!allComplete && (
+            <Link
+              href={`/courses/${course.id}/day/${nextDay}`}
+              id={`continue-${course.id}`}
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[--accent-purple] to-[--accent-blue] px-4 py-2 text-sm font-black text-white shadow-sm transition hover:opacity-90 hover:shadow-md active:scale-95"
+            >
+              Continue
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
+        </div>
       </div>
     </article>
   );
@@ -72,10 +81,22 @@ export function CourseCard({ course }: CourseCardProps) {
 
 export function ComingSoonCard() {
   return (
-    <article className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[#cdbfa9] bg-[#fffaf0]/70 p-6 text-center">
-      <p className="text-sm font-black text-[#7b6c5c]">More quests coming soon</p>
-      <p className="mt-2 text-xs font-medium text-[#9b8b78]">
-        Add new courses in data/courses and register them in lib/courses.ts
+    <article className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[--border-default] bg-[--bg-raised]/50 p-8 text-center">
+      <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-[--border-subtle] bg-[--bg-surface]">
+        <span className="text-lg">🚀</span>
+      </div>
+      <p className="text-sm font-black text-[--text-secondary]">
+        More quests coming soon
+      </p>
+      <p className="mt-1.5 text-xs font-medium text-[--text-muted]">
+        Add new courses in{" "}
+        <code className="rounded bg-[--bg-sunken] px-1 py-0.5 font-mono text-[10px] text-[--text-secondary]">
+          data/courses
+        </code>{" "}
+        and register them in{" "}
+        <code className="rounded bg-[--bg-sunken] px-1 py-0.5 font-mono text-[10px] text-[--text-secondary]">
+          lib/courses.ts
+        </code>
       </p>
     </article>
   );

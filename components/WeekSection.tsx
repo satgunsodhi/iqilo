@@ -18,27 +18,29 @@ export function WeekSection({ course, week }: WeekSectionProps) {
   const stats = getWeekStats(course.id, dayNumbers);
 
   return (
-    <section className="overflow-hidden rounded-2xl border border-[#dfd4bf] bg-white shadow-sm">
-      <div className="border-b border-[#eadfca] bg-[#fffaf0] px-5 py-4">
+    <section className="overflow-hidden rounded-2xl border border-[--border-subtle] bg-[--bg-surface] shadow-sm transition hover:shadow-md">
+      {/* Week header */}
+      <div className="border-b border-[--border-subtle] bg-[--bg-raised] px-5 py-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs font-black uppercase text-[#9d61df]">
+            <p className="text-[10px] font-black uppercase tracking-widest text-[--accent-purple]">
               Week {week.weekNumber}
             </p>
-            <h2 className="mt-0.5 text-lg font-black text-[#171411]">
+            <h2 className="mt-0.5 text-lg font-black tracking-tight text-[--text-primary]">
               {week.title}
             </h2>
           </div>
-          <p className="rounded-lg bg-[#e6ddff] px-3 py-1 text-sm font-black text-[#593217]">
+          <span className="rounded-full bg-gradient-to-r from-[--accent-purple]/15 to-[--accent-blue]/10 px-3 py-1 text-sm font-black text-[--text-secondary] ring-1 ring-[--accent-purple]/20">
             {stats.completed}/{stats.total} days
-          </p>
+          </span>
         </div>
         <div className="mt-3">
           <ProgressBar percent={stats.percent} size="sm" />
         </div>
       </div>
 
-      <ul className="divide-y divide-[#eadfca]">
+      {/* Day list */}
+      <ul className="divide-y divide-[--border-subtle]">
         {week.days.map((day) => {
           const complete = hydrated && isDayComplete(course.id, day.dayNumber);
           return (
@@ -51,10 +53,10 @@ export function WeekSection({ course, week }: WeekSectionProps) {
                 className="group flex min-w-0 flex-1 items-center gap-3"
               >
                 <span
-                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-black ${
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-black transition-colors ${
                     complete
-                      ? "bg-[#75b064] text-white"
-                      : "bg-[#f6f1dd] text-[#7b6c5c] group-hover:bg-[#f7d35f]"
+                      ? "bg-[--accent-green] text-white shadow-sm"
+                      : "bg-[--bg-sunken] text-[--text-muted] group-hover:bg-gradient-to-br group-hover:from-[--accent-yellow]/30 group-hover:to-[--accent-yellow]/10 group-hover:text-[--text-primary]"
                   }`}
                 >
                   {complete ? (
@@ -64,14 +66,14 @@ export function WeekSection({ course, week }: WeekSectionProps) {
                   )}
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-black text-[#171411]">
+                  <p className="truncate text-sm font-black text-[--text-primary] transition group-hover:text-[--accent-purple]">
                     Day {day.dayNumber}: {day.title}
                   </p>
-                  <p className="truncate text-xs font-medium text-[#8d7c6a]">
+                  <p className="truncate text-xs font-medium text-[--text-muted]">
                     {day.objective}
                   </p>
                 </div>
-                <ChevronRight className="ml-auto hidden h-4 w-4 shrink-0 text-[#b7a99a] group-hover:text-[#171411] sm:block" />
+                <ChevronRight className="ml-auto hidden h-4 w-4 shrink-0 text-[--text-faint] transition group-hover:text-[--accent-purple] sm:block" />
               </Link>
               <CompletionToggle
                 courseId={course.id}

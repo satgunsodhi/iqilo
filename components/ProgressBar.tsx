@@ -10,19 +10,19 @@ export function ProgressBar({
   size = "md",
 }: ProgressBarProps) {
   const clamped = Math.min(100, Math.max(0, percent));
-  const height = size === "sm" ? "h-1.5" : "h-2.5";
+  const height = size === "sm" ? "h-1.5" : "h-2";
 
   return (
     <div className="w-full">
       {label && (
-        <div className="mb-1.5 flex items-center justify-between text-xs font-bold text-[#7b6c5c]">
+        <div className="mb-1.5 flex items-center justify-between text-xs font-bold text-[--text-muted]">
           <span>{label}</span>
           <span>{clamped}%</span>
         </div>
       )}
-      <div className={`${height} w-full overflow-hidden rounded-full bg-[#e4d9c3]`}>
+      <div className={`${height} w-full overflow-hidden rounded-full bg-[--bg-sunken]`}>
         <div
-          className={`${height} rounded-full bg-[#75b064] transition-all duration-300`}
+          className={`${height} rounded-full bg-gradient-to-r from-[--accent-purple] to-[--accent-green] transition-all duration-500 ease-out`}
           style={{ width: `${clamped}%` }}
         />
       </div>
@@ -45,29 +45,34 @@ export function CircularProgress({ percent, size = 56 }: CircularProgressProps) 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
+        <defs>
+          <linearGradient id="progress-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="var(--accent-purple)" />
+            <stop offset="100%" stopColor="var(--accent-green)" />
+          </linearGradient>
+        </defs>
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="currentColor"
+          stroke="var(--bg-sunken)"
           strokeWidth={stroke}
-          className="text-[#e4d9c3]"
         />
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="currentColor"
+          stroke="url(#progress-grad)"
           strokeWidth={stroke}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          className="text-[#75b064] transition-all duration-300"
+          className="transition-all duration-500 ease-out"
         />
       </svg>
-      <span className="absolute text-xs font-black text-[#171411]">
+      <span className="absolute text-xs font-black text-[--text-primary]">
         {clamped}%
       </span>
     </div>

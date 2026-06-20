@@ -15,11 +15,7 @@ function getInitialTheme(): Theme {
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("light");
-
-  useEffect(() => {
-    setTheme(getInitialTheme());
-  }, []);
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "dark");
@@ -31,11 +27,16 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
+      id="theme-toggle"
       onClick={() => setTheme(dark ? "light" : "dark")}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#d6c7ad] bg-white/70 text-[#171411] transition hover:border-[#171411] hover:bg-white dark:border-[#343a46] dark:bg-[#1d222b] dark:text-[#e7edf7] dark:hover:border-[#7f8da3]"
+      className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[--border-default] bg-[--bg-surface] text-[--text-secondary] shadow-sm transition-all duration-200 hover:border-[--border-strong] hover:bg-[--bg-raised] hover:text-[--text-primary] hover:scale-105 active:scale-95"
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+      {dark ? (
+        <Sun className="h-4 w-4 transition-transform duration-300 rotate-0" />
+      ) : (
+        <Moon className="h-4 w-4 transition-transform duration-300" />
+      )}
     </button>
   );
 }
