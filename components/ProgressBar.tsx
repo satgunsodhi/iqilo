@@ -15,15 +15,18 @@ export function ProgressBar({
   return (
     <div className="w-full">
       {label && (
-        <div className="mb-1.5 flex items-center justify-between text-xs font-bold text-[--text-muted]">
+        <div className="mb-1.5 flex items-center justify-between text-xs font-bold" style={{ color: "var(--text-muted)" }}>
           <span>{label}</span>
           <span>{clamped}%</span>
         </div>
       )}
-      <div className={`${height} w-full overflow-hidden rounded-full bg-[--bg-sunken]`}>
+      <div className={`${height} w-full overflow-hidden rounded-full`} style={{ background: "var(--bg-sunken)" }}>
         <div
-          className={`${height} rounded-full bg-gradient-to-r from-[--accent-purple] to-[--accent-green] transition-all duration-500 ease-out`}
-          style={{ width: `${clamped}%` }}
+          className={`${height} rounded-full transition-all duration-500 ease-out`}
+          style={{
+            width: `${clamped}%`,
+            background: "linear-gradient(90deg, var(--accent-purple), var(--accent-green))",
+          }}
         />
       </div>
     </div>
@@ -41,12 +44,13 @@ export function CircularProgress({ percent, size = 56 }: CircularProgressProps) 
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (clamped / 100) * circumference;
+  const gradientId = `pg-${size}`;
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <defs>
-          <linearGradient id="progress-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="0%">
             <stop offset="0%" stopColor="var(--accent-purple)" />
             <stop offset="100%" stopColor="var(--accent-green)" />
           </linearGradient>
@@ -64,7 +68,7 @@ export function CircularProgress({ percent, size = 56 }: CircularProgressProps) 
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="url(#progress-grad)"
+          stroke={`url(#${gradientId})`}
           strokeWidth={stroke}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
@@ -72,7 +76,7 @@ export function CircularProgress({ percent, size = 56 }: CircularProgressProps) 
           className="transition-all duration-500 ease-out"
         />
       </svg>
-      <span className="absolute text-xs font-black text-[--text-primary]">
+      <span className="absolute text-xs font-black" style={{ color: "var(--text-primary)" }}>
         {clamped}%
       </span>
     </div>

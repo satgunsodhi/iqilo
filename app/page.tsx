@@ -9,24 +9,51 @@ export default function HomePage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
       {/* Hero banner */}
-      <section className="relative overflow-hidden rounded-2xl border border-[--border-subtle] bg-[--bg-surface] p-6 shadow-lg sm:p-8">
+      <section
+        className="relative overflow-hidden rounded-2xl border p-6 shadow-lg sm:p-8"
+        style={{
+          borderColor: "var(--border-subtle)",
+          background: "var(--bg-surface)",
+        }}
+      >
         {/* decorative gradient blob */}
-        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-gradient-to-br from-[--accent-purple]/15 to-[--accent-yellow]/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full bg-gradient-to-tr from-[--accent-green]/10 to-[--accent-blue]/8 blur-3xl" />
+        <div
+          className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl"
+          style={{ background: "color-mix(in srgb, var(--accent-purple) 12%, transparent)" }}
+        />
+        <div
+          className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full blur-3xl"
+          style={{ background: "color-mix(in srgb, var(--accent-green) 8%, transparent)" }}
+        />
 
         <div className="relative flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[--accent-yellow]/20 to-[--accent-yellow]/10 px-3 py-1 text-[11px] font-black uppercase tracking-widest text-[--text-secondary] ring-1 ring-[--accent-yellow]/30">
-              <Zap className="h-3 w-3 text-[--accent-yellow]" />
+            <span
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-widest ring-1"
+              style={{
+                background: "color-mix(in srgb, var(--accent-yellow) 15%, transparent)",
+                color: "var(--text-secondary)",
+                ringColor: "color-mix(in srgb, var(--accent-yellow) 25%, transparent)",
+              }}
+            >
+              <Zap className="h-3 w-3" style={{ color: "var(--accent-yellow)" }} />
               iqilo
             </span>
-            <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1.1] tracking-tight text-[--text-primary] sm:text-5xl">
+            <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1.1] tracking-tight sm:text-5xl" style={{ color: "var(--text-primary)" }}>
               Focused DSA practice,{" "}
-              <span className="bg-gradient-to-r from-[--accent-purple] to-[--accent-blue] bg-clip-text text-transparent">
+              <span
+                className="inline-block"
+                style={{
+                  background: "linear-gradient(135deg, var(--accent-purple), var(--accent-blue))",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
                 one day at a time.
               </span>
             </h1>
-            <p className="mt-4 max-w-xl text-sm font-medium leading-relaxed text-[--text-muted] sm:text-base">
+            <p className="mt-4 max-w-xl text-sm font-medium leading-relaxed sm:text-base" style={{ color: "var(--text-muted)" }}>
               Pick up the next lesson, mark real progress, and keep the
               curriculum visible without extra dashboard noise.
             </p>
@@ -34,25 +61,27 @@ export default function HomePage() {
 
           {/* Stats */}
           <div className="grid min-w-56 grid-cols-2 gap-3">
-            <div className="group rounded-xl border border-[--border-subtle] bg-[--bg-raised] p-4 transition hover:border-[--border-default] hover:shadow-sm">
-              <div className="flex items-center gap-1.5">
-                <Layers3 className="h-4 w-4 text-[--accent-purple]" />
-              </div>
-              <p className="mt-3 text-2xl font-black text-[--text-primary]">
+            <div
+              className="rounded-xl p-4 transition"
+              style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-raised)" }}
+            >
+              <Layers3 className="h-4 w-4" style={{ color: "var(--accent-purple)" }} />
+              <p className="mt-3 text-2xl font-black" style={{ color: "var(--text-primary)" }}>
                 {courses.length}
               </p>
-              <p className="text-xs font-semibold text-[--text-muted]">
+              <p className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>
                 Active course{courses.length !== 1 ? "s" : ""}
               </p>
             </div>
-            <div className="group rounded-xl border border-[--border-subtle] bg-[--bg-raised] p-4 transition hover:border-[--border-default] hover:shadow-sm">
-              <div className="flex items-center gap-1.5">
-                <CalendarDays className="h-4 w-4 text-[--accent-green]" />
-              </div>
-              <p className="mt-3 text-2xl font-black text-[--text-primary]">
+            <div
+              className="rounded-xl p-4 transition"
+              style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-raised)" }}
+            >
+              <CalendarDays className="h-4 w-4" style={{ color: "var(--accent-green)" }} />
+              <p className="mt-3 text-2xl font-black" style={{ color: "var(--text-primary)" }}>
                 {totalDays}
               </p>
-              <p className="text-xs font-semibold text-[--text-muted]">
+              <p className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>
                 Planned days
               </p>
             </div>

@@ -23,7 +23,12 @@ export function ExportProgressButton() {
       id="export-progress-btn"
       onClick={handleExport}
       disabled={!hydrated}
-      className="inline-flex items-center gap-2 rounded-lg border border-[--border-default] bg-[--bg-surface] px-3 py-2 text-xs font-bold text-[--text-secondary] shadow-sm transition-all duration-200 hover:border-[--border-strong] hover:bg-[--bg-raised] hover:text-[--text-primary] hover:scale-105 active:scale-95 disabled:opacity-50"
+      className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold shadow-sm transition-all duration-200 hover:scale-105 active:scale-95 disabled:opacity-50"
+      style={{
+        border: "1px solid var(--border-default)",
+        background: "var(--bg-surface)",
+        color: "var(--text-secondary)",
+      }}
     >
       <Download className="h-3.5 w-3.5" />
       Export

@@ -17,8 +17,14 @@ export function ResourceLink({ resource }: ResourceLinkProps) {
     const videoId = getYouTubeId(resource.url);
     if (videoId) {
       return (
-        <div className="overflow-hidden rounded-xl border border-[--border-subtle] bg-[--bg-surface] shadow-sm">
-          <div className="flex items-center gap-2 border-b border-[--border-subtle] bg-[--bg-raised] px-4 py-2.5 text-sm font-bold text-[--text-primary]">
+        <div
+          className="overflow-hidden rounded-xl shadow-sm"
+          style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
+        >
+          <div
+            className="flex items-center gap-2 border-b px-4 py-2.5 text-sm font-bold"
+            style={{ borderColor: "var(--border-subtle)", background: "var(--bg-raised)", color: "var(--text-primary)" }}
+          >
             <Play className="h-4 w-4 text-red-500" />
             {resource.label}
           </div>
@@ -41,10 +47,11 @@ export function ResourceLink({ resource }: ResourceLinkProps) {
       href={resource.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group flex items-center justify-between gap-3 rounded-xl border border-[--border-subtle] bg-[--bg-surface] px-4 py-3 text-sm font-bold text-[--text-primary] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[--border-default] hover:shadow-md"
+      className="group flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-bold shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+      style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)", color: "var(--text-primary)" }}
     >
       <span>{resource.label}</span>
-      <ExternalLink className="h-4 w-4 shrink-0 text-[--text-faint] transition group-hover:text-[--accent-purple]" />
+      <ExternalLink className="h-4 w-4 shrink-0 transition" style={{ color: "var(--text-faint)" }} />
     </a>
   );
 }

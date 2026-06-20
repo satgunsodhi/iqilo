@@ -18,7 +18,10 @@ function SidebarContent({ course, activeDay }: DaySidebarProps) {
     <nav className="space-y-5">
       {course.weeks.map((week) => (
         <div key={week.weekNumber}>
-          <p className="mb-2 px-2 text-[10px] font-black uppercase tracking-widest text-[--text-faint]">
+          <p
+            className="mb-2 px-2 text-[10px] font-black uppercase tracking-widest"
+            style={{ color: "var(--text-faint)" }}
+          >
             Week {week.weekNumber}
           </p>
           <ul className="space-y-0.5">
@@ -30,20 +33,26 @@ function SidebarContent({ course, activeDay }: DaySidebarProps) {
                 <li key={day.dayNumber}>
                   <Link
                     href={`/courses/${course.id}/day/${day.dayNumber}`}
-                    className={`flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-semibold transition-all duration-150 ${
+                    className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-sm font-semibold transition-all duration-150"
+                    style={
                       active
-                        ? "bg-gradient-to-r from-[--accent-purple]/15 to-[--accent-blue]/8 text-[--text-primary] ring-1 ring-[--accent-purple]/20"
-                        : "text-[--text-muted] hover:bg-[--bg-raised] hover:text-[--text-primary]"
-                    }`}
+                        ? {
+                            background: "color-mix(in srgb, var(--accent-purple) 12%, transparent)",
+                            color: "var(--text-primary)",
+                            outline: "1px solid color-mix(in srgb, var(--accent-purple) 20%, transparent)",
+                          }
+                        : { color: "var(--text-muted)" }
+                    }
                   >
                     <span
-                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-bold transition-colors ${
+                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-[10px] font-bold transition-colors"
+                      style={
                         complete
-                          ? "bg-[--accent-green] text-white shadow-sm"
+                          ? { background: "var(--accent-green)", color: "white" }
                           : active
-                            ? "bg-[--accent-purple] text-white shadow-sm"
-                            : "bg-[--bg-sunken] text-[--text-muted]"
-                      }`}
+                          ? { background: "var(--accent-purple)", color: "white" }
+                          : { background: "var(--bg-sunken)", color: "var(--text-muted)" }
+                      }
                     >
                       {complete ? (
                         <Check className="h-3 w-3" strokeWidth={3} />
@@ -72,7 +81,8 @@ export function DaySidebar({ course, activeDay }: DaySidebarProps) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[--accent-purple] to-[--accent-blue] text-white shadow-lg ring-2 ring-white/10 transition hover:scale-105 active:scale-95 lg:hidden"
+        className="fixed bottom-5 right-5 z-40 flex h-12 w-12 items-center justify-center rounded-full text-white shadow-lg ring-2 ring-white/10 transition hover:scale-105 active:scale-95 lg:hidden"
+        style={{ background: "linear-gradient(135deg, var(--accent-purple), var(--accent-blue))" }}
         aria-label="Open lesson list"
       >
         <Menu className="h-5 w-5" />
@@ -87,13 +97,19 @@ export function DaySidebar({ course, activeDay }: DaySidebarProps) {
             onClick={() => setOpen(false)}
             aria-label="Close lesson list"
           />
-          <aside className="absolute bottom-0 left-0 right-0 max-h-[80vh] overflow-y-auto rounded-t-2xl border-t border-[--border-subtle] bg-[--bg-surface] p-4 shadow-xl">
+          <aside
+            className="absolute bottom-0 left-0 right-0 max-h-[80vh] overflow-y-auto rounded-t-2xl p-4 shadow-xl"
+            style={{ borderTop: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
+          >
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-sm font-black text-[--text-primary]">Lessons</h2>
+              <h2 className="text-sm font-black" style={{ color: "var(--text-primary)" }}>
+                Lessons
+              </h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-lg p-2 text-[--text-muted] hover:bg-[--bg-raised] hover:text-[--text-primary] transition"
+                className="rounded-lg p-2 transition"
+                style={{ color: "var(--text-muted)" }}
                 aria-label="Close"
               >
                 <X className="h-5 w-5" />
@@ -106,7 +122,10 @@ export function DaySidebar({ course, activeDay }: DaySidebarProps) {
 
       {/* Desktop sidebar */}
       <aside className="hidden w-60 shrink-0 lg:block">
-        <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl border border-[--border-subtle] bg-[--bg-surface] p-3 shadow-sm">
+        <div
+          className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl p-3 shadow-sm"
+          style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
+        >
           <SidebarContent course={course} activeDay={activeDay} />
         </div>
       </aside>
@@ -117,7 +136,10 @@ export function DaySidebar({ course, activeDay }: DaySidebarProps) {
 export function CourseSidebar({ course }: { course: Course }) {
   return (
     <aside className="hidden w-60 shrink-0 lg:block">
-      <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl border border-[--border-subtle] bg-[--bg-surface] p-3 shadow-sm">
+      <div
+        className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl p-3 shadow-sm"
+        style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
+      >
         <SidebarContent course={course} />
       </div>
     </aside>
