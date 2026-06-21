@@ -2,13 +2,17 @@ import { competitiveProgrammingRoadmap } from "@/data/courses/competitive-progra
 import { advancedBridgeRoadmap } from "@/data/courses/advanced-bridge-roadmap";
 import { quantFoundationRoadmap } from "@/data/courses/python-for-quants-data-wrangling";
 import { QuantMLRoadmap } from "@/data/courses/python-for-quants-predictive-modeling";
+import { deepLearningQuantRoadmap } from "@/data/courses/python-for-quants-deep-learning-portfolio";
+import { derivativesRiskRoadmap } from "@/data/courses/python-for-quants-derivatives-risk";
 import type { Course } from "./types";
 
 const courses: Course[] = [
   competitiveProgrammingRoadmap,
   advancedBridgeRoadmap,
   quantFoundationRoadmap,
-  QuantMLRoadmap
+  QuantMLRoadmap,
+  deepLearningQuantRoadmap,
+  derivativesRiskRoadmap
 ];
 
 export function listCourses(): Course[] {

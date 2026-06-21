@@ -1,6 +1,6 @@
 export type Platform = "leetcode" | "cses" | "other" | (string & {});
 
-export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
+export type Difficulty = "Beginner" | "Intermediate" | "Advanced" | "Expert";
 
 export type Resource = {
   label: string;

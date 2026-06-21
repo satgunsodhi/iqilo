@@ -10,6 +10,7 @@ const DIFFICULTY_COLORS: Record<string, { bg: string; text: string }> = {
   Beginner:     { bg: "color-mix(in srgb, var(--accent-green) 12%, transparent)",  text: "var(--accent-green)"  },
   Intermediate: { bg: "color-mix(in srgb, var(--accent-blue) 12%, transparent)",   text: "var(--accent-blue)"   },
   Advanced:     { bg: "color-mix(in srgb, var(--accent-red) 12%, transparent)",    text: "var(--accent-red)"    },
+  Expert:       { bg: "color-mix(in srgb, var(--accent-purple) 12%, transparent)", text: "var(--accent-purple)" },
 };
 
 type CourseCardProps = {
