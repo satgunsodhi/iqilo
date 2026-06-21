@@ -37,10 +37,18 @@ const PROTOCOL_META = [
 ] as const;
 
 export function DayContent({ course, week, day }: DayContentProps) {
-  const { visitDay, getCourseStats, isDayComplete, toggleDay, isResourceComplete, hydrated } = useProgress();
+  const { visitDay, getCourseStats, isDayComplete, toggleDay, isResourceComplete, toggleResource, hydrated } = useProgress();
   const { toast } = useToast();
   const [tasksDone, setTasksDone] = useState(day.tasks ? day.tasks.length === 0 : true);
-  const [activeResource, setActiveResource] = useState<Resource | null>(null);
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
+  const [activeItemType, setActiveItemType] = useState<"resource" | "practice" | "task" | "protocol" | null>(null);
+  const [activeItemData, setActiveItemData] = useState<any>(null);
+
+  const handleSelectItem = (id: string, type: "resource" | "practice" | "task" | "protocol", item: any) => {
+    setActiveItemId(id);
+    setActiveItemType(type);
+    setActiveItemData(item);
+  };
 
   const prevDay = day.dayNumber > 1 ? day.dayNumber - 1 : null;
   const nextDay = day.dayNumber < course.totalDays ? day.dayNumber + 1 : null;
@@ -66,6 +74,21 @@ export function DayContent({ course, week, day }: DayContentProps) {
     }
   }, [hydrated, complete, day.resources, tasksDone, isResourceComplete, course.id, day.dayNumber, toggleDay, toast]);
 
+  // Item active timer for auto-completion
+  useEffect(() => {
+    if (!hydrated || !activeItemId || activeItemType !== "resource") return;
+    
+    // Only auto-tick resources that aren't already complete
+    if (isResourceComplete(course.id, activeItemId)) return;
+
+    const timer = setTimeout(() => {
+      toggleResource(course.id, activeItemId);
+      toast("Marked as read!", "success");
+    }, 30000); // 30 seconds
+
+    return () => clearTimeout(timer);
+  }, [hydrated, activeItemId, activeItemType, course.id, isResourceComplete, toggleResource, toast]);
+
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -77,7 +100,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
 
   return (
     <div className="flex gap-8">
-      <DaySidebar course={course} activeDay={day.dayNumber} />
+      <DaySidebar courseId={course.id} day={day} activeItemId={activeItemId} onSelectItem={handleSelectItem} />
 
       <div className="min-w-0 flex-1">
         {/* ── Sticky progress bar ─────────────────────────────────── */}
@@ -119,12 +142,12 @@ export function DayContent({ course, week, day }: DayContentProps) {
           <span style={{ color: "var(--text-primary)" }}>Day {day.dayNumber}</span>
         </nav>
 
-        {activeResource ? (
+        {activeItemType ? (
           <div className="flex flex-col rounded-2xl shadow-lg overflow-hidden animate-fade-in" style={{ height: "calc(100vh - 12rem)", border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
             <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-raised)" }}>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => setActiveResource(null)}
+                  onClick={() => handleSelectItem(null as any, null as any, null)}
                   className="rounded-lg p-1.5 transition hover:bg-[var(--bg-sunken)]"
                   style={{ color: "var(--text-primary)" }}
                   title="Back to Day"
@@ -132,23 +155,25 @@ export function DayContent({ course, week, day }: DayContentProps) {
                   <ChevronLeft className="h-5 w-5" />
                 </button>
                 <span className="text-sm font-bold truncate max-w-sm sm:max-w-md" style={{ color: "var(--text-primary)" }}>
-                  {activeResource.label}
+                  {activeItemType === "protocol" ? "Execution Protocol" : activeItemData?.label || activeItemData?.task}
                 </span>
               </div>
               <div className="flex items-center gap-2">
-                <a
-                  href={activeResource.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition hover:opacity-80"
-                  style={{ background: "var(--bg-sunken)", color: "var(--text-primary)" }}
-                  title="Open in new tab (if embed fails)"
-                >
-                  <ExternalLink className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Open in new tab</span>
-                </a>
+                {(activeItemType === "resource" || activeItemType === "practice") && activeItemData?.url && (
+                  <a
+                    href={activeItemData.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition hover:opacity-80"
+                    style={{ background: "var(--bg-sunken)", color: "var(--text-primary)" }}
+                    title="Open in new tab"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Open in new tab</span>
+                  </a>
+                )}
                 <button
-                  onClick={() => setActiveResource(null)}
+                  onClick={() => handleSelectItem(null as any, null as any, null)}
                   className="rounded-lg p-1.5 transition hover:bg-[var(--bg-sunken)]"
                   style={{ color: "var(--text-muted)" }}
                 >
@@ -156,24 +181,96 @@ export function DayContent({ course, week, day }: DayContentProps) {
                 </button>
               </div>
             </div>
-            <div className="flex-1 w-full bg-[var(--bg-sunken)]">
-              {activeResource.embed === "youtube" ? (
-                <iframe
-                  src={`https://www.youtube.com/embed/${
-                    activeResource.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/)?.[1] || ""
-                  }`}
-                  title={activeResource.label}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="h-full w-full border-0"
-                />
-              ) : (
-                <iframe
-                  src={activeResource.url}
-                  title={activeResource.label}
-                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
-                  className="h-full w-full border-0 bg-white"
-                />
+            
+            <div className="flex-1 w-full overflow-y-auto" style={{ background: "var(--bg-sunken)" }}>
+              {activeItemType === "resource" && (
+                activeItemData.embed === "youtube" ? (
+                  <iframe
+                    src={`https://www.youtube.com/embed/${
+                      activeItemData.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/)?.[1] || ""
+                    }`}
+                    title={activeItemData.label}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="h-full w-full border-0"
+                  />
+                ) : (
+                  <iframe
+                    src={activeItemData.url}
+                    title={activeItemData.label}
+                    sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                    className="h-full w-full border-0 bg-white"
+                  />
+                )
+              )}
+
+              {activeItemType === "practice" && (
+                <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+                  <Target className="mb-4 h-16 w-16" style={{ color: "var(--accent-blue)" }} />
+                  <h2 className="mb-6 text-2xl font-black" style={{ color: "var(--text-primary)" }}>{activeItemData.label}</h2>
+                  <a
+                    href={activeItemData.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl px-6 py-3 font-bold text-white shadow-md transition hover:scale-105 active:scale-95"
+                    style={{ background: "linear-gradient(135deg, var(--accent-blue), var(--accent-purple))" }}
+                  >
+                    Open Problem on {activeItemData.platform || "Platform"}
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </div>
+              )}
+
+              {activeItemType === "task" && (
+                <div className="flex h-full flex-col items-center justify-center p-8 text-center">
+                  <Check className="mb-4 h-16 w-16" style={{ color: "var(--accent-green)" }} />
+                  <h2 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>{activeItemData.task}</h2>
+                  <p className="mt-4 text-sm" style={{ color: "var(--text-secondary)" }}>
+                    You can mark this task complete in the sidebar checklist.
+                  </p>
+                </div>
+              )}
+
+              {activeItemType === "protocol" && (
+                <div className="mx-auto max-w-3xl p-6">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    {PROTOCOL_META.map((meta) => {
+                      const value = activeItemData[meta.key];
+                      if (!value) return null;
+                      return (
+                        <div
+                          key={meta.key}
+                          className="flex gap-3 rounded-xl p-5 shadow-sm"
+                          style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
+                        >
+                          <span
+                            className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
+                            style={{ background: `color-mix(in srgb, ${meta.color} 12%, transparent)`, color: meta.color }}
+                          >
+                            <Check className="h-4 w-4" strokeWidth={3} />
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <div className="mb-2 flex items-center justify-between gap-2">
+                              <p className="text-sm font-black" style={{ color: meta.color }}>
+                                {meta.label}
+                              </p>
+                              <span
+                                className="flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
+                                style={{ background: `color-mix(in srgb, ${meta.color} 8%, transparent)`, color: "var(--text-faint)" }}
+                              >
+                                <Clock className="h-3 w-3" />
+                                {meta.time}
+                              </span>
+                            </div>
+                            <p className="text-sm font-medium leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                              {value}
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               )}
             </div>
           </div>
@@ -239,95 +336,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
           </p>
         </section>
 
-        {/* ── Protocol ────────────────────────────────────────────── */}
-        {day.protocol && (
-          <section className="mb-6">
-            <h2 className="mb-3 text-[11px] font-black uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
-              Daily Execution Protocol
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {PROTOCOL_META.map((meta) => {
-                const value = day.protocol![meta.key];
-                return (
-                  <div
-                    key={meta.key}
-                    className="flex gap-3 rounded-xl p-4 shadow-sm transition"
-                    style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
-                  >
-                    <span
-                      className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md"
-                      style={{
-                        background: `color-mix(in srgb, ${meta.color} 12%, transparent)`,
-                        color: meta.color,
-                      }}
-                    >
-                      <Check className="h-3 w-3" strokeWidth={3} />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-1 flex items-center justify-between gap-2">
-                        <p className="text-xs font-black" style={{ color: meta.color }}>
-                          {meta.label}
-                        </p>
-                        <span
-                          className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-                          style={{
-                            background: `color-mix(in srgb, ${meta.color} 8%, transparent)`,
-                            color: "var(--text-faint)",
-                          }}
-                        >
-                          <Clock className="h-2.5 w-2.5" />
-                          {meta.time}
-                        </span>
-                      </div>
-                      <p className="text-sm font-medium leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                        {value}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
 
-
-            {/* ── Resources ───────────────────────────────────────────── */}
-            {day.resources && day.resources.length > 0 && (
-              <section className="mb-6">
-                <h2 className="mb-3 text-[11px] font-black uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
-                  Resources
-                </h2>
-                <div className="space-y-3">
-                  {day.resources.map((resource) => (
-                    <ResourceLink
-                      key={resource.url}
-                      courseId={course.id}
-                      resource={resource}
-                      onSelect={() => setActiveResource(resource)}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* ── Practice ────────────────────────────────────────────── */}
-            {day.practice && day.practice.length > 0 && (
-              <section className="mb-6">
-                <h2 className="mb-3 text-[11px] font-black uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
-                  Practice
-                </h2>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {day.practice.map((problem) => (
-                    <PracticeCard key={problem.url} problem={problem} />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* ── Tasks (individually toggleable) ─────────────────────── */}
-            {day.tasks && day.tasks.length > 0 && (
-              <TaskList courseId={course.id} dayNumber={day.dayNumber} tasks={day.tasks} onCompleteChange={setTasksDone} />
-            )}
 
             {/* ── Pitfall ─────────────────────────────────────────────── */}
             {day.pitfall && (
