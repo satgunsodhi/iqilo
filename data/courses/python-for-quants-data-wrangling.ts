@@ -12,15 +12,15 @@ export const QUANT_PROTOCOL: DailyProtocol = {
 };
 
 export const quantFoundationRoadmap: Course = {
-    id: "quant-foundation-roadmap",
-    title: "4-Week Foundation: NumPy, Pandas & SciPy for Quant Trading",
+    id: "python-for-quants-data-wrangling",
+    title: "Python for Quants: Data Wrangling & Scientific Computing",
     description:
         "A rigorous, hands-on foundation in Python's scientific computing stack, explicitly designed for quantitative trading. Covers NumPy's vectorized array operations, Pandas' time-series and panel data manipulation, and SciPy's optimization and statistical routines, all within the context of financial data analysis and strategy development.",
     difficulty: "Intermediate",
     tags: ["Python", "NumPy", "Pandas", "SciPy", "Quant Finance", "Backtesting"],
     estimatedHours: 84,
     category: "Quant Finance",
-    tagline: "Build the Python scientific stack foundation every quant needs.",
+    tagline: "Master the Python data stack that powers modern quantitative trading.",
     totalDays: 28,
     weeks: [
         {
