@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import { ProgressProvider } from "@/hooks/useProgress";
 import { SiteHeader } from "@/components/SiteHeader";
+import { Inter } from "next/font/google";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+});
 
 export const metadata: Metadata = {
   title: "iqilo — Focused DSA Practice",
@@ -15,15 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className={`h-full antialiased ${inter.variable}`}>
       <head>
-        {/* Google Fonts – loaded via <link> since Turbopack can't process @import url() in CSS */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-          rel="stylesheet"
-        />
         {/* Prevent flash of wrong theme by setting class before paint */}
         <script
           dangerouslySetInnerHTML={{
