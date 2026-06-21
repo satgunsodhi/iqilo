@@ -35,8 +35,8 @@ export function CourseCard({ course }: CourseCardProps) {
               style={{
                 background: "color-mix(in srgb, var(--accent-purple) 12%, transparent)",
                 color: "var(--accent-purple)",
-                ringColor: "color-mix(in srgb, var(--accent-purple) 20%, transparent)",
-              }}
+                "--tw-ring-color": "color-mix(in srgb, var(--accent-purple) 20%, transparent)",
+              } as React.CSSProperties}
             >
               {course.totalDays}-day quest
             </p>

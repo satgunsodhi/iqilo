@@ -41,8 +41,8 @@ export function WeekSection({ course, week }: WeekSectionProps) {
             style={{
               background: "color-mix(in srgb, var(--accent-purple) 12%, transparent)",
               color: "var(--text-secondary)",
-              ringColor: "color-mix(in srgb, var(--accent-purple) 20%, transparent)",
-            }}
+              "--tw-ring-color": "color-mix(in srgb, var(--accent-purple) 20%, transparent)",
+            } as React.CSSProperties}
           >
             {stats.completed}/{stats.total} days
           </span>

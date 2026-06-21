@@ -33,8 +33,8 @@ export default function HomePage() {
               style={{
                 background: "color-mix(in srgb, var(--accent-yellow) 15%, transparent)",
                 color: "var(--text-secondary)",
-                ringColor: "color-mix(in srgb, var(--accent-yellow) 25%, transparent)",
-              }}
+                "--tw-ring-color": "color-mix(in srgb, var(--accent-yellow) 25%, transparent)",
+              } as React.CSSProperties}
             >
               <Zap className="h-3 w-3" style={{ color: "var(--accent-yellow)" }} />
               iqilo
