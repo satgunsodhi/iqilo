@@ -1,7 +1,11 @@
 import { competitiveProgrammingRoadmap } from "@/data/courses/competitive-programming-roadmap";
+import { advancedBridgeRoadmap } from "@/data/courses/advanced-bridge-roadmap";
 import type { Course } from "./types";
 
-const courses: Course[] = [competitiveProgrammingRoadmap];
+const courses: Course[] = [
+  competitiveProgrammingRoadmap,
+  advancedBridgeRoadmap,
+];
 
 export function listCourses(): Course[] {
   return courses;
