@@ -2,30 +2,32 @@
 
 /* ─── Design Tokens ──────────────────────────────────────────────────── */
 :root {
-  /* Core palette – warm cream light mode */
-  --bg-base:        #f5f0e8;
+  /* Core palette – sophisticated light mode */
+  --bg-base:        #f8f7f4;
   --bg-surface:     #ffffff;
-  --bg-raised:      #fdf9f2;
-  --bg-sunken:      #ede8de;
-  --bg-overlay:     rgba(245, 240, 232, 0.92);
+  --bg-raised:      #f3f2ef;
+  --bg-sunken:      #e8e6e1;
+  --bg-overlay:     rgba(248, 247, 244, 0.92);
 
-  --border-subtle:  #e2d9c8;
-  --border-default: #cfc4ae;
-  --border-strong:  #a89880;
+  --border-subtle:  #d1d0cd;
+  --border-default: #b5b4b0;
+  --border-strong:  #999895;
 
-  --text-primary:   #1a1410;
-  --text-secondary: #4a3f35;
-  --text-muted:     #6b5d51;
-  --text-faint:     #8c7b6c;
+  --text-primary:   #1a1a1a;
+  --text-secondary: #3d3d3d;
+  --text-muted:     #6b6b6b;
+  --text-faint:     #9a9a9a;
 
-  /* Accent colors */
-  --accent-yellow:  #f5c842;
+  /* Accent colors – refined palette */
+  --accent-yellow:  #d4a017;
   --accent-purple:  #7c3aed;
   --accent-green:   #16a34a;
   --accent-red:     #dc2626;
   --accent-blue:    #2563eb;
   --accent-orange:  #ea580c;
   --accent-teal:    #0d9488;
+  --accent-pink:    #db2777;
+  --accent-indigo:  #4f46e5;
 
   /* Semantic */
   --background: var(--bg-base);
@@ -50,29 +52,31 @@
 }
 
 :root.dark {
-  --bg-base:        #0d1117;
-  --bg-surface:     #161b22;
-  --bg-raised:      #1c2130;
-  --bg-sunken:      #0a0e14;
-  --bg-overlay:     rgba(13, 17, 23, 0.92);
+  --bg-base:        #0a0a0a;
+  --bg-surface:     #141414;
+  --bg-raised:      #1e1e1e;
+  --bg-sunken:      #0f0f0f;
+  --bg-overlay:     rgba(10, 10, 10, 0.92);
 
-  --border-subtle:  #21262d;
-  --border-default: #30363d;
-  --border-strong:  #4a5568;
+  --border-subtle:  #2a2a2a;
+  --border-default: #3a3a3a;
+  --border-strong:  #4a4a4a;
 
-  --text-primary:   #e6edf3;
-  --text-secondary: #b1bac4;
-  --text-muted:     #8b949e;
-  --text-faint:     #6e7681;
+  --text-primary:   #f0f0f0;
+  --text-secondary: #c8c8c8;
+  --text-muted:     #989898;
+  --text-faint:     #686868;
 
   /* Accent colors – slightly lighter for dark bg */
-  --accent-yellow:  #f5c842;
+  --accent-yellow:  #fbbf24;
   --accent-purple:  #a78bfa;
   --accent-green:   #4ade80;
   --accent-red:     #f87171;
   --accent-blue:    #60a5fa;
   --accent-orange:  #fb923c;
   --accent-teal:    #2dd4bf;
+  --accent-pink:    #f472b6;
+  --accent-indigo:  #818cf8;
 
   --background: var(--bg-base);
   --foreground: var(--text-primary);
@@ -206,4 +210,342 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* ─── Component Classes ───────────────────────────────────────────────── */
+.card {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-hover {
+  transition: all var(--transition-default);
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.glass-card {
+  background: var(--bg-overlay);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+}
+
+.button-primary {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+  color: white;
+  border-radius: var(--radius-lg);
+  padding: 0.875rem 1.5rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-default);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.button-primary:hover {
+  opacity: 0.9;
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-1px);
+}
+
+.button-primary:active {
+  transform: scale(0.98);
+}
+
+.button-secondary {
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 0.625rem 1.125rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  transition: all var(--transition-default);
+}
+
+.button-secondary:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-faint {
+  color: var(--text-faint);
+}
+
+.bg-surface {
+  background: var(--bg-surface);
+}
+
+.bg-raised {
+  background: var(--bg-raised);
+}
+
+.bg-sunken {
+  background: var(--bg-sunken);
+}
+
+.border-subtle {
+  border-color: var(--border-subtle);
+}
+
+.border-default {
+  border-color: var(--border-default);
+}
+
+.rounded-xl {
+  border-radius: var(--radius-xl);
+}
+
+.rounded-2xl {
+  border-radius: var(--radius-xl);
+}
+
+/* ─── Certificate Card ───────────────────────────────────────────────── */
+.certificate-card {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent-yellow) 8%, var(--bg-surface)), var(--bg-surface));
+  border: 1px solid var(--border-subtle);
+}
+
+.icon-container {
+  background: color-mix(in srgb, var(--accent-yellow) 20%, transparent);
+}
+
+.award-icon {
+  color: var(--accent-yellow);
+}
+
+.title {
+  color: var(--text-primary);
+}
+
+.description {
+  color: var(--text-muted);
+}
+
+.progress-container {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-raised);
+}
+
+.progress-label {
+  color: var(--text-faint);
+}
+
+.progress-value {
+  color: var(--text-primary);
+}
+
+.progress-unit {
+  color: var(--text-muted);
+}
+
+.view-achievements-btn {
+  background: var(--accent-yellow);
+  color: var(--text-primary);
+}
+
+/* ─── Learning Velocity Graph ───────────────────────────────────────── */
+.velocity-title {
+  color: var(--text-primary);
+}
+
+.velocity-subtitle {
+  color: var(--text-muted);
+}
+
+.velocity-bar-today {
+  background: linear-gradient(180deg, var(--accent-purple), var(--accent-blue));
+}
+
+.velocity-bar-default {
+  background: color-mix(in srgb, var(--accent-purple) 30%, transparent);
+  min-height: 4px;
+}
+
+.velocity-label-today {
+  color: var(--accent-purple);
+}
+
+.velocity-label-default {
+  color: var(--text-faint);
+}
+
+.velocity-stat {
+  color: var(--text-muted);
+}
+
+.velocity-stat-value {
+  color: var(--text-primary);
+}
+
+/* ─── Recommended Quests ───────────────────────────────────────────── */
+.quests-title {
+  color: var(--text-primary);
+}
+
+.quests-link {
+  color: var(--accent-purple);
+}
+
+.quest-card {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.quest-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.quest-image {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+}
+
+.quest-badge {
+  background: color-mix(in srgb, var(--accent-purple) 12%, transparent);
+  color: var(--accent-purple);
+}
+
+.quest-title {
+  color: var(--text-primary);
+}
+
+.quest-description {
+  color: var(--text-muted);
+}
+
+.quest-meta {
+  color: var(--text-faint);
+}
+
+.quest-progress-label {
+  color: var(--text-muted);
+}
+
+.quest-progress-value {
+  color: var(--accent-purple);
+}
+
+.quest-progress-bg {
+  background: var(--bg-sunken);
+}
+
+.quest-progress-bar {
+  background: linear-gradient(90deg, var(--accent-purple), var(--accent-blue));
+}
+
+/* ─── Help Section ─────────────────────────────────────────────────── */
+.help-card {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.help-icon-container {
+  background: color-mix(in srgb, var(--accent-blue) 12%, transparent);
+}
+
+.help-icon {
+  color: var(--accent-blue);
+}
+
+.help-title {
+  color: var(--text-primary);
+}
+
+.help-description {
+  color: var(--text-muted);
+}
+
+.help-button {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-raised);
+  color: var(--text-secondary);
+}
+
+.help-button-icon-purple {
+  color: var(--accent-purple);
+}
+
+.help-button-icon-green {
+  color: var(--accent-green);
+}
+
+/* ─── Homepage Hero Sections ─────────────────────────────────────────── */
+.hero-section {
+  border-color: var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.hero-gradient {
+  background: color-mix(in srgb, var(--accent-purple) 10%, transparent);
+}
+
+.hero-badge {
+  background: color-mix(in srgb, var(--accent-purple) 15%, transparent);
+  color: var(--accent-purple);
+}
+
+.hero-title {
+  color: var(--text-primary);
+}
+
+.hero-subtitle {
+  color: var(--text-muted);
+}
+
+.hero-button {
+  background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+}
+
+.hero-section-start {
+  border-color: var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.hero-gradient-start {
+  background: color-mix(in srgb, var(--accent-green) 10%, transparent);
+}
+
+.hero-badge-start {
+  background: color-mix(in srgb, var(--accent-green) 15%, transparent);
+  color: var(--accent-green);
+}
+
+.hero-button-start {
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-teal));
+}
+
+.velocity-card {
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+/* ─── Courses Page ─────────────────────────────────────────────────── */
+.courses-title {
+  color: var(--text-primary);
+}
+
+.courses-subtitle {
+  color: var(--text-muted);
 }
