@@ -1,9 +1,10 @@
 import type { Course, CourseProgress, ProgressStore } from "./types";
+import { recordActivity, removeActivity } from "./activity";
 
 export const STORAGE_KEY = "dsa-learner-progress";
 
 export function createEmptyProgress(): CourseProgress {
-  return { completedDays: [], lastVisitedDay: 1 };
+  return { completedDays: [], lastVisitedDay: 1, completedResources: [] };
 }
 
 export function loadProgress(): ProgressStore {
@@ -40,14 +41,21 @@ export function isDayComplete(
 export function toggleDay(
   store: ProgressStore,
   courseId: string,
-  dayNumber: number
+  dayNumber: number,
+  forceState?: boolean
 ): ProgressStore {
   const current = getCourseProgress(store, courseId);
   const completed = new Set(current.completedDays);
-  if (completed.has(dayNumber)) {
-    completed.delete(dayNumber);
-  } else {
-    completed.add(dayNumber);
+  if (forceState === true || (!forceState && !completed.has(dayNumber))) {
+    if (!completed.has(dayNumber)) {
+      completed.add(dayNumber);
+      recordActivity();
+    }
+  } else if (forceState === false || (!forceState && completed.has(dayNumber))) {
+    if (completed.has(dayNumber)) {
+      completed.delete(dayNumber);
+      removeActivity();
+    }
   }
   return {
     ...store,
@@ -56,6 +64,51 @@ export function toggleDay(
       completedDays: Array.from(completed).sort((a, b) => a - b),
       lastVisitedDay: dayNumber,
     },
+  };
+}
+
+export function isResourceComplete(
+  store: ProgressStore,
+  courseId: string,
+  resourceId: string
+): boolean {
+  return getCourseProgress(store, courseId).completedResources?.includes(resourceId) ?? false;
+}
+
+export function toggleResource(
+  store: ProgressStore,
+  courseId: string,
+  resourceId: string
+): ProgressStore {
+  const current = getCourseProgress(store, courseId);
+  const resources = new Set(current.completedResources || []);
+  if (resources.has(resourceId)) {
+    resources.delete(resourceId);
+  } else {
+    resources.add(resourceId);
+  }
+  return {
+    ...store,
+    [courseId]: { ...current, completedResources: Array.from(resources) },
+  };
+}
+
+export function setResourceComplete(
+  store: ProgressStore,
+  courseId: string,
+  resourceId: string,
+  complete: boolean
+): ProgressStore {
+  const current = getCourseProgress(store, courseId);
+  const resources = new Set(current.completedResources || []);
+  if (complete) {
+    resources.add(resourceId);
+  } else {
+    resources.delete(resourceId);
+  }
+  return {
+    ...store,
+    [courseId]: { ...current, completedResources: Array.from(resources) },
   };
 }
 

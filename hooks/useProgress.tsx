@@ -10,23 +10,30 @@ import {
 } from "react";
 import type { Course, ProgressStore } from "@/lib/types";
 import {
+  createEmptyProgress,
   exportProgressJson,
   getCompletionStats,
   getCourseProgress,
   getNextIncompleteDay,
   getWeekProgress,
   isDayComplete,
+  isResourceComplete,
   loadProgress,
   saveProgress,
   setLastVisitedDay,
   toggleDay as toggleDayInStore,
+  toggleResource as toggleResourceInStore,
+  setResourceComplete as setResourceCompleteInStore,
 } from "@/lib/progress";
 
 type ProgressContextValue = {
   hydrated: boolean;
   store: ProgressStore;
   isDayComplete: (courseId: string, dayNumber: number) => boolean;
-  toggleDay: (courseId: string, dayNumber: number) => void;
+  toggleDay: (courseId: string, dayNumber: number, forceState?: boolean) => void;
+  isResourceComplete: (courseId: string, resourceId: string) => boolean;
+  toggleResource: (courseId: string, resourceId: string) => void;
+  setResourceComplete: (courseId: string, resourceId: string, complete: boolean) => void;
   visitDay: (courseId: string, dayNumber: number) => void;
   getCourseStats: (course: Course) => {
     completed: number;
@@ -84,8 +91,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     getFalse
   );
 
-  const toggleDay = useCallback((courseId: string, dayNumber: number) => {
-    commitStore(toggleDayInStore(getClientSnapshot(), courseId, dayNumber));
+  const toggleDay = useCallback((courseId: string, dayNumber: number, forceState?: boolean) => {
+    commitStore(toggleDayInStore(getClientSnapshot(), courseId, dayNumber, forceState));
   }, []);
 
   const visitDay = useCallback((courseId: string, dayNumber: number) => {
@@ -99,6 +106,14 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       isDayComplete: (courseId, dayNumber) =>
         isDayComplete(store, courseId, dayNumber),
       toggleDay,
+      isResourceComplete: (courseId, resourceId) =>
+        isResourceComplete(store, courseId, resourceId),
+      toggleResource: (courseId, resourceId) => {
+        commitStore(toggleResourceInStore(getClientSnapshot(), courseId, resourceId));
+      },
+      setResourceComplete: (courseId, resourceId, complete) => {
+        commitStore(setResourceCompleteInStore(getClientSnapshot(), courseId, resourceId, complete));
+      },
       visitDay,
       getCourseStats: (course) => getCompletionStats(store, course),
       getWeekStats: (courseId, dayNumbers) =>

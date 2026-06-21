@@ -1,9 +1,13 @@
-export type Platform = "leetcode" | "cses" | "other";
+export type Platform = "leetcode" | "cses" | "other" | (string & {});
+
+export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
 
 export type Resource = {
   label: string;
   url: string;
   embed?: "youtube";
+  /** If true, this resource will attempt to open in the embedded panel */
+  embeddable?: boolean;
 };
 
 export type PracticeProblem = {
@@ -28,6 +32,7 @@ export type Day = {
   pitfall?: string;
   tasks?: string[];
   protocol?: DailyProtocol;
+  estimatedMinutes?: number;
 };
 
 export type Week = {
@@ -42,11 +47,58 @@ export type Course = {
   description: string;
   totalDays: number;
   weeks: Week[];
+  /** New platform-level metadata */
+  difficulty?: Difficulty;
+  tags?: string[];
+  estimatedHours?: number;
+  category?: string;
+  /** Short tagline shown on course cards */
+  tagline?: string;
 };
 
 export type CourseProgress = {
   completedDays: number[];
   lastVisitedDay: number;
+  completedResources?: string[];
 };
 
 export type ProgressStore = Record<string, CourseProgress>;
+
+// ── Task toggle state ──────────────────────────────────────────────────────
+/** Maps taskIndex → completed, stored per day */
+export type DayTaskState = Record<number, boolean>;
+/** courseId → dayNumber → DayTaskState */
+export type TaskStore = Record<string, Record<number, DayTaskState>>;
+
+// ── User ───────────────────────────────────────────────────────────────────
+export type User = {
+  name: string;
+  weeklyGoal: number; // days per week
+  joinedAt: string;   // ISO date string
+};
+
+// ── Activity ───────────────────────────────────────────────────────────────
+/** ISO date string (YYYY-MM-DD) → count of days completed that date */
+export type ActivityMap = Record<string, number>;
+
+export type ActivityStore = {
+  activity: ActivityMap;
+};
+
+// ── Achievements ───────────────────────────────────────────────────────────
+export type BadgeId =
+  | "first_day"
+  | "week_1"
+  | "halfway"
+  | "course_complete"
+  | "streak_3"
+  | "streak_7"
+  | "all_notes"
+  | "speed_learner";
+
+export type Badge = {
+  id: BadgeId;
+  name: string;
+  description: string;
+  icon: string;
+};

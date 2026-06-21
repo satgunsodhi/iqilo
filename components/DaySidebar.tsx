@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Check, Menu, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Menu, X } from "lucide-react";
 import { useState } from "react";
 import type { Course } from "@/lib/types";
 import { useProgress } from "@/hooks/useProgress";
@@ -74,6 +74,7 @@ function SidebarContent({ course, activeDay }: DaySidebarProps) {
 
 export function DaySidebar({ course, activeDay }: DaySidebarProps) {
   const [open, setOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <>
@@ -121,12 +122,76 @@ export function DaySidebar({ course, activeDay }: DaySidebarProps) {
       )}
 
       {/* Desktop sidebar */}
-      <aside className="hidden w-60 shrink-0 lg:block">
+      <aside
+        className={`hidden shrink-0 lg:block transition-all duration-300 ${
+          collapsed ? "w-12" : "w-64"
+        }`}
+      >
         <div
-          className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto rounded-2xl p-3 shadow-sm"
-          style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
+          className="sticky top-20 flex max-h-[calc(100vh-6rem)] flex-col overflow-hidden rounded-2xl shadow-sm transition-all duration-300"
+          style={{
+            border: collapsed ? "transparent" : "1px solid var(--border-subtle)",
+            background: collapsed ? "transparent" : "var(--bg-surface)",
+          }}
         >
-          <SidebarContent course={course} activeDay={activeDay} />
+          {collapsed ? (
+            <button
+              onClick={() => setCollapsed(false)}
+              className="flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm transition hover:opacity-80"
+              style={{
+                border: "1px solid var(--border-subtle)",
+                background: "var(--bg-surface)",
+                color: "var(--text-secondary)",
+              }}
+              title="Expand sidebar"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          ) : (
+            <>
+              <div
+                className="flex items-center justify-between border-b px-4 py-3"
+                style={{ borderColor: "var(--border-subtle)", background: "var(--bg-raised)" }}
+              >
+                <span className="text-xs font-black uppercase tracking-wider" style={{ color: "var(--text-primary)" }}>
+                  Curriculum
+                </span>
+                <button
+                  onClick={() => setCollapsed(true)}
+                  className="rounded p-1 transition hover:bg-[var(--bg-sunken)]"
+                  style={{ color: "var(--text-muted)" }}
+                  title="Collapse sidebar"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4">
+                <SidebarContent course={course} activeDay={activeDay} />
+              </div>
+              {activeDay && (
+                <div className="flex items-center justify-between border-t p-3" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-raised)" }}>
+                  {activeDay > 1 ? (
+                    <Link
+                      href={`/courses/${course.id}/day/${activeDay - 1}`}
+                      className="rounded-lg px-3 py-1.5 text-xs font-bold transition hover:opacity-80"
+                      style={{ color: "var(--text-muted)", background: "var(--bg-surface)", border: "1px solid var(--border-subtle)" }}
+                    >
+                      Prev
+                    </Link>
+                  ) : <div />}
+                  {activeDay < course.totalDays ? (
+                    <Link
+                      href={`/courses/${course.id}/day/${activeDay + 1}`}
+                      className="rounded-lg px-3 py-1.5 text-xs font-bold transition hover:opacity-80"
+                      style={{ color: "var(--text-primary)", background: "color-mix(in srgb, var(--accent-purple) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--accent-purple) 20%, transparent)" }}
+                    >
+                      Next
+                    </Link>
+                  ) : <div />}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </aside>
     </>

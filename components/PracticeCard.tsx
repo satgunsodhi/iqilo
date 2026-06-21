@@ -5,21 +5,27 @@ type PracticeCardProps = {
   problem: PracticeProblem;
 };
 
-const platformLabel: Record<PracticeProblem["platform"], string> = {
+const platformLabel = {
   leetcode: "LeetCode",
   cses: "CSES",
   other: "Practice",
-};
+} as const;
 
-const platformAccent: Record<PracticeProblem["platform"], string> = {
+type ConfiguredPlatform = keyof typeof platformLabel;
+
+const platformAccent: Record<ConfiguredPlatform, string> = {
   leetcode: "#f59e0b", // amber
   cses: "#3b82f6",    // blue
   other: "var(--text-muted)",
 };
 
 export function PracticeCard({ problem }: PracticeCardProps) {
-  const label = platformLabel[problem.platform];
-  const accent = platformAccent[problem.platform];
+  const platform = (problem.platform && Object.keys(platformLabel).includes(problem.platform))
+    ? (problem.platform as ConfiguredPlatform)
+    : "other";
+
+  const label = platformLabel[platform];
+  const accent = platformAccent[platform];
 
   return (
     <a

@@ -1,15 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { Check, ChevronLeft, ChevronRight, ListChecks, Target } from "lucide-react";
-import { useEffect } from "react";
-import type { Course, Day, Week } from "@/lib/types";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Link2,
+  Target,
+  X,
+  ExternalLink,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import type { Course, Day, Week, Resource } from "@/lib/types";
 import { CompletionToggle } from "./CompletionToggle";
+import { DayNotes } from "./DayNotes";
 import { DaySidebar } from "./DaySidebar";
 import { PitfallCallout } from "./PitfallCallout";
 import { PracticeCard } from "./PracticeCard";
 import { ResourceLink } from "./ResourceLink";
+import { TaskList } from "./TaskList";
 import { useProgress } from "@/hooks/useProgress";
+import { useToast } from "./ToastNotification";
 
 type DayContentProps = {
   course: Course;
@@ -17,66 +29,208 @@ type DayContentProps = {
   day: Day;
 };
 
+const PROTOCOL_META = [
+  { key: "synthesize", label: "Synthesize", time: "~45 min", color: "var(--accent-purple)" },
+  { key: "grind",      label: "Grind",      time: "~75 min", color: "var(--accent-red)"    },
+  { key: "bridge",     label: "Bridge",     time: "~30 min", color: "var(--accent-blue)"   },
+  { key: "template",   label: "Template",   time: "~15 min", color: "var(--accent-green)"  },
+] as const;
+
 export function DayContent({ course, week, day }: DayContentProps) {
-  const { visitDay } = useProgress();
+  const { visitDay, getCourseStats, isDayComplete, toggleDay, isResourceComplete, hydrated } = useProgress();
+  const { toast } = useToast();
+  const [tasksDone, setTasksDone] = useState(day.tasks ? day.tasks.length === 0 : true);
+  const [activeResource, setActiveResource] = useState<Resource | null>(null);
+
   const prevDay = day.dayNumber > 1 ? day.dayNumber - 1 : null;
-  const nextDay =
-    day.dayNumber < course.totalDays ? day.dayNumber + 1 : null;
+  const nextDay = day.dayNumber < course.totalDays ? day.dayNumber + 1 : null;
+  const stats = getCourseStats(course);
+  const percent = hydrated ? stats.percent : 0;
+  const complete = hydrated && isDayComplete(course.id, day.dayNumber);
 
   useEffect(() => {
     visitDay(course.id, day.dayNumber);
   }, [course.id, day.dayNumber, visitDay]);
+
+  // Auto-complete logic
+  useEffect(() => {
+    if (!hydrated || complete) return;
+
+    const resourcesDone = day.resources
+      ? day.resources.every((r) => isResourceComplete(course.id, r.url))
+      : true;
+
+    if (resourcesDone && tasksDone) {
+      toggleDay(course.id, day.dayNumber, true);
+      toast("Day completed! Great job.", "success");
+    }
+  }, [hydrated, complete, day.resources, tasksDone, isResourceComplete, course.id, day.dayNumber, toggleDay, toast]);
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast("Link copied to clipboard!", "success");
+    } catch {
+      toast("Couldn't copy — try manually.", "warning");
+    }
+  };
 
   return (
     <div className="flex gap-8">
       <DaySidebar course={course} activeDay={day.dayNumber} />
 
       <div className="min-w-0 flex-1">
-        {/* Breadcrumb */}
+        {/* ── Sticky progress bar ─────────────────────────────────── */}
+        <div
+          className="sticky top-[57px] z-20 -mx-4 mb-6 px-4 pb-2 pt-3 sm:-mx-6 sm:px-6"
+          style={{ background: "var(--bg-base)" }}
+        >
+          <div className="flex items-center justify-between text-xs font-bold mb-1.5">
+            <span style={{ color: "var(--text-muted)" }}>
+              Week {week.weekNumber} · Day {day.dayNumber} of {course.totalDays}
+            </span>
+            <span style={{ color: "var(--accent-purple)" }}>{percent}% course complete</span>
+          </div>
+          <div className="h-1 w-full overflow-hidden rounded-full" style={{ background: "var(--bg-sunken)" }}>
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{
+                width: `${percent}%`,
+                background: "linear-gradient(90deg, var(--accent-purple), var(--accent-green))",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* ── Breadcrumb ───────────────────────────────────────────── */}
         <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs font-semibold">
-          <Link
-            href="/"
-            className="transition hover:underline"
-            style={{ color: "var(--text-muted)" }}
-          >
+          <Link href="/" className="transition hover:underline" style={{ color: "var(--text-muted)" }}>
             Home
           </Link>
           <span style={{ color: "var(--text-faint)" }}>/</span>
-          <Link
-            href={`/courses/${course.id}`}
-            className="transition hover:underline"
-            style={{ color: "var(--text-muted)" }}
-          >
+          <Link href={`/courses/${course.id}`} className="transition hover:underline" style={{ color: "var(--text-muted)" }}>
             {course.title}
           </Link>
           <span style={{ color: "var(--text-faint)" }}>/</span>
-          <span style={{ color: "var(--text-secondary)" }}>Week {week.weekNumber}</span>
+          <Link href={`/courses/${course.id}#week-${week.weekNumber}`} className="transition hover:underline" style={{ color: "var(--text-secondary)" }}>
+            Week {week.weekNumber}
+          </Link>
           <span style={{ color: "var(--text-faint)" }}>/</span>
           <span style={{ color: "var(--text-primary)" }}>Day {day.dayNumber}</span>
         </nav>
 
-        {/* Day header */}
+        {activeResource ? (
+          <div className="flex flex-col rounded-2xl shadow-lg overflow-hidden animate-fade-in" style={{ height: "calc(100vh - 12rem)", border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
+            <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-raised)" }}>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setActiveResource(null)}
+                  className="rounded-lg p-1.5 transition hover:bg-[var(--bg-sunken)]"
+                  style={{ color: "var(--text-primary)" }}
+                  title="Back to Day"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+                <span className="text-sm font-bold truncate max-w-sm sm:max-w-md" style={{ color: "var(--text-primary)" }}>
+                  {activeResource.label}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href={activeResource.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition hover:opacity-80"
+                  style={{ background: "var(--bg-sunken)", color: "var(--text-primary)" }}
+                  title="Open in new tab (if embed fails)"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Open in new tab</span>
+                </a>
+                <button
+                  onClick={() => setActiveResource(null)}
+                  className="rounded-lg p-1.5 transition hover:bg-[var(--bg-sunken)]"
+                  style={{ color: "var(--text-muted)" }}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 w-full bg-[var(--bg-sunken)]">
+              {activeResource.embed === "youtube" ? (
+                <iframe
+                  src={`https://www.youtube.com/embed/${
+                    activeResource.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/)?.[1] || ""
+                  }`}
+                  title={activeResource.label}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="h-full w-full border-0"
+                />
+              ) : (
+                <iframe
+                  src={activeResource.url}
+                  title={activeResource.label}
+                  sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
+                  className="h-full w-full border-0 bg-white"
+                />
+              )}
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* ── Day header ──────────────────────────────────────────── */}
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
             <p
               className="inline-flex rounded-full px-3 py-1 text-xs font-black uppercase tracking-wide ring-1"
               style={{
-                background: "color-mix(in srgb, var(--accent-yellow) 15%, transparent)",
-                color: "var(--text-secondary)",
+                background: complete
+                  ? "color-mix(in srgb, var(--accent-green) 12%, transparent)"
+                  : "color-mix(in srgb, var(--accent-yellow) 15%, transparent)",
+                color: complete ? "var(--accent-green)" : "var(--text-secondary)",
               }}
             >
-              Week {week.weekNumber} · Day {day.dayNumber}
+              {complete ? "✓ Completed" : `Week ${week.weekNumber} · Day ${day.dayNumber}`}
             </p>
             <h1 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl" style={{ color: "var(--text-primary)" }}>
               {day.title}
             </h1>
+            {day.estimatedMinutes && (
+              <span className="mt-2 inline-flex items-center gap-1 text-xs font-semibold" style={{ color: "var(--text-faint)" }}>
+                <Clock className="h-3 w-3" />
+                ~{day.estimatedMinutes} min estimated
+              </span>
+            )}
           </div>
-          <CompletionToggle courseId={course.id} dayNumber={day.dayNumber} />
+          <div className="flex items-center gap-2">
+            {/* Share button */}
+            <button
+              type="button"
+              onClick={handleShare}
+              className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold transition hover:opacity-80 active:scale-95"
+              style={{
+                border: "1px solid var(--border-default)",
+                background: "var(--bg-surface)",
+                color: "var(--text-muted)",
+              }}
+            >
+              <Link2 className="h-4 w-4" />
+              Share
+            </button>
+            <CompletionToggle courseId={course.id} dayNumber={day.dayNumber} />
+          </div>
         </div>
 
-        {/* Objective */}
-        <section className="mb-6 overflow-hidden rounded-2xl shadow-sm" style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
-          <div className="flex items-center gap-2 border-b px-5 py-3 text-sm font-black" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-raised)", color: "var(--text-primary)" }}>
+        {/* ── Objective ───────────────────────────────────────────── */}
+        <section
+          className="mb-6 overflow-hidden rounded-2xl shadow-sm"
+          style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
+        >
+          <div
+            className="flex items-center gap-2 border-b px-5 py-3 text-sm font-black"
+            style={{ borderColor: "var(--border-subtle)", background: "var(--bg-raised)", color: "var(--text-primary)" }}
+          >
             <Target className="h-4 w-4" style={{ color: "var(--accent-green)" }} />
             Objective
           </div>
@@ -85,144 +239,146 @@ export function DayContent({ course, week, day }: DayContentProps) {
           </p>
         </section>
 
-        {/* Protocol */}
+        {/* ── Protocol ────────────────────────────────────────────── */}
         {day.protocol && (
           <section className="mb-6">
             <h2 className="mb-3 text-[11px] font-black uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
               Daily Execution Protocol
             </h2>
             <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                { key: "Synthesize", value: day.protocol.synthesize },
-                { key: "Grind", value: day.protocol.grind },
-                { key: "Bridge", value: day.protocol.bridge },
-                { key: "Template", value: day.protocol.template },
-              ].map((item) => (
-                <div
-                  key={item.key}
-                  className="flex gap-3 rounded-xl p-4 shadow-sm transition"
-                  style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
-                >
-                  <span
-                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md"
-                    style={{ background: "color-mix(in srgb, var(--accent-green) 12%, transparent)", color: "var(--accent-green)" }}
+              {PROTOCOL_META.map((meta) => {
+                const value = day.protocol![meta.key];
+                return (
+                  <div
+                    key={meta.key}
+                    className="flex gap-3 rounded-xl p-4 shadow-sm transition"
+                    style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
                   >
-                    <Check className="h-3 w-3" strokeWidth={3} />
-                  </span>
-                  <div>
-                    <p className="mb-1 text-xs font-black" style={{ color: "var(--accent-purple)" }}>
-                      {item.key}
-                    </p>
-                    <p className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
-                      {item.value}
-                    </p>
+                    <span
+                      className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md"
+                      style={{
+                        background: `color-mix(in srgb, ${meta.color} 12%, transparent)`,
+                        color: meta.color,
+                      }}
+                    >
+                      <Check className="h-3 w-3" strokeWidth={3} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="mb-1 flex items-center justify-between gap-2">
+                        <p className="text-xs font-black" style={{ color: meta.color }}>
+                          {meta.label}
+                        </p>
+                        <span
+                          className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+                          style={{
+                            background: `color-mix(in srgb, ${meta.color} 8%, transparent)`,
+                            color: "var(--text-faint)",
+                          }}
+                        >
+                          <Clock className="h-2.5 w-2.5" />
+                          {meta.time}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                        {value}
+                      </p>
+                    </div>
                   </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+
+            {/* ── Resources ───────────────────────────────────────────── */}
+            {day.resources && day.resources.length > 0 && (
+              <section className="mb-6">
+                <h2 className="mb-3 text-[11px] font-black uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
+                  Resources
+                </h2>
+                <div className="space-y-3">
+                  {day.resources.map((resource) => (
+                    <ResourceLink
+                      key={resource.url}
+                      courseId={course.id}
+                      resource={resource}
+                      onSelect={() => setActiveResource(resource)}
+                    />
+                  ))}
                 </div>
-              ))}
+              </section>
+            )}
+
+            {/* ── Practice ────────────────────────────────────────────── */}
+            {day.practice && day.practice.length > 0 && (
+              <section className="mb-6">
+                <h2 className="mb-3 text-[11px] font-black uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
+                  Practice
+                </h2>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {day.practice.map((problem) => (
+                    <PracticeCard key={problem.url} problem={problem} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* ── Tasks (individually toggleable) ─────────────────────── */}
+            {day.tasks && day.tasks.length > 0 && (
+              <TaskList courseId={course.id} dayNumber={day.dayNumber} tasks={day.tasks} onCompleteChange={setTasksDone} />
+            )}
+
+            {/* ── Pitfall ─────────────────────────────────────────────── */}
+            {day.pitfall && (
+              <section className="mb-6">
+                <PitfallCallout text={day.pitfall} />
+              </section>
+            )}
+
+            {/* ── Notes ───────────────────────────────────────────────── */}
+            <DayNotes courseId={course.id} dayNumber={day.dayNumber} />
+
+            {/* ── Bottom toggle ───────────────────────────────────────── */}
+            <div className="mb-8">
+              <CompletionToggle courseId={course.id} dayNumber={day.dayNumber} />
             </div>
-          </section>
-        )}
 
-        {/* Resources */}
-        {day.resources && day.resources.length > 0 && (
-          <section className="mb-6">
-            <h2 className="mb-3 text-[11px] font-black uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
-              Resources
-            </h2>
-            <div className="space-y-3">
-              {day.resources.map((resource) => (
-                <ResourceLink key={resource.url} resource={resource} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Practice */}
-        {day.practice && day.practice.length > 0 && (
-          <section className="mb-6">
-            <h2 className="mb-3 text-[11px] font-black uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
-              Practice
-            </h2>
-            <div className="grid gap-3 sm:grid-cols-2">
-              {day.practice.map((problem) => (
-                <PracticeCard key={problem.url} problem={problem} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Pitfall */}
-        {day.pitfall && (
-          <section className="mb-6">
-            <PitfallCallout text={day.pitfall} />
-          </section>
-        )}
-
-        {/* Tasks */}
-        {day.tasks && day.tasks.length > 0 && (
-          <section className="mb-6">
-            <h2 className="mb-3 flex items-center gap-2 text-[11px] font-black uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
-              <ListChecks className="h-3.5 w-3.5" />
-              Tasks
-            </h2>
-            <ul className="space-y-2">
-              {day.tasks.map((task) => (
-                <li
-                  key={task}
-                  className="flex items-start gap-3 rounded-xl px-4 py-3 text-sm font-medium shadow-sm"
-                  style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)", color: "var(--text-secondary)" }}
+            {/* ── Day navigation ──────────────────────────────────────── */}
+            <div className="flex items-center justify-between border-t pt-6" style={{ borderColor: "var(--border-subtle)" }}>
+              {prevDay ? (
+                <Link
+                  href={`/courses/${course.id}/day/${prevDay}`}
+                  className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-bold transition hover:opacity-80"
+                  style={{ color: "var(--text-muted)", background: "var(--bg-raised)" }}
                 >
-                  <span
-                    className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md"
-                    style={{ background: "var(--bg-sunken)", color: "var(--accent-green)" }}
-                  >
-                    <Check className="h-3 w-3" strokeWidth={3} />
-                  </span>
-                  {task}
-                </li>
-              ))}
-            </ul>
-          </section>
+                  <ChevronLeft className="h-4 w-4" />
+                  Day {prevDay}
+                </Link>
+              ) : (
+                <span />
+              )}
+              {nextDay ? (
+                <Link
+                  href={`/courses/${course.id}/day/${nextDay}`}
+                  className="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-black text-white shadow-sm transition hover:opacity-90 hover:shadow-md active:scale-95"
+                  style={{ background: "linear-gradient(135deg, var(--accent-purple), var(--accent-blue))" }}
+                >
+                  Day {nextDay}
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              ) : (
+                <Link
+                  href={`/courses/${course.id}`}
+                  className="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-black text-white shadow-sm transition hover:opacity-90 hover:shadow-md active:scale-95"
+                  style={{ background: "linear-gradient(135deg, var(--accent-purple), var(--accent-blue))" }}
+                >
+                  Back to course
+                </Link>
+              )}
+            </div>
+          </>
         )}
-
-        {/* Bottom toggle */}
-        <div className="mb-8">
-          <CompletionToggle courseId={course.id} dayNumber={day.dayNumber} />
-        </div>
-
-        {/* Day navigation */}
-        <div className="flex items-center justify-between border-t pt-6" style={{ borderColor: "var(--border-subtle)" }}>
-          {prevDay ? (
-            <Link
-              href={`/courses/${course.id}/day/${prevDay}`}
-              className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-bold transition hover:opacity-80"
-              style={{ color: "var(--text-muted)", background: "var(--bg-raised)" }}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Day {prevDay}
-            </Link>
-          ) : (
-            <span />
-          )}
-          {nextDay ? (
-            <Link
-              href={`/courses/${course.id}/day/${nextDay}`}
-              className="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-black text-white shadow-sm transition hover:opacity-90 hover:shadow-md active:scale-95"
-              style={{ background: "linear-gradient(135deg, var(--accent-purple), var(--accent-blue))" }}
-            >
-              Day {nextDay}
-              <ChevronRight className="h-4 w-4" />
-            </Link>
-          ) : (
-            <Link
-              href={`/courses/${course.id}`}
-              className="inline-flex items-center gap-1 rounded-lg px-4 py-2 text-sm font-black text-white shadow-sm transition hover:opacity-90 hover:shadow-md active:scale-95"
-              style={{ background: "linear-gradient(135deg, var(--accent-purple), var(--accent-blue))" }}
-            >
-              Back to course
-            </Link>
-          )}
-        </div>
       </div>
     </div>
   );
