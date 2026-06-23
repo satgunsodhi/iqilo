@@ -100,50 +100,56 @@ export function DayContent({ course, week, day }: DayContentProps) {
 
   return (
     <div className="flex gap-8">
-      <DaySidebar courseId={course.id} day={day} activeItemId={activeItemId} onSelectItem={handleSelectItem} />
+      {!activeItemType && (
+        <DaySidebar courseId={course.id} day={day} activeItemId={activeItemId} onSelectItem={handleSelectItem} />
+      )}
 
       <div className="min-w-0 flex-1">
         {/* ── Sticky progress bar ─────────────────────────────────── */}
-        <div
-          className="sticky top-[57px] z-20 -mx-4 mb-6 px-4 pb-2 pt-3 sm:-mx-6 sm:px-6"
-          style={{ background: "var(--bg-base)" }}
-        >
-          <div className="flex items-center justify-between text-xs font-bold mb-1.5">
-            <span style={{ color: "var(--text-muted)" }}>
-              Week {week.weekNumber} · Day {day.dayNumber} of {course.totalDays}
-            </span>
-            <span style={{ color: "var(--accent-purple)" }}>{percent}% course complete</span>
-          </div>
-          <div className="h-1 w-full overflow-hidden rounded-full" style={{ background: "var(--bg-sunken)" }}>
+        {!activeItemType && (
+          <>
             <div
-              className="h-full rounded-full transition-all duration-700 ease-out"
-              style={{
-                width: `${percent}%`,
-                background: "linear-gradient(90deg, var(--accent-purple), var(--accent-green))",
-              }}
-            />
-          </div>
-        </div>
+              className="sticky top-[57px] z-20 -mx-4 mb-6 px-4 pb-2 pt-3 sm:-mx-6 sm:px-6"
+              style={{ background: "var(--bg-base)" }}
+            >
+              <div className="flex items-center justify-between text-xs font-bold mb-1.5">
+                <span style={{ color: "var(--text-muted)" }}>
+                  Week {week.weekNumber} · Day {day.dayNumber} of {course.totalDays}
+                </span>
+                <span style={{ color: "var(--accent-purple)" }}>{percent}% course complete</span>
+              </div>
+              <div className="h-1 w-full overflow-hidden rounded-full" style={{ background: "var(--bg-sunken)" }}>
+                <div
+                  className="h-full rounded-full transition-all duration-700 ease-out"
+                  style={{
+                    width: `${percent}%`,
+                    background: "linear-gradient(90deg, var(--accent-purple), var(--accent-green))",
+                  }}
+                />
+              </div>
+            </div>
 
-        {/* ── Breadcrumb ───────────────────────────────────────────── */}
-        <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs font-semibold">
-          <Link href="/" className="transition hover:underline" style={{ color: "var(--text-muted)" }}>
-            Home
-          </Link>
-          <span style={{ color: "var(--text-faint)" }}>/</span>
-          <Link href={`/courses/${course.id}`} className="transition hover:underline" style={{ color: "var(--text-muted)" }}>
-            {course.title}
-          </Link>
-          <span style={{ color: "var(--text-faint)" }}>/</span>
-          <Link href={`/courses/${course.id}#week-${week.weekNumber}`} className="transition hover:underline" style={{ color: "var(--text-secondary)" }}>
-            Week {week.weekNumber}
-          </Link>
-          <span style={{ color: "var(--text-faint)" }}>/</span>
-          <span style={{ color: "var(--text-primary)" }}>Day {day.dayNumber}</span>
-        </nav>
+            {/* ── Breadcrumb ───────────────────────────────────────────── */}
+            <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+              <Link href="/" className="transition hover:underline" style={{ color: "var(--text-muted)" }}>
+                Home
+              </Link>
+              <span style={{ color: "var(--text-faint)" }}>/</span>
+              <Link href={`/courses/${course.id}`} className="transition hover:underline" style={{ color: "var(--text-muted)" }}>
+                {course.title}
+              </Link>
+              <span style={{ color: "var(--text-faint)" }}>/</span>
+              <Link href={`/courses/${course.id}#week-${week.weekNumber}`} className="transition hover:underline" style={{ color: "var(--text-secondary)" }}>
+                Week {week.weekNumber}
+              </Link>
+              <span style={{ color: "var(--text-faint)" }}>/</span>
+              <span style={{ color: "var(--text-primary)" }}>Day {day.dayNumber}</span>
+            </nav>
+          </>
+        )}
 
         {activeItemType ? (
-          <div className="flex flex-col rounded-2xl shadow-lg overflow-hidden animate-fade-in" style={{ height: "calc(100vh - 12rem)", border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
+          <div className="flex flex-col rounded-2xl shadow-lg overflow-hidden animate-fade-in" style={{ height: "calc(100vh - 6rem)", border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}>
             <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-raised)" }}>
               <div className="flex items-center gap-3">
                 <button
