@@ -8,18 +8,15 @@ type ActivityCalendarProps = {
   weeks?: number;
 };
 
-function getColorForCount(count: number, isDark: boolean): string {
-  if (count === 0) return isDark ? "#1c2130" : "#ede8de";
-  if (count === 1) return isDark ? "#3d2b8a" : "#c4b5fd";
-  if (count === 2) return isDark ? "#6d35d3" : "#8b5cf6";
-  if (count === 3) return isDark ? "#a78bfa" : "#7c3aed";
-  return isDark ? "#c4b5fd" : "#5b21b6";
+function getColorForCount(count: number): string {
+  if (count === 0) return "var(--bg-sunken)";
+  if (count === 1) return "color-mix(in srgb, var(--accent-purple) 30%, var(--bg-sunken))";
+  if (count === 2) return "color-mix(in srgb, var(--accent-purple) 60%, var(--bg-sunken))";
+  if (count === 3) return "color-mix(in srgb, var(--accent-purple) 85%, transparent)";
+  return "var(--accent-purple)";
 }
 
 export function ActivityCalendar({ activity, weeks = 16 }: ActivityCalendarProps) {
-  const isDark = typeof document !== "undefined"
-    ? document.documentElement.classList.contains("dark")
-    : false;
 
   const cells = useMemo(() => {
     const today = new Date();
@@ -91,18 +88,18 @@ export function ActivityCalendar({ activity, weeks = 16 }: ActivityCalendarProps
 
         {/* Grid */}
         {columns.map((col, ci) => (
-          <div key={ci} className="flex flex-col gap-[3px]">
+          <div key={ci} className="flex flex-col gap-1">
             {Array.from({ length: 7 }, (_, ri) => {
               const cell = col[ri];
               if (!cell) {
-                return <div key={ri} className="h-[10px] w-[10px] rounded-sm" style={{ background: "transparent" }} />;
+                return <div key={ri} className="h-3 w-3 rounded-none" style={{ background: "transparent" }} />;
               }
               return (
                 <div
                   key={ri}
-                  title={`${cell.iso}: ${cell.count} completion${cell.count !== 1 ? "s" : ""}`}
-                  className="h-[10px] w-[10px] rounded-sm transition-opacity hover:opacity-80"
-                  style={{ background: getColorForCount(cell.count, isDark) }}
+                  title={`${cell.date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}: ${cell.count} completion${cell.count !== 1 ? "s" : ""}`}
+                  className="h-3 w-3 rounded-none transition-all duration-300 hover:scale-[1.3] hover:z-10 shadow-none border border-[var(--border-subtle)]"
+                  style={{ background: getColorForCount(cell.count) }}
                 />
               );
             })}
@@ -112,15 +109,15 @@ export function ActivityCalendar({ activity, weeks = 16 }: ActivityCalendarProps
 
       {/* Legend */}
       <div className="mt-2 flex items-center gap-2 justify-end">
-        <span className="text-[10px] font-medium" style={{ color: "var(--text-faint)" }}>Less</span>
+        <span className="text-[10px] font-medium uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>Less</span>
         {[0, 1, 2, 3, 4].map((n) => (
           <div
             key={n}
-            className="h-[10px] w-[10px] rounded-sm"
-            style={{ background: getColorForCount(n, isDark) }}
+            className="h-3 w-3 rounded-none border border-[var(--border-subtle)]"
+            style={{ background: getColorForCount(n) }}
           />
         ))}
-        <span className="text-[10px] font-medium" style={{ color: "var(--text-faint)" }}>More</span>
+        <span className="text-[10px] font-medium uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>More</span>
       </div>
     </div>
   );

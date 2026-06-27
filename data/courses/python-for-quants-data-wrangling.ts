@@ -13,7 +13,7 @@ export const QUANT_PROTOCOL: DailyProtocol = {
 
 export const quantFoundationRoadmap: Course = {
     id: "python-for-quants-data-wrangling",
-    title: "Python for Quants: Data Wrangling & Scientific Computing",
+    title: "Python for Quants I: Data Wrangling & SciPy",
     description:
         "A rigorous, hands-on foundation in Python's scientific computing stack, explicitly designed for quantitative trading. Covers NumPy's vectorized array operations, Pandas' time-series and panel data manipulation, and SciPy's optimization and statistical routines, all within the context of financial data analysis and strategy development.",
     difficulty: "Intermediate",

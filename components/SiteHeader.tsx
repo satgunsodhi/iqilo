@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BrainCircuit, Search, LayoutDashboard, User, X } from "lucide-react";
+import { BrainCircuit, Search, LayoutDashboard, User, X, Zap } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { ExportProgressButton } from "./ExportProgressButton";
+
 import { ThemeToggle } from "./ThemeToggle";
+import { StreakBadge } from "./StreakDisplay";
 import { listCourses } from "@/lib/courses";
+import { useGamification } from "@/hooks/useProgress";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -16,6 +18,7 @@ export function SiteHeader() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   const courses = listCourses();
+  const { xp, streak, xpToNextLevel } = useGamification();
 
   // Open search on Cmd+K / Ctrl+K
   useEffect(() => {
@@ -70,8 +73,8 @@ export function SiteHeader() {
   return (
     <>
       <header
-        className="sticky top-0 z-30 border-b backdrop-blur-md backdrop-saturate-150"
-        style={{ borderColor: "var(--border-subtle)", background: "var(--bg-overlay)" }}
+        className="sticky top-0 z-30 border-b glass-panel transition-all"
+        style={{ borderColor: "var(--border-subtle)" }}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           {/* Logo */}
@@ -114,6 +117,39 @@ export function SiteHeader() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2">
+            {/* XP Level indicator */}
+            <Link
+              href="/profile"
+              className="group/xp hidden items-center gap-2 rounded-lg px-2.5 py-1.5 transition-all hover:scale-105 sm:flex"
+              style={{
+                background: "color-mix(in srgb, var(--accent-purple) 8%, var(--bg-raised))",
+                border: "1px solid color-mix(in srgb, var(--accent-purple) 20%, transparent)",
+              }}
+              title={`Level ${xp.level} · ${xpToNextLevel.current}/${xpToNextLevel.needed} XP to next level`}
+            >
+              <div
+                className="flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-black"
+                style={{
+                  background: "linear-gradient(135deg, var(--accent-purple), var(--accent-indigo))",
+                  color: "white",
+                  boxShadow: "0 2px 8px color-mix(in srgb, var(--accent-purple) 30%, transparent)",
+                }}
+              >
+                {xp.level}
+              </div>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[10px] font-black leading-none" style={{ color: "var(--text-primary)" }}>
+                  Lv {xp.level}
+                </span>
+                <div className="xp-bar-track h-1 w-12">
+                  <div className="xp-bar-fill" style={{ width: `${xpToNextLevel.percent}%` }} />
+                </div>
+              </div>
+            </Link>
+
+            {/* Streak */}
+            <StreakBadge current={streak.current} />
+
             {/* Search trigger */}
             <button
               type="button"
@@ -132,7 +168,6 @@ export function SiteHeader() {
               </kbd>
             </button>
             <ThemeToggle />
-            <ExportProgressButton />
           </div>
         </div>
       </header>

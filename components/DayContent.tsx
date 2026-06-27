@@ -70,7 +70,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
 
     if (resourcesDone && tasksDone) {
       toggleDay(course.id, day.dayNumber, true);
-      toast("Day completed! Great job.", "success");
+      toast("Completed! Great job.", "success");
     }
   }, [hydrated, complete, day.resources, tasksDone, isResourceComplete, course.id, day.dayNumber, toggleDay, toast]);
 

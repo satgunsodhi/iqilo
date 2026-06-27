@@ -13,7 +13,7 @@ export const QUANT_PROTOCOL_DL: DailyProtocol = {
 
 export const deepLearningQuantRoadmap: Course = {
     id: "python-for-quants-deep-learning-portfolio",
-    title: "Python for Quants: Deep Learning & Advanced Portfolio Optimization",
+    title: "Python for Quants IV: Deep Learning & Portfolios",
     description:
         "An advanced, hands-on course that takes quantitative trading to the next level with deep learning and sophisticated portfolio management. Covers time-series deep learning (LSTMs, Transformers), reinforcement learning for trading, modern portfolio optimization (risk parity, Black-Litterman), and the integration of these techniques into production-ready quant systems.",
     difficulty: "Expert",

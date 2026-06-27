@@ -8,19 +8,11 @@ import { ActivityCalendar } from "@/components/ActivityCalendar";
 import { ProgressBar } from "@/components/ProgressBar";
 import { listCourses } from "@/lib/courses";
 import { getActivityMap, getCurrentStreak, getTotalActiveDays } from "@/lib/activity";
+import { BADGES } from "@/lib/achievements";
 import { useProgress } from "@/hooks/useProgress";
-import type { ActivityMap, Badge, BadgeId } from "@/lib/types";
+import type { ActivityMap, BadgeId } from "@/lib/types";
 
-const ALL_BADGES: Badge[] = [
-  { id: "first_day",       name: "First Step",       description: "Complete your first day",        icon: "🌱" },
-  { id: "streak_3",        name: "On a Roll",         description: "3-day streak",                   icon: "🔥" },
-  { id: "streak_7",        name: "Weekly Warrior",    description: "7-day streak",                   icon: "⚡" },
-  { id: "week_1",          name: "Week 1 Done",       description: "Complete an entire week",        icon: "🗓️" },
-  { id: "halfway",         name: "Halfway There",     description: "50% through any course",         icon: "🎯" },
-  { id: "course_complete", name: "Course Master",     description: "Finish an entire course",        icon: "🏆" },
-  { id: "all_notes",       name: "Note Taker",        description: "Write notes for 5 days",         icon: "📝" },
-  { id: "speed_learner",   name: "Speed Learner",     description: "Complete 3 days in one day",     icon: "🚀" },
-];
+
 
 export default function MyLearningPage() {
   const { store, hydrated, getCourseStats, getNextDay } = useProgress();
@@ -77,7 +69,7 @@ export default function MyLearningPage() {
     }
   }
 
-  const unlockedCount = ALL_BADGES.filter((b) => isUnlocked(b.id)).length;
+  const unlockedCount = BADGES.filter((b) => isUnlocked(b.id)).length;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -103,17 +95,20 @@ export default function MyLearningPage() {
         {[
           { icon: Zap,    label: "Days Done",   value: totalCompleted,            color: "var(--accent-purple)" },
           { icon: Flame,  label: "Day Streak",  value: `${streak}🔥`,            color: "var(--accent-red)"    },
-          { icon: Trophy, label: "Badges",      value: `${unlockedCount}/${ALL_BADGES.length}`, color: "var(--accent-yellow)" },
+          { icon: Trophy, label: "Badges",      value: `${unlockedCount}/${BADGES.length}`, color: "var(--accent-yellow)" },
           { icon: Star,   label: "Active Days", value: totalActive,               color: "var(--accent-green)"  },
         ].map(({ icon: Icon, label, value, color }) => (
           <div
             key={label}
-            className="flex flex-col items-center rounded-2xl p-5 text-center shadow-sm"
+            className="group relative flex flex-col items-center overflow-hidden rounded-2xl p-5 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
             style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
           >
-            <Icon className="h-5 w-5 mb-3" style={{ color }} />
-            <p className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>{value}</p>
-            <p className="mt-1 text-xs font-semibold" style={{ color: "var(--text-muted)" }}>{label}</p>
+            <div className="absolute top-0 left-0 right-0 h-1" style={{ background: color }} />
+            <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: `radial-gradient(circle at 50% 0%, color-mix(in srgb, ${color} 10%, transparent) 0%, transparent 70%)` }} />
+            
+            <Icon className="relative z-10 h-6 w-6 mb-3 transition-transform duration-300 group-hover:scale-110" style={{ color }} />
+            <p className="relative z-10 text-3xl font-black" style={{ color: "var(--text-primary)" }}>{value}</p>
+            <p className="relative z-10 mt-1 text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>{label}</p>
           </div>
         ))}
       </div>
@@ -134,28 +129,32 @@ export default function MyLearningPage() {
         <h2 className="text-sm font-black" style={{ color: "var(--text-primary)" }}>Course Progress</h2>
         {hydrated && startedCourses.length === 0 ? (
           <div
-            className="rounded-2xl p-8 text-center"
-            style={{ border: "1px dashed var(--border-default)", background: "var(--bg-surface)" }}
+            className="relative overflow-hidden rounded-[2rem] p-10 text-center surface-gradient"
+            style={{ border: "1px dashed var(--border-default)" }}
           >
-            <div
-              className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full"
-              style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-raised)" }}
-            >
-              <span className="text-xl">📚</span>
+            <div className="ambient-glow-purple h-40 w-40 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+            <div className="relative z-10">
+              <div
+                className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl shadow-sm"
+                style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-raised)" }}
+              >
+                <span className="text-2xl">📚</span>
+              </div>
+              <h3 className="text-xl font-black text-balance" style={{ color: "var(--text-primary)" }}>
+                Your learning journey awaits
+              </h3>
+              <p className="mt-2 text-sm font-medium" style={{ color: "var(--text-muted)" }}>
+                Pick a roadmap from the homepage to start tracking your progress.
+              </p>
+              <Link
+                href="/courses"
+                className="interactive mt-6 inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-black text-white shadow-md"
+                style={{ background: "linear-gradient(135deg, var(--accent-purple), var(--accent-blue))" }}
+              >
+                Browse Roadmaps
+                <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-            <h3 className="text-sm font-black" style={{ color: "var(--text-primary)" }}>
-              No active courses yet
-            </h3>
-            <p className="mt-1.5 text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-              Pick a roadmap from the homepage to start tracking your learning.
-            </p>
-            <Link
-              href="/"
-              className="mt-4 inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-black text-white transition hover:opacity-90 active:scale-95"
-              style={{ background: "linear-gradient(135deg, var(--accent-purple), var(--accent-blue))" }}
-            >
-              Browse Roadmaps
-            </Link>
           </div>
         ) : (
           startedCourses.map((course) => {
@@ -202,11 +201,11 @@ export default function MyLearningPage() {
             Achievements
           </h2>
           <span className="text-xs font-bold" style={{ color: "var(--text-muted)" }}>
-            {unlockedCount}/{ALL_BADGES.length} unlocked
+            {unlockedCount}/{BADGES.length} unlocked
           </span>
         </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {ALL_BADGES.map((badge) => (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5">
+          {BADGES.map((badge) => (
             <AchievementBadge key={badge.id} badge={badge} unlocked={isUnlocked(badge.id)} />
           ))}
         </div>

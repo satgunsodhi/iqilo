@@ -13,7 +13,7 @@ export const QUANT_PROTOCOL_ADV: DailyProtocol = {
 
 export const QuantMLRoadmap: Course = {
     id: "python-for-quants-predictive-modeling",
-    title: "Python for Quants: Predictive Modeling & Strategy Development",
+    title: "Python for Quants II: Predictive Modeling & ML",
     description:
         "An intensive, hands-on course that bridges the gap between foundational data science and cutting-edge quantitative trading. Covers time-series analysis with statsmodels (ARIMA, GARCH), machine learning with scikit-learn and XGBoost for signal generation, feature engineering, robust backtesting, and the critical pitfalls of financial machine learning.",
     difficulty: "Advanced",

@@ -36,32 +36,26 @@ export default function CoursePage({ params }: PageProps) {
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10">
 
       {/* ── Course hero ─────────────────────────────────────────── */}
-      <div
-        className="relative mb-6 overflow-hidden rounded-2xl p-6 shadow-sm sm:p-10"
-        style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
+      <section
+        className="relative mb-10 overflow-hidden rounded-[2rem] p-8 shadow-lg sm:p-12 glass-panel"
+        style={{ border: "1px solid var(--border-subtle)" }}
       >
-        {/* Decorative gradient */}
-        <div
-          className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full blur-3xl"
-          style={{ background: "color-mix(in srgb, var(--accent-purple) 10%, transparent)" }}
-        />
-        <div
-          className="pointer-events-none absolute -bottom-16 left-20 h-56 w-56 rounded-full blur-3xl"
-          style={{ background: "color-mix(in srgb, var(--accent-blue) 6%, transparent)" }}
-        />
+        <div className="ambient-glow-purple pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full blur-3xl opacity-60 dark:mix-blend-screen" />
+        <div className="ambient-glow-blue pointer-events-none absolute -left-24 -bottom-24 h-96 w-96 rounded-full blur-3xl opacity-40 dark:mix-blend-screen" />
+        <div className="noise-overlay"></div>
 
-        <div className="relative">
+        <div className="relative z-10">
           {/* Badges row */}
-          <div className="mb-4 flex flex-wrap items-center gap-2">
+          <div className="mb-6 flex flex-wrap items-center gap-2">
             <span
               className="inline-flex rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-widest"
-              style={{ background: "color-mix(in srgb, var(--accent-yellow) 15%, transparent)", color: "var(--text-secondary)" }}
+              style={{ background: "color-mix(in srgb, var(--accent-yellow) 15%, transparent)", color: "var(--accent-yellow)" }}
             >
               Active quest
             </span>
             {course.difficulty && (
               <span
-                className="rounded-full px-3 py-1 text-[11px] font-black uppercase"
+                className="rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-widest"
                 style={{ background: `color-mix(in srgb, ${diffColor} 12%, transparent)`, color: diffColor }}
               >
                 {course.difficulty}
@@ -70,7 +64,7 @@ export default function CoursePage({ params }: PageProps) {
             {course.tags?.slice(0, 4).map((tag) => (
               <span
                 key={tag}
-                className="rounded-full px-2.5 py-0.5 text-[10px] font-bold"
+                className="rounded-full px-3 py-1 text-[11px] font-bold"
                 style={{ background: "var(--bg-sunken)", color: "var(--text-faint)" }}
               >
                 {tag}
@@ -78,27 +72,27 @@ export default function CoursePage({ params }: PageProps) {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="max-w-2xl">
-              <h1 className="text-3xl font-black leading-tight tracking-tight sm:text-4xl" style={{ color: "var(--text-primary)" }}>
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            <div className="max-w-3xl">
+              <h1 className="text-4xl font-black leading-tight tracking-tight sm:text-5xl text-balance" style={{ color: "var(--text-primary)" }}>
                 {course.title}
               </h1>
               {course.tagline && (
-                <p className="mt-2 text-base font-semibold italic" style={{ color: "var(--text-muted)" }}>
+                <p className="mt-3 text-lg font-semibold italic" style={{ color: "var(--text-muted)" }}>
                   {course.tagline}
                 </p>
               )}
-              <p className="mt-3 max-w-2xl text-sm font-medium leading-relaxed" style={{ color: "var(--text-muted)" }}>
+              <p className="mt-4 text-base font-medium leading-relaxed max-w-2xl" style={{ color: "var(--text-secondary)" }}>
                 {course.description}
               </p>
-              <div className="mt-4 flex flex-wrap items-center gap-4 text-xs font-bold" style={{ color: "var(--text-faint)" }}>
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5" />
+              <div className="mt-6 flex flex-wrap items-center gap-5 text-sm font-bold" style={{ color: "var(--text-faint)" }}>
+                <span className="flex items-center gap-1.5">
+                  <Clock className="h-4 w-4" />
                   {course.totalDays} days
                 </span>
                 {course.estimatedHours && (
-                  <span className="flex items-center gap-1">
-                    <Flame className="h-3.5 w-3.5" />
+                  <span className="flex items-center gap-1.5">
+                    <Flame className="h-4 w-4" />
                     ~{course.estimatedHours}h total
                   </span>
                 )}
@@ -110,34 +104,33 @@ export default function CoursePage({ params }: PageProps) {
               <Link
                 href={`/courses/${course.id}/day/${nextDay}`}
                 id={`continue-day-${nextDay}`}
-                className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-black text-white shadow-md transition hover:opacity-90 hover:shadow-lg active:scale-95"
-                style={{ background: "linear-gradient(135deg, var(--accent-purple), var(--accent-blue))" }}
+                className="button-primary shrink-0 text-base py-4 px-7"
               >
                 {hasStarted ? `Continue Day ${nextDay}` : "Start Course"}
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-5 w-5" />
               </Link>
             ) : (
               <span
-                className="inline-flex items-center gap-2 rounded-xl px-5 py-3 text-sm font-black"
+                className="shrink-0 inline-flex items-center gap-2 rounded-2xl px-6 py-4 text-base font-black"
                 style={{
                   border: "1px solid color-mix(in srgb, var(--accent-green) 40%, transparent)",
                   background: "color-mix(in srgb, var(--accent-green) 10%, transparent)",
                   color: "var(--accent-green)",
                 }}
               >
-                <Trophy className="h-4 w-4" />
+                <Trophy className="h-5 w-5" />
                 Course complete!
               </span>
             )}
           </div>
         </div>
-      </div>
+      </section>
 
       {/* ── Progress summary ─────────────────────────────────────── */}
       {hasStarted && (
         <div
-          className="mb-8 rounded-2xl p-5 shadow-sm"
-          style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
+          className="mb-8 rounded-2xl p-5 shadow-sm glass-panel"
+          style={{ border: "1px solid var(--border-subtle)" }}
         >
           <div className="mb-2.5 flex items-center justify-between text-sm">
             <span className="font-black" style={{ color: "var(--text-primary)" }}>Overall progress</span>
@@ -189,29 +182,32 @@ function WeekAccordion({
 
   return (
     <section
-      className="overflow-hidden rounded-2xl shadow-sm transition hover:shadow-md"
-      style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
+      className="overflow-hidden rounded-2xl shadow-sm transition hover:shadow-md relative glass-panel"
+      style={{ border: "1px solid var(--border-subtle)" }}
     >
       {/* Week header (clickable) */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-4 border-b px-5 py-4"
-        style={{ borderColor: open ? "var(--border-subtle)" : "transparent", background: "var(--bg-raised)" }}
+        className="relative z-10 flex w-full items-center justify-between gap-4 border-b px-5 py-4 transition-colors hover:bg-[--bg-raised]"
+        style={{ borderColor: open ? "var(--border-subtle)" : "transparent", background: open ? "var(--bg-raised)" : "transparent" }}
       >
-        <div className="flex items-center gap-3">
+        {/* Progress accent line */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 transition-colors duration-500" style={{ background: weekDone ? "var(--accent-green)" : stats.percent > 0 ? "var(--accent-purple)" : "transparent" }} />
+
+        <div className="flex items-center gap-4 pl-2">
           <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-black"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-black transition-colors"
             style={
               weekDone
-                ? { background: "var(--accent-green)", color: "white" }
+                ? { background: "color-mix(in srgb, var(--accent-green) 15%, transparent)", color: "var(--accent-green)" }
                 : { background: "color-mix(in srgb, var(--accent-purple) 12%, transparent)", color: "var(--accent-purple)" }
             }
           >
-            {weekDone ? <Check className="h-4 w-4" strokeWidth={3} /> : week.weekNumber}
+            {weekDone ? <Check className="h-5 w-5" strokeWidth={3} /> : week.weekNumber}
           </span>
           <div className="text-left">
-            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--accent-purple)" }}>
+            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>
               Week {week.weekNumber}
             </p>
             <h2 className="text-base font-black tracking-tight" style={{ color: "var(--text-primary)" }}>
@@ -219,62 +215,66 @@ function WeekAccordion({
             </h2>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:block" style={{ width: "120px" }}>
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:block w-32">
             <ProgressBar percent={stats.percent} size="sm" />
           </div>
           <span className="text-sm font-bold" style={{ color: "var(--text-muted)" }}>
             {stats.completed}/{stats.total}
           </span>
-          {open ? (
-            <ChevronUp className="h-4 w-4 shrink-0" style={{ color: "var(--text-faint)" }} />
-          ) : (
-            <ChevronDown className="h-4 w-4 shrink-0" style={{ color: "var(--text-faint)" }} />
-          )}
+          <div className={`transition-transform duration-300 ${open ? "rotate-180" : ""}`}>
+            <ChevronDown className="h-5 w-5 shrink-0" style={{ color: "var(--text-faint)" }} />
+          </div>
         </div>
       </button>
 
-      {/* Days list */}
-      {open && (
-        <ul className="divide-y" style={{ borderColor: "var(--border-subtle)" }}>
-          {week.days.map((day) => {
-            const complete = hydrated && isDayComplete(courseId, day.dayNumber);
-            return (
-              <li
-                key={day.dayNumber}
-                className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-                style={{ borderColor: "var(--border-subtle)" }}
-              >
-                <Link
-                  href={`/courses/${courseId}/day/${day.dayNumber}`}
-                  className="group flex min-w-0 flex-1 items-center gap-3"
+      {/* Days list with CSS Grid transition */}
+      <div className={`grid transition-all duration-300 ease-in-out ${open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}>
+        <div className="overflow-hidden">
+          <ul className="divide-y" style={{ borderColor: "var(--border-subtle)" }}>
+            {week.days.map((day) => {
+              const complete = hydrated && isDayComplete(courseId, day.dayNumber);
+              return (
+                <li
+                  key={day.dayNumber}
+                  className="group relative flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between transition-colors hover:bg-[--bg-raised]"
+                  style={{ borderColor: "var(--border-subtle)" }}
                 >
-                  <span
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-black transition-colors"
-                    style={
-                      complete
-                        ? { background: "var(--accent-green)", color: "white" }
-                        : { background: "var(--bg-sunken)", color: "var(--text-muted)" }
-                    }
+                  {/* Subtle row hover glow */}
+                  <div className="absolute left-0 top-0 bottom-0 w-0.5 opacity-0 transition-opacity group-hover:opacity-100" style={{ background: "var(--accent-purple)" }} />
+                  
+                  <Link
+                    href={`/courses/${courseId}/day/${day.dayNumber}`}
+                    className="flex min-w-0 flex-1 items-center gap-4 pl-2"
                   >
-                    {complete ? <Check className="h-4 w-4" strokeWidth={3} /> : day.dayNumber}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-black transition group-hover:underline" style={{ color: "var(--text-primary)" }}>
-                      Day {day.dayNumber}: {day.title}
-                    </p>
-                    <p className="truncate text-xs font-medium" style={{ color: "var(--text-muted)" }}>
-                      {day.objective}
-                    </p>
+                    <span
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-black transition-colors"
+                      style={
+                        complete
+                          ? { background: "var(--accent-green)", color: "white", boxShadow: "0 2px 8px color-mix(in srgb, var(--accent-green) 30%, transparent)" }
+                          : { background: "var(--bg-sunken)", color: "var(--text-muted)" }
+                      }
+                    >
+                      {complete ? <Check className="h-4 w-4" strokeWidth={3} /> : day.dayNumber}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-black transition group-hover:text-[--accent-purple]" style={{ color: "var(--text-primary)" }}>
+                        Day {day.dayNumber}: {day.title}
+                      </p>
+                      <p className="truncate text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+                        {day.objective}
+                      </p>
+                    </div>
+                  </Link>
+                  <div className="pl-14 sm:pl-0">
+                    <CompletionToggle courseId={courseId} dayNumber={day.dayNumber} size="sm" label="Complete" />
                   </div>
-                  <ChevronRight className="ml-auto hidden h-4 w-4 shrink-0 sm:block" style={{ color: "var(--text-faint)" }} />
-                </Link>
-                <CompletionToggle courseId={courseId} dayNumber={day.dayNumber} size="sm" label="Complete" />
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 }

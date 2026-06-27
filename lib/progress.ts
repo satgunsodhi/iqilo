@@ -1,5 +1,6 @@
 import type { Course, CourseProgress, ProgressStore } from "./types";
 import { recordActivity, removeActivity } from "./activity";
+import { updateStreakOnCompletion, addXp, XP_DAILY_COMPLETION } from "./achievements";
 
 export const STORAGE_KEY = "dsa-learner-progress";
 
@@ -50,6 +51,8 @@ export function toggleDay(
     if (!completed.has(dayNumber)) {
       completed.add(dayNumber);
       recordActivity();
+      updateStreakOnCompletion();
+      addXp(XP_DAILY_COMPLETION);
     }
   } else if (forceState === false || (!forceState && completed.has(dayNumber))) {
     if (completed.has(dayNumber)) {

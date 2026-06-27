@@ -13,7 +13,7 @@ export const QUANT_PROTOCOL_DERIV: DailyProtocol = {
 
 export const derivativesRiskRoadmap: Course = {
     id: "python-for-quants-derivatives-risk",
-    title: "Python for Quants: Derivatives Pricing & Risk Management",
+    title: "Python for Quants III: Derivatives Pricing & Risk",
     description:
         "An advanced, hands-on course that equips you with the quantitative tools to price, hedge, and manage risk for derivative products. Covers option pricing (Black-Scholes, binomial, Monte Carlo), Greeks, volatility modeling (local volatility, stochastic volatility), interest rate derivatives, credit risk, and comprehensive risk management frameworks (VaR, CVaR, stress testing).",
     difficulty: "Expert",

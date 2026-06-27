@@ -7,14 +7,14 @@ type Theme = "light" | "dark";
 
 export function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
     setMounted(true);
     const saved = window.localStorage.getItem("iqilo-theme");
     if (saved === "dark" || saved === "light") {
       setTheme(saved);
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    } else {
       setTheme("dark");
     }
   }, []);
@@ -40,11 +40,13 @@ export function ThemeToggle() {
       }}
       aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
     >
-      {dark ? (
-        <Sun className="h-4 w-4" />
-      ) : (
-        <Moon className="h-4 w-4" />
-      )}
+      <div className="relative flex h-full w-full items-center justify-center transition-transform duration-500" style={{ transform: dark ? 'rotate(0deg)' : 'rotate(-180deg)' }}>
+        {dark ? (
+          <Moon className="absolute h-4 w-4 transition-opacity duration-300 opacity-100" />
+        ) : (
+          <Sun className="absolute h-4 w-4 transition-opacity duration-300 opacity-100" />
+        )}
+      </div>
     </button>
   );
 }

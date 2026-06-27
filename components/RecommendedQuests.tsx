@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Clock, Users, Star } from "lucide-react";
+import { ArrowRight, Clock, Star, Swords } from "lucide-react";
 import type { Course } from "@/lib/types";
 import { useProgress } from "@/hooks/useProgress";
 
@@ -9,6 +9,15 @@ type RecommendedQuestsProps = {
   courses: Course[];
   limit?: number;
 };
+
+const QUEST_GRADIENTS = [
+  "linear-gradient(135deg, var(--bg-surface), var(--accent-blue))",
+  "linear-gradient(135deg, var(--bg-surface), var(--accent-green))",
+  "linear-gradient(135deg, var(--accent-blue), var(--accent-green))",
+  "linear-gradient(135deg, var(--bg-raised), var(--accent-blue))",
+];
+
+const QUEST_ICONS = ["⚔️", "🧠", "🎯", "🚀"];
 
 export function RecommendedQuests({ courses, limit = 3 }: RecommendedQuestsProps) {
   const { getCourseStats, hydrated, store } = useProgress();
@@ -28,33 +37,44 @@ export function RecommendedQuests({ courses, limit = 3 }: RecommendedQuestsProps
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h2 className="quests-title text-lg font-black">
-          Recommended Quests
-        </h2>
+        <div className="flex items-center gap-2">
+          <Swords className="h-5 w-5" style={{ color: "var(--accent-purple)" }} />
+          <h2 className="quests-title text-lg font-black">
+            Recommended Quests
+          </h2>
+        </div>
         <Link
           href="/courses"
-          className="quests-link text-xs font-black transition hover:opacity-80"
+          className="quests-link flex items-center gap-1 text-xs font-black transition hover:opacity-80"
         >
-          View all →
+          View all
+          <ArrowRight className="h-3 w-3" />
         </Link>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {displayedCourses.map((course) => {
+        {displayedCourses.map((course, idx) => {
           const stats = getCourseStats(course);
           const hasStarted = hydrated && store[course.id] !== undefined;
+          const gradient = QUEST_GRADIENTS[idx % QUEST_GRADIENTS.length];
+          const icon = QUEST_ICONS[idx % QUEST_ICONS.length];
           
           return (
             <Link
               key={course.id}
               href={`/courses/${course.id}`}
-              className="quest-card group flex flex-col overflow-hidden rounded-2xl transition-all duration-300 hover:-translate-y-2 hover:shadow-xl"
+              className="quest-card card-shimmer-overlay group flex flex-col overflow-hidden rounded-[2rem] transition-all duration-300 hover:-translate-y-2 hover:shadow-xl shadow-md glass-panel"
             >
               {/* Course image/gradient placeholder */}
-              <div className="quest-image h-40 w-full">
+              <div className="relative h-44 w-full" style={{ background: gradient }}>
                 <div className="flex h-full items-center justify-center">
-                  <span className="text-5xl">🎯</span>
+                  <span className="text-6xl drop-shadow-xl transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6">{icon}</span>
                 </div>
+                {/* Decorative corner orbs */}
+                <div
+                  className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full blur-2xl opacity-60 mix-blend-overlay"
+                  style={{ background: "white" }}
+                />
               </div>
 
               <div className="flex flex-1 flex-col p-6">
@@ -66,7 +86,7 @@ export function RecommendedQuests({ courses, limit = 3 }: RecommendedQuestsProps
                 )}
 
                 {/* Title */}
-                <h3 className="quest-title mb-3 text-base font-black leading-tight">
+                <h3 className="quest-title mb-3 text-lg font-black leading-tight group-hover:gradient-text transition-all tracking-tight">
                   {course.title}
                 </h3>
 
@@ -102,7 +122,7 @@ export function RecommendedQuests({ courses, limit = 3 }: RecommendedQuestsProps
                     </div>
                     <div className="quest-progress-bg h-2 w-full rounded-full overflow-hidden">
                       <div
-                        className="quest-progress-bar h-full rounded-full transition-all duration-300"
+                        className={`quest-progress-bar h-full rounded-full transition-all duration-300 ${stats.percent === 100 ? "animate-progress-glow" : ""}`}
                         style={{ width: `${stats.percent}%` }}
                       />
                     </div>

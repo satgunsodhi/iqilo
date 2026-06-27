@@ -13,7 +13,7 @@ export const BRIDGE_PROTOCOL: DailyProtocol = {
 
 export const advancedBridgeRoadmap: Course = {
   id: "advanced-bridge-roadmap",
-  title: "4-Week Java Competitive Programming Bridge Roadmap",
+  title: "Java CP Advanced: Trees, Graphs & Math DP",
   description:
     "A semi-intermediate bridge between the core 4-week roadmap and advanced competitive programming topics, explicitly focusing on graph state modeling, tree query vectorization, mathematical DP optimization, and defensive Java JVM execution constraints.",
   difficulty: "Advanced",

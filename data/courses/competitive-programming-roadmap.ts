@@ -13,7 +13,7 @@ export const STANDARD_PROTOCOL: DailyProtocol = {
 
 export const competitiveProgrammingRoadmap: Course = {
   id: "competitive-programming-roadmap",
-  title: "4-Week Java Competitive Programming Roadmap",
+  title: "Java CP Core: Graphs, DP & OA Prep",
   description:
     "An exhaustive, high-fidelity curriculum for Online Assessment preparation covering graphs, DP, data structures, and timed mock assessments.",
   difficulty: "Advanced",

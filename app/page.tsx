@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Sparkles, Play, BookOpen } from "lucide-react";
+import { ArrowRight, Sparkles, Play, BookOpen, Flame, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { listCourses } from "@/lib/courses";
-import { useProgress } from "@/hooks/useProgress";
+import { useProgress, useGamification } from "@/hooks/useProgress";
 import { getActivityMap } from "@/lib/activity";
 import { RecommendedQuests } from "@/components/RecommendedQuests";
 import { CertificateCard } from "@/components/CertificateCard";
@@ -13,7 +13,8 @@ import { HelpSection } from "@/components/HelpSection";
 
 export default function HomePage() {
   const courses = listCourses();
-  const { store, hydrated } = useProgress();
+  const { store, hydrated, getNextDay } = useProgress();
+  const { xp, streak, xpToNextLevel } = useGamification();
   const activity = getActivityMap();
 
   // Find "continue where you left off" course
@@ -22,6 +23,14 @@ export default function HomePage() {
         .map((c) => ({ course: c, lastDay: store[c.id]?.lastVisitedDay ?? 0 }))
         .filter((x) => x.lastDay > 0)
         .sort((a, b) => b.lastDay - a.lastDay)[0]
+    : null;
+
+  // Find suggested next step (daily quest)
+  const dailyQuest = hydrated
+    ? courses
+        .map((c) => ({ course: c, nextDay: getNextDay(c), started: !!store[c.id] }))
+        .filter((x) => x.started && x.nextDay <= x.course.totalDays)
+        .sort((a, b) => a.nextDay - b.nextDay)[0]
     : null;
 
   // Auto-redirect on first visit in the session
@@ -42,24 +51,52 @@ export default function HomePage() {
         <div className="lg:col-span-2 flex flex-col gap-8">
           {/* Current course / Resume lesson section */}
           {lastCourse ? (
-            <section className="hero-section relative overflow-hidden rounded-2xl border p-8 shadow-lg">
+            <section className="hero-section relative overflow-hidden rounded-[2rem] border p-8 sm:p-10 shadow-lg glass-panel">
               {/* Decorative gradient */}
-              <div className="hero-gradient pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl" />
+              <div className="ambient-glow-blue pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full blur-3xl opacity-60 dark:mix-blend-screen" />
+              <div className="noise-overlay" />
               
-              <div className="relative">
-                <span className="hero-badge inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-widest">
+              <div className="relative z-10">
+                <span className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-widest" style={{ background: "color-mix(in srgb, var(--accent-blue) 15%, transparent)", color: "var(--accent-blue)", border: "1px solid color-mix(in srgb, var(--accent-blue) 30%, transparent)" }}>
                   <Play className="h-3 w-3" />
                   In Progress
                 </span>
-                <h2 className="hero-title mt-5 text-3xl font-black leading-tight sm:text-4xl">
+                <h2 className="hero-title mt-6 text-4xl font-black leading-tight sm:text-5xl tracking-tight text-balance">
                   {lastCourse.course.title}
                 </h2>
-                <p className="hero-subtitle mt-3 text-base font-medium">
+                <p className="hero-subtitle mt-4 text-base sm:text-lg font-medium">
                   Day {lastCourse.lastDay} · Continue your learning journey
                 </p>
+
+                {/* Quick stats row */}
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  {streak.current > 0 && (
+                    <span
+                      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-black"
+                      style={{
+                        background: "color-mix(in srgb, var(--accent-orange) 15%, transparent)",
+                        color: "var(--accent-orange)",
+                      }}
+                    >
+                      <Flame className="h-3 w-3" />
+                      {streak.current} day streak
+                    </span>
+                  )}
+                  <span
+                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold"
+                    style={{
+                      background: "color-mix(in srgb, var(--accent-purple) 12%, transparent)",
+                      color: "var(--accent-purple)",
+                    }}
+                  >
+                    <Zap className="h-3 w-3" />
+                    Level {xp.level} · {xp.total} XP
+                  </span>
+                </div>
+
                 <Link
                   href={`/courses/${lastCourse.course.id}/day/${lastCourse.lastDay}`}
-                  className="hero-button mt-6 inline-flex items-center gap-2.5 rounded-xl px-6 py-3.5 text-sm font-black text-white shadow-md transition hover:opacity-90 hover:shadow-lg active:scale-95"
+                  className="button-primary mt-8"
                 >
                   <Sparkles className="h-4 w-4" />
                   Resume Lesson
@@ -68,26 +105,63 @@ export default function HomePage() {
               </div>
             </section>
           ) : (
-            <section className="hero-section-start relative overflow-hidden rounded-2xl border p-8 shadow-lg">
-              <div className="hero-gradient-start pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl" />
+            <section className="hero-section-start relative overflow-hidden rounded-[2rem] border p-8 sm:p-10 shadow-lg glass-panel">
+              <div className="ambient-glow-blue pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full blur-3xl opacity-60 dark:mix-blend-screen" />
+              <div className="noise-overlay" />
               
-              <div className="relative">
-                <span className="hero-badge-start inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-widest">
+              <div className="relative z-10">
+                <span className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[11px] font-black uppercase tracking-widest" style={{ background: "color-mix(in srgb, var(--accent-blue) 15%, transparent)", color: "var(--accent-blue)", border: "1px solid color-mix(in srgb, var(--accent-blue) 30%, transparent)" }}>
                   <BookOpen className="h-3 w-3" />
                   Get Started
                 </span>
-                <h2 className="hero-title mt-5 text-3xl font-black leading-tight sm:text-4xl">
+                <h2 className="hero-title mt-6 text-4xl font-black leading-tight sm:text-5xl tracking-tight text-balance">
                   Start Your Learning Journey
                 </h2>
-                <p className="hero-subtitle mt-3 text-base font-medium">
+                <p className="hero-subtitle mt-4 text-base sm:text-lg font-medium">
                   Choose a course and begin mastering new skills today
                 </p>
                 <Link
                   href="/courses"
-                  className="hero-button-start mt-6 inline-flex items-center gap-2.5 rounded-xl px-6 py-3.5 text-sm font-black text-white shadow-md transition hover:opacity-90 hover:shadow-lg active:scale-95"
+                  className="button-primary mt-8"
                 >
                   Browse Courses
                   <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </section>
+          )}
+
+          {/* Daily Quest */}
+          {dailyQuest && dailyQuest !== undefined && (
+            <section
+              className="rounded-2xl p-5 shadow-sm animate-fade-in"
+              style={{
+                border: "1px solid color-mix(in srgb, var(--accent-yellow) 30%, transparent)",
+                background: "color-mix(in srgb, var(--accent-yellow) 5%, var(--bg-surface))",
+              }}
+            >
+              <div className="flex items-center gap-4">
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-xl text-lg"
+                  style={{ background: "color-mix(in srgb, var(--accent-yellow) 15%, transparent)" }}
+                >
+                  ⚡
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: "var(--accent-yellow)" }}>
+                    Daily Quest
+                  </p>
+                  <p className="text-sm font-bold truncate" style={{ color: "var(--text-primary)" }}>
+                    Continue Day {dailyQuest.nextDay} of {dailyQuest.course.title.split(":")[0].trim()}
+                  </p>
+                </div>
+                <Link
+                  href={`/courses/${dailyQuest.course.id}/day/${dailyQuest.nextDay}`}
+                  className="shrink-0 inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-black text-white transition hover:opacity-90 active:scale-95"
+                  style={{ background: "linear-gradient(135deg, var(--accent-yellow), var(--accent-orange))" }}
+                >
+                  Go
+                  <ArrowRight className="h-3 w-3" />
                 </Link>
               </div>
             </section>
