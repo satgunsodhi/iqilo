@@ -189,7 +189,7 @@ function WeekAccordion({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="relative z-10 flex w-full items-center justify-between gap-4 border-b px-5 py-4 transition-colors hover:bg-[--bg-raised]"
+        className="relative z-10 flex w-full items-center justify-between gap-4 border-b px-5 py-4 transition-colors hover:bg-[var(--bg-raised)]"
         style={{ borderColor: open ? "var(--border-subtle)" : "transparent", background: open ? "var(--bg-raised)" : "transparent" }}
       >
         {/* Progress accent line */}
@@ -237,7 +237,7 @@ function WeekAccordion({
               return (
                 <li
                   key={day.dayNumber}
-                  className="group relative flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between transition-colors hover:bg-[--bg-raised]"
+                  className="group relative flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between transition-colors hover:bg-[var(--bg-raised)]"
                   style={{ borderColor: "var(--border-subtle)" }}
                 >
                   {/* Subtle row hover glow */}
@@ -258,7 +258,7 @@ function WeekAccordion({
                       {complete ? <Check className="h-4 w-4" strokeWidth={3} /> : day.dayNumber}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-black transition group-hover:text-[--accent-purple]" style={{ color: "var(--text-primary)" }}>
+                      <p className="truncate text-sm font-black transition group-hover:text-[var(--accent-purple)]" style={{ color: "var(--text-primary)" }}>
                         Day {day.dayNumber}: {day.title}
                       </p>
                       <p className="truncate text-xs font-medium" style={{ color: "var(--text-muted)" }}>

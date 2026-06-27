@@ -1,5 +1,5 @@
-import { competitiveProgrammingRoadmap } from "@/data/courses/competitive-programming-roadmap";
-import { advancedBridgeRoadmap } from "@/data/courses/advanced-bridge-roadmap";
+import { competitiveProgrammingRoadmap } from "@/data/courses/core-programming-roadmap";
+import { advancedBridgeRoadmap } from "@/data/courses/advanced-programming-roadmap";
 import { quantFoundationRoadmap } from "@/data/courses/python-for-quants-data-wrangling";
 import { QuantMLRoadmap } from "@/data/courses/python-for-quants-predictive-modeling";
 import { deepLearningQuantRoadmap } from "@/data/courses/python-for-quants-deep-learning-portfolio";

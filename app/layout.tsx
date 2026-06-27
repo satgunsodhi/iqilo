@@ -36,7 +36,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className="min-h-full flex flex-col bg-[--bg-base] text-[--text-primary]"
+        className="min-h-full flex flex-col bg-[var(--bg-base)] text-[var(--text-primary)]"
         suppressHydrationWarning
       >
         <ProgressProvider>

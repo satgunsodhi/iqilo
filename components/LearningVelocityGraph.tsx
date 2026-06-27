@@ -69,7 +69,7 @@ export function LearningVelocityGraph({ activity }: LearningVelocityGraphProps) 
                 />
               </div>
               <span
-                className={`absolute bottom-0 text-[10px] font-black uppercase tracking-wider transition-colors duration-300 ${isToday ? 'text-[--text-primary]' : 'text-[--text-faint] group-hover:text-[--text-secondary]'}`}
+                className={`absolute bottom-0 text-[10px] font-black uppercase tracking-wider transition-colors duration-300 ${isToday ? 'text-[var(--text-primary)]' : 'text-[var(--text-faint)] group-hover:text-[var(--text-secondary)]'}`}
               >
                 {item.label}
               </span>

@@ -218,7 +218,7 @@ export function SiteHeader() {
                     <Link
                       href={r.href}
                       onClick={() => { setSearchOpen(false); setQuery(""); }}
-                      className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-[--bg-raised]"
+                      className="flex items-center gap-3 px-4 py-2.5 transition hover:bg-[var(--bg-raised)]"
                     >
                       <span
                         className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[10px] font-black"

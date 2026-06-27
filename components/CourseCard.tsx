@@ -31,12 +31,11 @@ export function CourseCard({ course }: CourseCardProps) {
 
   return (
     <article
-      className={`group card-shimmer-overlay relative flex flex-col overflow-hidden rounded-[2rem] shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl glass-panel`}
-      style={{
-        border: allComplete
-          ? "1px solid var(--text-primary)"
-          : "1px solid var(--border-subtle)",
-      }}
+      className={`group card-shimmer-overlay relative flex flex-col overflow-hidden rounded-[2rem] shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-md glass-panel border ${
+        allComplete
+          ? "border-[var(--text-primary)]"
+          : "border-[var(--border-subtle)] hover:border-[var(--text-secondary)]"
+      }`}
     >
       {/* Top Ink Wash Gallery Header */}
       <div className="relative h-44 w-full overflow-hidden" style={{ background: "linear-gradient(135deg, var(--bg-sunken) 0%, var(--bg-raised) 100%)", borderBottom: "1px solid var(--border-subtle)" }}>
@@ -155,7 +154,7 @@ export function CourseCard({ course }: CourseCardProps) {
           <Link
             href={`/courses/${course.id}`}
             id={`view-curriculum-${course.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all hover:bg-[--bg-raised] hover:shadow-sm"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all hover:bg-[var(--bg-raised)] hover:shadow-sm"
             style={{
               border: "1px solid var(--border-default)",
               background: "transparent",
@@ -181,35 +180,6 @@ export function CourseCard({ course }: CourseCardProps) {
           )}
         </div>
       </div>
-    </article>
-  );
-}
-
-export function ComingSoonCard() {
-  return (
-    <article
-      className="flex flex-col items-center justify-center rounded-[2rem] p-8 text-center shadow-sm glass-panel"
-      style={{ border: "1px dashed var(--border-default)" }}
-    >
-      <div
-        className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl shadow-sm"
-        style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-raised)" }}
-      >
-        <span className="text-2xl">🚀</span>
-      </div>
-      <p className="text-base font-black tracking-tight" style={{ color: "var(--text-primary)" }}>
-        More quests coming soon
-      </p>
-      <p className="mt-2 text-xs font-medium leading-relaxed" style={{ color: "var(--text-muted)" }}>
-        Add new courses in{" "}
-        <code className="rounded-md px-1.5 py-0.5 font-mono text-[10px] shadow-sm" style={{ background: "var(--bg-sunken)", color: "var(--text-secondary)" }}>
-          data/courses
-        </code>{" "}
-        and register them in{" "}
-        <code className="rounded-md px-1.5 py-0.5 font-mono text-[10px] shadow-sm" style={{ background: "var(--bg-sunken)", color: "var(--text-secondary)" }}>
-          lib/courses.ts
-        </code>
-      </p>
     </article>
   );
 }
