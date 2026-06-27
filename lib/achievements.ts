@@ -310,10 +310,11 @@ export function checkAchievements(
     result.xpGained += xpReward;
   }
 
-  // Add XP for daily completion
-  result.xpGained += XP_DAILY_COMPLETION;
-  addXp(result.xpGained);
-
+  // Add XP for unlocked badges
+  if (result.xpGained > 0) {
+    addXp(result.xpGained);
+  }
+  
   return result;
 }
 

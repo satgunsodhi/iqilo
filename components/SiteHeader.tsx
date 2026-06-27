@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "./ThemeToggle";
 import { StreakBadge } from "./StreakDisplay";
 import { listCourses } from "@/lib/courses";
-import { useGamification } from "@/hooks/useProgress";
+import { useGamification, useProgress } from "@/hooks/useProgress";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -18,6 +18,7 @@ export function SiteHeader() {
   const searchRef = useRef<HTMLInputElement>(null);
 
   const courses = listCourses();
+  const { hydrated } = useProgress();
   const { xp, streak, xpToNextLevel } = useGamification();
 
   // Open search on Cmd+K / Ctrl+K
@@ -118,37 +119,45 @@ export function SiteHeader() {
           {/* Right actions */}
           <div className="flex items-center gap-2">
             {/* XP Level indicator */}
-            <Link
-              href="/profile"
-              className="group/xp hidden items-center gap-2 rounded-lg px-2.5 py-1.5 transition-all hover:scale-105 sm:flex"
-              style={{
-                background: "color-mix(in srgb, var(--accent-purple) 8%, var(--bg-raised))",
-                border: "1px solid color-mix(in srgb, var(--accent-purple) 20%, transparent)",
-              }}
-              title={`Level ${xp.level} · ${xpToNextLevel.current}/${xpToNextLevel.needed} XP to next level`}
-            >
-              <div
-                className="flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-black"
+            {hydrated ? (
+              <Link
+                href="/profile"
+                className="group/xp hidden items-center gap-2 rounded-lg px-2.5 py-1.5 transition-all hover:scale-105 sm:flex"
                 style={{
-                  background: "linear-gradient(135deg, var(--accent-purple), var(--accent-indigo))",
-                  color: "white",
-                  boxShadow: "0 2px 8px color-mix(in srgb, var(--accent-purple) 30%, transparent)",
+                  background: "color-mix(in srgb, var(--accent-purple) 8%, var(--bg-raised))",
+                  border: "1px solid color-mix(in srgb, var(--accent-purple) 20%, transparent)",
                 }}
+                title={`Level ${xp.level} · ${xpToNextLevel.current}/${xpToNextLevel.needed} XP to next level`}
               >
-                {xp.level}
-              </div>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[10px] font-black leading-none" style={{ color: "var(--text-primary)" }}>
-                  Lv {xp.level}
-                </span>
-                <div className="xp-bar-track h-1 w-12">
-                  <div className="xp-bar-fill" style={{ width: `${xpToNextLevel.percent}%` }} />
+                <div
+                  className="flex h-6 w-6 items-center justify-center rounded-md text-[10px] font-black"
+                  style={{
+                    background: "linear-gradient(135deg, var(--accent-purple), var(--accent-indigo))",
+                    color: "white",
+                    boxShadow: "0 2px 8px color-mix(in srgb, var(--accent-purple) 30%, transparent)",
+                  }}
+                >
+                  {xp.level}
                 </div>
-              </div>
-            </Link>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-black leading-none" style={{ color: "var(--text-primary)" }}>
+                    Lv {xp.level}
+                  </span>
+                  <div className="xp-bar-track h-1 w-12">
+                    <div className="xp-bar-fill" style={{ width: `${xpToNextLevel.percent}%` }} />
+                  </div>
+                </div>
+              </Link>
+            ) : (
+              <div className="h-9 w-20 rounded-lg bg-[var(--bg-raised)] border border-[var(--border-subtle)] animate-pulse hidden sm:block" />
+            )}
 
             {/* Streak */}
-            <StreakBadge current={streak.current} />
+            {hydrated ? (
+              <StreakBadge current={streak.current} />
+            ) : (
+              <div className="h-9 w-12 rounded-lg bg-[var(--bg-raised)] border border-[var(--border-subtle)] animate-pulse" />
+            )}
 
             {/* Search trigger */}
             <button

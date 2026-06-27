@@ -1,186 +1,123 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Sparkles, Trophy } from "lucide-react";
+import { Clock, Star, Trophy } from "lucide-react";
 import type { Course } from "@/lib/types";
 import { useProgress } from "@/hooks/useProgress";
 import { CircularProgress } from "./ProgressBar";
 
-const COURSE_VISUALS: Record<string, { icon: string }> = {
-  "competitive-programming-roadmap": { icon: "⚡" },
-  "advanced-bridge-roadmap": { icon: "🌳" },
-  "python-for-quants-data-wrangling": { icon: "📊" },
-  "python-for-quants-predictive-modeling": { icon: "🤖" },
-  "python-for-quants-derivatives-risk": { icon: "📈" },
-  "python-for-quants-deep-learning-portfolio": { icon: "🧠" },
-};
-
-const DEFAULT_VISUAL = { icon: "🎯" };
+import { CourseIcon } from "./CourseIcons";
 
 type CourseCardProps = {
   course: Course;
 };
 
 export function CourseCard({ course }: CourseCardProps) {
-  const { getCourseStats, getNextDay, hydrated, store } = useProgress();
+  const { getCourseStats, hydrated, store } = useProgress();
   const hasStarted = hydrated && store[course.id] !== undefined;
   const stats = getCourseStats(course);
-  const nextDay = getNextDay(course);
   const allComplete = stats.completed === stats.total;
-  const visual = COURSE_VISUALS[course.id] ?? DEFAULT_VISUAL;
 
   return (
-    <article
-      className={`group card-shimmer-overlay relative flex flex-col overflow-hidden rounded-[2rem] shadow-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-md glass-panel border ${
+    <Link
+      href={`/courses/${course.id}`}
+      className={`group card-shimmer-overlay relative flex flex-col lg:flex-row overflow-hidden rounded-3xl shadow-sm transition-all duration-300 hover:scale-[1.01] hover:shadow-md glass-panel border ${
         allComplete
           ? "border-[var(--text-primary)]"
           : "border-[var(--border-subtle)] hover:border-[var(--text-secondary)]"
       }`}
+      style={{ background: "color-mix(in srgb, var(--bg-surface) 95%, var(--bg-raised))" }}
     >
-      {/* Top Ink Wash Gallery Header */}
-      <div className="relative h-44 w-full overflow-hidden" style={{ background: "linear-gradient(135deg, var(--bg-sunken) 0%, var(--bg-raised) 100%)", borderBottom: "1px solid var(--border-subtle)" }}>
-        <div className="noise-overlay" />
-
-        {/* Floating Centerpiece Avatar */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)" }}>
-            <span className="text-3xl drop-shadow-sm">{visual.icon}</span>
-          </div>
+      {/* SVG / Photo Canvas (~30% width) */}
+      <div className="relative h-40 lg:h-auto lg:w-[30%] shrink-0 overflow-hidden border-b lg:border-b-0 lg:border-r border-[var(--border-subtle)] bg-[var(--bg-sunken)]">
+        <div className="absolute inset-0">
+          <CourseIcon courseId={course.id} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]" />
         </div>
-
-        {/* Floating Glass Badges Top Row */}
-        <div className="absolute top-4 inset-x-4 flex items-center justify-between gap-2 z-10">
-          {course.difficulty && (
-            <span
-              className="rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wider shadow-sm"
-              style={{ background: "var(--bg-surface)", color: "var(--text-primary)", border: "1px solid var(--border-subtle)" }}
-            >
-              {course.difficulty}
-            </span>
-          )}
-          {course.category && (
-            <span
-              className="rounded-full px-3 py-1 text-[11px] font-bold shadow-sm"
-              style={{ background: "var(--bg-surface)", color: "var(--text-secondary)", border: "1px solid var(--border-subtle)" }}
-            >
-              {course.category}
-            </span>
-          )}
-        </div>
-
-        {/* Completion status floating badge */}
-        {allComplete && (
-          <div className="absolute bottom-4 left-4 z-10">
-            <span
-              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-black uppercase tracking-wide shadow-md"
-              style={{
-                background: "var(--text-primary)",
-                color: "var(--bg-base)",
-                border: "1px solid var(--border-subtle)",
-              }}
-            >
-              <Trophy className="h-3.5 w-3.5" />
-              Complete
-            </span>
-          </div>
-        )}
-
-        {/* Circular progress floating bottom right if started */}
-        {hasStarted && !allComplete && (
-          <div className="absolute bottom-3 right-4 z-10 rounded-full p-1 shadow-md" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)" }}>
-            <CircularProgress percent={stats.percent} size={42} />
-          </div>
-        )}
       </div>
 
-      {/* Content Section */}
-      <div className="flex flex-1 flex-col p-6">
-        {/* Title */}
-        <h2 className="mb-1.5 text-xl font-black leading-snug tracking-tight transition-opacity group-hover:opacity-80" style={{ color: "var(--text-primary)" }}>
-          {course.title}
-        </h2>
-        {course.tagline && (
-          <p className="mb-4 text-sm font-semibold italic" style={{ color: "var(--text-muted)" }}>
-            {course.tagline}
+      {/* Content Side (~70% width) */}
+      <div className="flex flex-1 flex-col justify-between p-5">
+        <div>
+          {/* Header Row: Badges & Status */}
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+            {/* Badges */}
+            <div className="flex flex-wrap items-center gap-1.5">
+              {course.difficulty && (
+                <span
+                  className="rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wider shadow-sm"
+                  style={{ background: "var(--bg-surface)", color: "var(--text-primary)", border: "1px solid var(--border-subtle)" }}
+                >
+                  {course.difficulty}
+                </span>
+              )}
+              {course.category && (
+                <span
+                  className="rounded-full px-2.5 py-0.5 text-[9px] font-bold shadow-sm"
+                  style={{ background: "var(--bg-surface)", color: "var(--text-secondary)", border: "1px solid var(--border-subtle)" }}
+                >
+                  {course.category}
+                </span>
+              )}
+            </div>
+
+            {/* Status Display */}
+            <div className="flex items-center gap-2">
+              {allComplete ? (
+                <span
+                  className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[9px] font-black uppercase tracking-wide shadow-sm"
+                  style={{
+                    background: "var(--text-primary)",
+                    color: "var(--bg-base)",
+                    border: "1px solid var(--border-subtle)",
+                  }}
+                >
+                  <Trophy className="h-3 w-3" />
+                  Complete
+                </span>
+              ) : hasStarted ? (
+                <div className="flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-2 py-0.5 shadow-sm">
+                  <CircularProgress percent={stats.percent} size={14} />
+                  <span className="text-[9px] font-black text-[var(--text-primary)]">{stats.completed}/{stats.total} days</span>
+                </div>
+              ) : hydrated ? (
+                <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-[var(--text-faint)]">
+                  <span className="h-1.5 w-1.5 rounded-full animate-pulse bg-[var(--text-faint)]" />
+                  Not started
+                </span>
+              ) : null}
+            </div>
+          </div>
+
+          {/* Titles & Description */}
+          <h2 className="text-lg font-black leading-snug tracking-tight group-hover:opacity-90 transition-opacity" style={{ color: "var(--text-primary)" }}>
+            {course.title}
+          </h2>
+          
+          <p className="mt-1.5 line-clamp-2 text-xs font-medium leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+            {course.description}
           </p>
-        )}
-
-        {/* Description */}
-        <p className="mb-6 flex-1 line-clamp-3 text-sm font-medium leading-relaxed" style={{ color: "var(--text-muted)" }}>
-          {course.description}
-        </p>
-
-        {/* Tags */}
-        {course.tags && course.tags.length > 0 && (
-          <div className="mb-6 flex flex-wrap gap-1.5">
-            {course.tags.slice(0, 4).map((tag) => (
-              <span
-                key={tag}
-                className="rounded-lg px-2.5 py-1 text-[11px] font-bold shadow-sm"
-                style={{ background: "var(--bg-sunken)", color: "var(--text-secondary)", border: "1px solid var(--border-subtle)" }}
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
-        )}
-
-        {/* Meta row */}
-        <div
-          className="mb-6 flex items-center justify-between gap-2 rounded-2xl px-4 py-3.5 text-sm shadow-sm"
-          style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-raised)" }}
-        >
-          {hasStarted ? (
-            <span className="inline-flex items-center gap-2">
-              <Sparkles className="h-4 w-4" style={{ color: "var(--text-primary)" }} />
-              <span className="font-black" style={{ color: "var(--text-primary)" }}>{stats.completed}</span>
-              <span className="font-medium" style={{ color: "var(--text-muted)" }}>/ {stats.total} days</span>
-            </span>
-          ) : hydrated ? (
-            <span className="flex items-center gap-2 text-xs font-black uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>
-              <span className="h-2 w-2 rounded-full animate-pulse" style={{ background: "var(--text-faint)" }} />
-              Not started
-            </span>
-          ) : (
-            <span className="skeleton h-4 w-24" />
-          )}
-          <span className="text-xs font-bold" style={{ color: "var(--text-muted)" }}>
-            {course.totalDays} days {course.estimatedHours && `· ~${course.estimatedHours}h`}
-          </span>
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-wrap items-center gap-3 mt-auto">
-          <Link
-            href={`/courses/${course.id}`}
-            id={`view-curriculum-${course.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all hover:bg-[var(--bg-raised)] hover:shadow-sm"
-            style={{
-              border: "1px solid var(--border-default)",
-              background: "transparent",
-              color: "var(--text-primary)",
-            }}
-          >
-            View curriculum
-          </Link>
-          {!allComplete && (
-            <Link
-              href={`/courses/${course.id}/day/${nextDay}`}
-              id={`continue-${course.id}`}
-              className="flex-1 inline-flex items-center justify-center gap-2 py-3 px-5 text-sm font-black shadow-md transition-all hover:opacity-90 active:scale-95 group/btn"
-              style={{
-                background: "var(--text-primary)",
-                color: "var(--bg-base)",
-                border: "1px solid var(--border-subtle)",
-              }}
-            >
-              <span>{hasStarted ? "Continue" : "Start Course"}</span>
-              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover/btn:translate-x-1" />
-            </Link>
+        {/* Footer Meta Row */}
+        <div className="flex flex-wrap items-center gap-2.5 text-[11px] font-semibold mt-4" style={{ color: "var(--text-secondary)" }}>
+          <span className="flex items-center gap-1 bg-[var(--bg-raised)] border border-[var(--border-subtle)] rounded-md px-2 py-1 shadow-sm transition-colors group-hover:bg-[var(--bg-surface)]">
+            <Clock className="h-3.5 w-3.5" />
+            {course.totalDays} days
+          </span>
+          {course.estimatedHours && (
+            <span className="flex items-center gap-1 bg-[var(--bg-raised)] border border-[var(--border-subtle)] rounded-md px-2 py-1 shadow-sm transition-colors group-hover:bg-[var(--bg-surface)]">
+              <Star className="h-3.5 w-3.5" />
+              ~{course.estimatedHours}h
+            </span>
+          )}
+          {course.tags && course.tags.length > 0 && (
+            <span className="bg-[var(--bg-sunken)] border border-[var(--border-subtle)] rounded-md px-2 py-1 text-[10px] font-bold text-[var(--text-secondary)] shadow-sm">
+              #{course.tags[0]}
+            </span>
           )}
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 

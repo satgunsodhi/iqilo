@@ -17,10 +17,11 @@ export const deepLearningQuantRoadmap: Course = {
     description:
         "An advanced, hands-on course that takes quantitative trading to the next level with deep learning and sophisticated portfolio management. Covers time-series deep learning (LSTMs, Transformers), reinforcement learning for trading, modern portfolio optimization (risk parity, Black-Litterman), and the integration of these techniques into production-ready quant systems.",
     difficulty: "Expert",
-    tags: ["Python", "PyTorch", "TensorFlow", "Deep Learning", "Reinforcement Learning", "Portfolio Optimization", "Risk Management", "Quant Finance"],
+    tags: ["Neural Networks (LSTMs)", "Transformer Architectures", "Deep Reinforcement Learning", "Mean-Variance Optimization", "Black-Litterman Model", "Risk Parity Allocations"],
     estimatedHours: 84,
     category: "Quant Finance",
     tagline: "Deploy deep learning and advanced optimization to build cutting-edge quant strategies.",
+    prerequisites: ["python-for-quants-predictive-modeling"],
     totalDays: 28,
     weeks: [
         {

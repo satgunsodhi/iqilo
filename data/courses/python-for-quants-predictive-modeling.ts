@@ -17,10 +17,11 @@ export const QuantMLRoadmap: Course = {
     description:
         "An intensive, hands-on course that bridges the gap between foundational data science and cutting-edge quantitative trading. Covers time-series analysis with statsmodels (ARIMA, GARCH), machine learning with scikit-learn and XGBoost for signal generation, feature engineering, robust backtesting, and the critical pitfalls of financial machine learning.",
     difficulty: "Advanced",
-    tags: ["Python", "Statsmodels", "Scikit-learn", "XGBoost", "Time-Series", "Machine Learning", "Backtesting", "Quant Finance"],
+    tags: ["ARIMA & GARCH Models", "Vector Autoregression (VAR)", "Cointegration & Pairs", "Feature Engineering", "Tree-Based Classifiers", "Vectorized Backtesting"],
     estimatedHours: 84,
     category: "Quant Finance",
     tagline: "Build predictive models and backtest strategies to generate alpha.",
+    prerequisites: ["python-for-quants-data-wrangling"],
     totalDays: 28,
     weeks: [
         {

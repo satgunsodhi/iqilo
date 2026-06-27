@@ -54,6 +54,8 @@ export type Course = {
   category?: string;
   /** Short tagline shown on course cards */
   tagline?: string;
+  /** Prerequisite course IDs */
+  prerequisites?: string[];
 };
 
 export type CourseProgress = {
@@ -93,24 +95,31 @@ export type XpState = {
 };
 
 export function getLevelFromXp(xp: number): number {
-  // exponential XP curve: level * 100 per level
   let level = 1;
-  let xpNeeded = 100;
+  let xpNeeded = 200;
   let remainingXp = xp;
   while (remainingXp >= xpNeeded) {
     remainingXp -= xpNeeded;
     level++;
-    xpNeeded += 50; // increasing difficulty
+    if (level === 2) {
+      xpNeeded = 500;
+    } else {
+      xpNeeded = (level - 1) * 1000;
+    }
   }
   return level;
 }
 
 export function getXpForLevel(level: number): number {
   let total = 0;
-  let xpNeeded = 100;
   for (let i = 1; i < level; i++) {
-    total += xpNeeded;
-    xpNeeded += 50;
+    if (i === 1) {
+      total += 200;
+    } else if (i === 2) {
+      total += 500;
+    } else {
+      total += (i - 1) * 1000;
+    }
   }
   return total;
 }
@@ -118,7 +127,7 @@ export function getXpForLevel(level: number): number {
 export function getXpToNextLevel(currentXp: number): { current: number; needed: number; percent: number } {
   const level = getLevelFromXp(currentXp);
   let xpAtLevel = getXpForLevel(level);
-  let xpNeeded = 100 + (level - 1) * 50;
+  let xpNeeded = level === 1 ? 200 : level === 2 ? 500 : (level - 1) * 1000;
   let current = currentXp - xpAtLevel;
   return {
     current,

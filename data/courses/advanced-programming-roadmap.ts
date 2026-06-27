@@ -17,10 +17,11 @@ export const advancedBridgeRoadmap: Course = {
   description:
     "A semi-intermediate bridge between the core 4-week roadmap and advanced competitive programming topics, explicitly focusing on graph state modeling, tree query vectorization, mathematical DP optimization, and defensive Java JVM execution constraints.",
   difficulty: "Advanced",
-  tags: ["Java", "Trees", "Graph Theory", "Combinatorics", "LCA", "DP"],
+  tags: ["Segment Trees", "Lowest Common Ancestor (LCA)", "Graph State Modeling", "Combinatorics", "DP Optimizations", "Euler Tour Technique"],
   estimatedHours: 84,
   category: "Algorithms",
   tagline: "Bridge the gap from core algorithms to elite competitive programming.",
+  prerequisites: ["competitive-programming-roadmap"],
   totalDays: 28,
   weeks: [
     {

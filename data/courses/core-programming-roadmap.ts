@@ -17,10 +17,11 @@ export const competitiveProgrammingRoadmap: Course = {
   description:
     "An exhaustive, high-fidelity curriculum for Online Assessment preparation covering graphs, DP, data structures, and timed mock assessments.",
   difficulty: "Advanced",
-  tags: ["Java", "Graphs", "Dynamic Programming", "OA Prep", "CSES", "LeetCode"],
+  tags: ["Graph Traversals", "Shortest Paths", "Dynamic Programming", "Two-Heaps", "Sliding Window", "XOR Tries", "String Hashing"],
   estimatedHours: 90,
   category: "Algorithms",
   tagline: "Ace your OA with graph mastery, DP, and timed simulations.",
+  prerequisites: ["intro-java-dsa-roadmap"],
   totalDays: 30,
   weeks: [
     {

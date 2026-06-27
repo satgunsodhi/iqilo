@@ -4,6 +4,7 @@ import { Check, Sparkles } from "lucide-react";
 import { useProgress } from "@/hooks/useProgress";
 import { useToast } from "@/components/ToastNotification";
 import { BADGES } from "@/lib/achievements";
+import { listCourses } from "@/lib/courses";
 
 type CompletionToggleProps = {
   courseId: string;
@@ -26,15 +27,27 @@ export function CompletionToggle({
 
   const handleToggle = () => {
     const wasComplete = isDayComplete(courseId, dayNumber);
+    
+    // Calculate dynamic completion XP: 10 XP per estimated minute
+    const courses = listCourses();
+    const course = courses.find((c) => c.id === courseId);
+    const day = course?.weeks.flatMap((w) => w.days).find((d) => d.dayNumber === dayNumber);
+    let dayMinutes = day?.estimatedMinutes;
+    if (!dayMinutes && course) {
+      dayMinutes = Math.round((course.estimatedHours ?? 45) * 60 / course.totalDays);
+    }
+    const dailyXp = (dayMinutes ?? 180) * 10;
+    
     toggleDay(courseId, dayNumber);
 
     // Only fire gamification on completion, not un-completion
     if (!wasComplete) {
       const result = checkAchievements();
+      const totalXp = dailyXp + result.xpGained;
 
       // Show XP toast
-      if (result.xpGained > 0) {
-        toast(`+${result.xpGained} XP earned!`, "success");
+      if (totalXp > 0) {
+        toast(`+${totalXp} XP earned!`, "success");
       }
 
       // Show badge unlock toasts

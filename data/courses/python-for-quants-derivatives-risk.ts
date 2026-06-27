@@ -17,10 +17,11 @@ export const derivativesRiskRoadmap: Course = {
     description:
         "An advanced, hands-on course that equips you with the quantitative tools to price, hedge, and manage risk for derivative products. Covers option pricing (Black-Scholes, binomial, Monte Carlo), Greeks, volatility modeling (local volatility, stochastic volatility), interest rate derivatives, credit risk, and comprehensive risk management frameworks (VaR, CVaR, stress testing).",
     difficulty: "Expert",
-    tags: ["Python", "Derivatives", "Options", "Risk Management", "Monte Carlo", "Black-Scholes", "Quant Finance"],
+    tags: ["Analytical Option Models", "Binomial Lattice Trees", "Monte Carlo Pricing", "Finite Difference Methods", "Volatility Surfaces", "Value at Risk (VaR)"],
     estimatedHours: 84,
     category: "Quant Finance",
     tagline: "Master the mathematical and computational techniques to price and hedge derivatives.",
+    prerequisites: ["python-for-quants-predictive-modeling"],
     totalDays: 28,
     weeks: [
         {

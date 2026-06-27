@@ -96,8 +96,8 @@ export default function CoursesPage() {
         </div>
       </div>
 
-      {/* ── Course Grid ── */}
-      <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+      {/* ── Course Grid (Horizontal Showcase Layout) ── */}
+      <div className="flex flex-col gap-6">
         {filteredCourses.map((course) => (
           <CourseCard key={course.id} course={course} />
         ))}

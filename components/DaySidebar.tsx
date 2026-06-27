@@ -7,6 +7,9 @@ import type { Day, Resource, PracticeProblem } from "@/lib/types";
 import { useProgress } from "@/hooks/useProgress";
 import { getTaskState, toggleTask } from "@/lib/tasks";
 
+import { useToast } from "@/components/ToastNotification";
+import { getResourceXp } from "@/lib/progress";
+
 type DaySidebarProps = {
   courseId: string;
   day: Day;
@@ -16,6 +19,7 @@ type DaySidebarProps = {
 
 function SidebarContent({ courseId, day, activeItemId, onSelectItem }: DaySidebarProps) {
   const { isResourceComplete, toggleResource, hydrated } = useProgress();
+  const { toast } = useToast();
   const [taskState, setTaskState] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
@@ -29,7 +33,14 @@ function SidebarContent({ courseId, day, activeItemId, onSelectItem }: DaySideba
 
   const handleResourceToggle = (e: React.MouseEvent, url: string) => {
     e.stopPropagation();
+    const wasDone = isResourceComplete(courseId, url);
     toggleResource(courseId, url);
+    if (!wasDone) {
+      const xp = getResourceXp(courseId, url);
+      if (xp > 0) {
+        toast(`+${xp} XP earned!`, "success");
+      }
+    }
   };
 
   return (

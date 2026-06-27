@@ -17,7 +17,7 @@ export const quantFoundationRoadmap: Course = {
     description:
         "A rigorous, hands-on foundation in Python's scientific computing stack, explicitly designed for quantitative trading. Covers NumPy's vectorized array operations, Pandas' time-series and panel data manipulation, and SciPy's optimization and statistical routines, all within the context of financial data analysis and strategy development.",
     difficulty: "Intermediate",
-    tags: ["Python", "NumPy", "Pandas", "SciPy", "Quant Finance", "Backtesting"],
+    tags: ["Vectorized Arrays", "DataFrame Operations", "Time-Series Alignment", "SciPy Optimizers", "Statistical Functions", "Data Aggregation"],
     estimatedHours: 84,
     category: "Quant Finance",
     tagline: "Master the Python data stack that powers modern quantitative trading.",

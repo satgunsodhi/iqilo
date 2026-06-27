@@ -2,6 +2,8 @@ import type { Course, CourseProgress, ProgressStore } from "./types";
 import { recordActivity, removeActivity } from "./activity";
 import { updateStreakOnCompletion, addXp, XP_DAILY_COMPLETION } from "./achievements";
 
+import { getCourseById } from "./courses";
+
 export const STORAGE_KEY = "dsa-learner-progress";
 
 export function createEmptyProgress(): CourseProgress {
@@ -52,7 +54,15 @@ export function toggleDay(
       completed.add(dayNumber);
       recordActivity();
       updateStreakOnCompletion();
-      addXp(XP_DAILY_COMPLETION);
+      
+      const course = getCourseById(courseId);
+      const day = course?.weeks.flatMap(w => w.days).find(d => d.dayNumber === dayNumber);
+      let dayMinutes = day?.estimatedMinutes;
+      if (!dayMinutes && course) {
+        dayMinutes = Math.round((course.estimatedHours ?? 45) * 60 / course.totalDays);
+      }
+      const dailyXp = (dayMinutes ?? 180) * 10;
+      addXp(dailyXp);
     }
   } else if (forceState === false || (!forceState && completed.has(dayNumber))) {
     if (completed.has(dayNumber)) {
@@ -70,6 +80,43 @@ export function toggleDay(
   };
 }
 
+export function getResourceXp(courseId: string, resourceId: string): number {
+  const course = getCourseById(courseId);
+  if (!course) return 0;
+  
+  const day = course.weeks.flatMap(w => w.days).find(d => {
+    return d.resources?.some(r => r.url === resourceId) || d.practice?.some(p => p.url === resourceId);
+  });
+  if (!day) return 0;
+
+  const totalDays = course.totalDays || 30;
+  const dayMinutes = day.estimatedMinutes || Math.round((course.estimatedHours ?? 45) * 60 / totalDays);
+  const dailyTotalXp = dayMinutes * 10;
+
+  const numResources = day.resources?.length || 0;
+  const numPractice = day.practice?.length || 0;
+
+  let resourceWeight = 0.15;
+  let practiceWeight = 0.60;
+
+  if (numResources === 0 && numPractice > 0) {
+    practiceWeight = 0.75;
+  } else if (numPractice === 0 && numResources > 0) {
+    resourceWeight = 0.75;
+  }
+
+  const isResource = day.resources?.some(r => r.url === resourceId);
+  const isPractice = day.practice?.some(p => p.url === resourceId);
+
+  if (isResource && numResources > 0) {
+    return Math.round((resourceWeight * dailyTotalXp) / numResources);
+  } else if (isPractice && numPractice > 0) {
+    return Math.round((practiceWeight * dailyTotalXp) / numPractice);
+  }
+
+  return 0;
+}
+
 export function isResourceComplete(
   store: ProgressStore,
   courseId: string,
@@ -85,11 +132,17 @@ export function toggleResource(
 ): ProgressStore {
   const current = getCourseProgress(store, courseId);
   const resources = new Set(current.completedResources || []);
-  if (resources.has(resourceId)) {
-    resources.delete(resourceId);
-  } else {
+  const itemXp = getResourceXp(courseId, resourceId);
+  const isAdding = !resources.has(resourceId);
+
+  if (isAdding) {
     resources.add(resourceId);
+    if (itemXp > 0) addXp(itemXp);
+  } else {
+    resources.delete(resourceId);
+    if (itemXp > 0) addXp(-itemXp);
   }
+
   return {
     ...store,
     [courseId]: { ...current, completedResources: Array.from(resources) },
@@ -104,11 +157,19 @@ export function setResourceComplete(
 ): ProgressStore {
   const current = getCourseProgress(store, courseId);
   const resources = new Set(current.completedResources || []);
+  const currentlyComplete = resources.has(resourceId);
+  if (currentlyComplete === complete) return store;
+
+  const itemXp = getResourceXp(courseId, resourceId);
+
   if (complete) {
     resources.add(resourceId);
+    if (itemXp > 0) addXp(itemXp);
   } else {
     resources.delete(resourceId);
+    if (itemXp > 0) addXp(-itemXp);
   }
+
   return {
     ...store,
     [courseId]: { ...current, completedResources: Array.from(resources) },

@@ -55,15 +55,26 @@ function loadYouTubeApi(): Promise<void> {
   return ytApiPromise;
 }
 
+import { useToast } from "@/components/ToastNotification";
+import { getResourceXp } from "@/lib/progress";
+
 export function ResourceLink({ courseId, resource, onSelect }: ResourceLinkProps) {
   const { isResourceComplete, toggleResource, setResourceComplete, hydrated } = useProgress();
+  const { toast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const playerRef = useRef<any>(null);
 
   const done = hydrated && isResourceComplete(courseId, resource.url);
 
   const handleToggle = () => {
+    const wasDone = isResourceComplete(courseId, resource.url);
     toggleResource(courseId, resource.url);
+    if (!wasDone) {
+      const xp = getResourceXp(courseId, resource.url);
+      if (xp > 0) {
+        toast(`+${xp} XP earned!`, "success");
+      }
+    }
   };
 
   useEffect(() => {
@@ -83,6 +94,10 @@ export function ResourceLink({ courseId, resource, onSelect }: ResourceLinkProps
                     const duration = playerRef.current.getDuration();
                     if (duration > 0 && (currentTime / duration) >= 0.6) {
                       setResourceComplete(courseId, resource.url, true);
+                      const xp = getResourceXp(courseId, resource.url);
+                      if (xp > 0) {
+                        toast(`+${xp} XP earned! (Watched 60%)`, "success");
+                      }
                       clearInterval(interval);
                     }
                   }

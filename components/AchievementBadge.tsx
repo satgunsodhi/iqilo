@@ -17,18 +17,18 @@ const RARITY_LABELS: Record<Badge["rarity"], string> = {
 export function AchievementBadge({ badge, unlocked, showRarity = true, animate = false }: AchievementBadgeProps) {
   return (
     <div
-      className={`badge-card rarity-${badge.rarity} flex flex-col items-center gap-2.5 rounded-2xl p-4 text-center ${
-        unlocked ? "unlocked" : ""
+      className={`badge-card rarity-${badge.rarity} flex flex-col items-center gap-2.5 p-4 text-center glass-panel ${
+        unlocked ? "unlocked" : "locked"
       } ${animate && unlocked ? "animate-badge-unlock" : ""}`}
       style={{
-        opacity: unlocked ? 1 : 0.5,
+        opacity: unlocked ? 1 : 0.6,
       }}
       title={unlocked ? `Unlocked! +${badge.xpReward} XP` : `Locked — ${badge.description}`}
     >
       {/* Icon */}
       <div className="relative">
         <span
-          className="flex h-14 w-14 items-center justify-center rounded-xl text-2xl transition-transform duration-300"
+          className="flex h-14 w-14 items-center justify-center rounded-xl text-2xl transition-all duration-200"
           style={{
             background: unlocked
               ? "color-mix(in srgb, var(--rarity-color) 18%, transparent)"
@@ -52,8 +52,8 @@ export function AchievementBadge({ badge, unlocked, showRarity = true, animate =
       </div>
 
       {/* Name */}
-      <div>
-        <p className="text-xs font-black" style={{ color: unlocked ? "var(--text-primary)" : "var(--text-faint)" }}>
+      <div className="flex-1 flex flex-col justify-center">
+        <p className="text-xs font-black" style={{ color: "var(--text-primary)" }}>
           {badge.name}
         </p>
         <p className="mt-0.5 text-[10px] font-medium leading-snug" style={{ color: "var(--text-muted)" }}>
@@ -62,7 +62,7 @@ export function AchievementBadge({ badge, unlocked, showRarity = true, animate =
       </div>
 
       {/* Rarity & Status */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center justify-center gap-1.5 mt-auto">
         {showRarity && (
           <span
             className="rounded-full px-2 py-0.5 text-[9px] font-black uppercase tracking-wide"

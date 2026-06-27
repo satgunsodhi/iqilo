@@ -22,6 +22,7 @@ import { ResourceLink } from "./ResourceLink";
 import { TaskList } from "./TaskList";
 import { useProgress } from "@/hooks/useProgress";
 import { useToast } from "./ToastNotification";
+import { getTaskState } from "@/lib/tasks";
 
 type DayContentProps = {
   course: Course;
@@ -36,10 +37,11 @@ const PROTOCOL_META = [
   { key: "template",   label: "Template",   time: "~15 min", color: "var(--accent-green)"  },
 ] as const;
 
+import { getResourceXp } from "@/lib/progress";
+
 export function DayContent({ course, week, day }: DayContentProps) {
   const { visitDay, getCourseStats, isDayComplete, toggleDay, isResourceComplete, toggleResource, hydrated } = useProgress();
   const { toast } = useToast();
-  const [tasksDone, setTasksDone] = useState(day.tasks ? day.tasks.length === 0 : true);
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [activeItemType, setActiveItemType] = useState<"resource" | "practice" | "task" | "protocol" | null>(null);
   const [activeItemData, setActiveItemData] = useState<any>(null);
@@ -60,19 +62,28 @@ export function DayContent({ course, week, day }: DayContentProps) {
     visitDay(course.id, day.dayNumber);
   }, [course.id, day.dayNumber, visitDay]);
 
-  // Auto-complete logic
+  // Auto-complete logic — re-runs whenever any resource or practice item changes
   useEffect(() => {
     if (!hydrated || complete) return;
 
-    const resourcesDone = day.resources
+    const resourcesDone = day.resources && day.resources.length > 0
       ? day.resources.every((r) => isResourceComplete(course.id, r.url))
       : true;
 
-    if (resourcesDone && tasksDone) {
+    const practiceDone = day.practice && day.practice.length > 0
+      ? day.practice.every((p) => isResourceComplete(course.id, p.url))
+      : true;
+
+    const taskState = getTaskState(course.id, day.dayNumber);
+    const tasksAllDone = day.tasks && day.tasks.length > 0
+      ? day.tasks.every((_, i) => !!taskState[i])
+      : true;
+
+    if (resourcesDone && practiceDone && tasksAllDone) {
       toggleDay(course.id, day.dayNumber, true);
-      toast("Completed! Great job.", "success");
+      toast("Day complete! Great work. 🎉", "success");
     }
-  }, [hydrated, complete, day.resources, tasksDone, isResourceComplete, course.id, day.dayNumber, toggleDay, toast]);
+  });
 
   // Item active timer for auto-completion
   useEffect(() => {
@@ -83,7 +94,8 @@ export function DayContent({ course, week, day }: DayContentProps) {
 
     const timer = setTimeout(() => {
       toggleResource(course.id, activeItemId);
-      toast("Marked as read!", "success");
+      const xp = getResourceXp(course.id, activeItemId);
+      toast(`Marked as read! +${xp} XP earned!`, "success");
     }, 30000); // 30 seconds
 
     return () => clearTimeout(timer);

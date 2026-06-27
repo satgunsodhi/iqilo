@@ -7,7 +7,11 @@
   --bg-surface:     #FFFFFF;
   --bg-raised:      #F1F5F9;
   --bg-sunken:      #E2E8F0;
-  --bg-overlay:     rgba(249, 248, 244, 0.95);
+  --bg-overlay:     rgba(248, 250, 252, 0.85);
+  --glass-surface:  rgba(255, 255, 255, 0.85);
+  --glass-raised:   rgba(241, 245, 249, 0.70);
+  --glass-border:   rgba(255, 255, 255, 0.45);
+  --glass-inset:    rgba(226, 232, 240, 0.50);
 
   --border-subtle:  #d1d5db;
   --border-default: #9ca3af;
@@ -59,7 +63,11 @@
   --bg-surface:     #0F172A; /* Slate 900 */
   --bg-raised:      #1E293B; /* Slate 800 */
   --bg-sunken:      #020617; /* Slate 950 */
-  --bg-overlay:     rgba(18, 18, 18, 0.95);
+  --bg-overlay:     rgba(2, 6, 23, 0.85);
+  --glass-surface:  rgba(15, 23, 42, 0.80);
+  --glass-raised:   rgba(30, 41, 59, 0.65);
+  --glass-border:   rgba(255, 255, 255, 0.08);
+  --glass-inset:    rgba(2, 6, 23, 0.55);
 
   --border-subtle:  #374151;
   --border-default: #4b5563;
@@ -243,9 +251,26 @@ code {
 }
 
 .glass-panel {
-  background: color-mix(in srgb, var(--bg-surface) 80%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: var(--glass-surface);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 1px 0 var(--glass-border), inset 0 -1px 0 rgba(0,0,0,0.04);
+}
+
+/* Raised glass — for sections sitting on top of glass-panel */
+.glass-raised {
+  background: var(--glass-raised);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  box-shadow: inset 0 1px 0 var(--glass-border);
+}
+
+/* Sunken glass — for inset cells / stat boxes inside a glass-panel */
+.glass-inset {
+  background: var(--glass-inset);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.04);
 }
 
 .noise-overlay {
@@ -295,39 +320,64 @@ code {
 }
 
 /* ─── Card shimmer overlay ──────────────────────────────────── */
+.card-shimmer-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--glass-border) 0%, transparent 60%);
+  opacity: 1;
+  pointer-events: none;
+  z-index: 0;
+}
 .card-shimmer-overlay::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0) 50%, rgba(255,255,255,0));
+  background: linear-gradient(135deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 55%, rgba(255,255,255,0.04) 100%);
   opacity: 0;
   transition: opacity var(--transition-default);
   pointer-events: none;
+  z-index: 0;
 }
 .card-shimmer-overlay:hover::after {
   opacity: 1;
 }
 
-/* ─── Rarity border glow -> Monochrome ────────────────────────────────── */
-.rarity-common  { --rarity-color: var(--border-default); }
-.rarity-rare    { --rarity-color: var(--border-strong); }
-.rarity-epic    { --rarity-color: var(--text-secondary); }
-.rarity-legendary { --rarity-color: var(--text-primary); }
+/* ─── Rarity border glow -> Vibrant Accents ────────────────────────────────── */
+.rarity-common  { --rarity-color: var(--accent-blue); }
+.rarity-rare    { --rarity-color: var(--accent-teal); }
+.rarity-epic    { --rarity-color: var(--accent-purple); }
+.rarity-legendary { --rarity-color: var(--accent-yellow); }
 
 .badge-card {
-  border: 1px solid var(--border-subtle);
-  background: var(--bg-surface);
-  transition: all 0.3s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.2s ease;
   border-radius: var(--radius-xl);
+  border: 1px solid var(--border-subtle);
+  height: 100%;
+  position: relative;
+  overflow: hidden;
 }
 .badge-card.unlocked {
-  border: 1px solid var(--text-primary);
-  background: var(--bg-raised);
+  border: 1px solid color-mix(in srgb, var(--rarity-color) 40%, transparent);
 }
 .badge-card.unlocked:hover {
-  transform: translateY(-2px);
-  box-shadow: 4px 4px 0 var(--text-primary);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px color-mix(in srgb, var(--rarity-color) 20%, transparent), 0 4px 8px rgba(0,0,0,0.1);
+  border-color: color-mix(in srgb, var(--rarity-color) 60%, transparent);
+}
+.badge-card.unlocked::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--rarity-color) 8%, transparent) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.badge-card.unlocked:hover::before {
+  opacity: 1;
 }
 
 /* ─── XP Level bar ────────────────────────────────────────────────────── */

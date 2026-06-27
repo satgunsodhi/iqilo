@@ -1,3 +1,4 @@
+import { introProgrammingRoadmap } from "@/data/courses/intro-programming-roadmap";
 import { competitiveProgrammingRoadmap } from "@/data/courses/core-programming-roadmap";
 import { advancedBridgeRoadmap } from "@/data/courses/advanced-programming-roadmap";
 import { quantFoundationRoadmap } from "@/data/courses/python-for-quants-data-wrangling";
@@ -7,6 +8,7 @@ import { derivativesRiskRoadmap } from "@/data/courses/python-for-quants-derivat
 import type { Course } from "./types";
 
 const courses: Course[] = [
+  introProgrammingRoadmap,
   competitiveProgrammingRoadmap,
   advancedBridgeRoadmap,
   quantFoundationRoadmap,
