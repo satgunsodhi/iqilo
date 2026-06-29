@@ -21,9 +21,9 @@ export function HelpSection() {
       </div>
 
       <div className="flex flex-col gap-3 relative z-10">
-        <a href="https://deepwiki.com/satgunsodhi/iqilo" target="_blank" rel="noopener noreferrer" className="interactive help-button flex items-center gap-3 rounded-2xl px-5 py-4 text-left text-sm font-bold shadow-sm">
+        <a href="https://github.com/satgunsodhi/iqilo" target="_blank" rel="noopener noreferrer" className="interactive help-button flex items-center gap-3 rounded-2xl px-5 py-4 text-left text-sm font-bold shadow-sm">
           <BookOpen className="help-button-icon-purple h-4 w-4" />
-          <span>Browse documentation</span>
+          <span>Explore Source Code</span>
         </a>
         <a href="mailto:satgunsodhi@gmail.com" className="interactive help-button flex items-center gap-3 rounded-2xl px-5 py-4 text-left text-sm font-bold shadow-sm">
           <Mail className="help-button-icon-green h-4 w-4" />

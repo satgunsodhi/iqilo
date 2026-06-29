@@ -142,10 +142,10 @@ export default function HomePage() {
                     Get Started
                   </span>
                   <h2 className="hero-title mt-6 text-4xl font-black leading-tight sm:text-5xl tracking-tight text-balance">
-                    Start Your Learning Journey
+                    Start Your Gamified Tech Roadmap
                   </h2>
                   <p className="hero-subtitle mt-4 text-base sm:text-lg font-medium">
-                    Choose a course and begin mastering new skills today
+                    Choose a curated learning path, track your streaks, and earn XP today
                   </p>
                   <Link
                     href="/courses"

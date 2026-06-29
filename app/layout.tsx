@@ -19,9 +19,27 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "iqilo",
+  metadataBase: new URL('https://iqilo.vercel.com'),
+  title: {
+    default: "Iqilo | Gamified Tech Learning Platform",
+    template: "%s | Iqilo"
+  },
   description:
-    "A premium course platform for DSA, competitive programming, and quantitative finance — with day-level progress tracking and structured roadmaps.",
+    "A gamified learning platform with curated roadmaps for tech skills. Track your coding streaks and earn XP as you learn.",
+  keywords: ["gamified developer roadmaps", "AI generated learning paths", "tech skill roadmaps", "track coding streaks", "earn XP learning to code", "gamified tech learning platform", "iqilo"],
+  openGraph: {
+    title: "Iqilo | Gamified Tech Learning Platform",
+    description: "Curated learning roadmaps for tech skills with built-in gamification. Track streaks and earn XP.",
+    url: "https://iqilo.vercel.com",
+    siteName: "Iqilo",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Iqilo | Gamified Tech Learning Platform",
+    description: "Curated learning roadmaps for tech skills with built-in gamification. Track streaks and earn XP.",
+  },
 };
 
 export default function RootLayout({
