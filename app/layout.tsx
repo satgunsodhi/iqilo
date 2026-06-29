@@ -3,6 +3,7 @@ import { ProgressProvider } from "@/hooks/useProgress";
 import { SiteHeader } from "@/components/SiteHeader";
 import { ToastProvider } from "@/components/ToastNotification";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -45,6 +46,7 @@ export default function RootLayout({
             <main className="flex-1">{children}</main>
           </ToastProvider>
         </ProgressProvider>
+        <Analytics />
       </body>
     </html>
   );
