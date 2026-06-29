@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2DB6FC" />
+      <stop offset="100%" stop-color="#0584E6" />
+    </linearGradient>
+  </defs>
+  
+  <g transform="translate(6, 2)">
+    <circle cx="26" cy="26" r="14" stroke="url(#brandGradient)" stroke-width="12" fill="none" />
+    <rect x="34" y="6" width="12" height="48" fill="url(#brandGradient)" />
+  </g>
+</svg>

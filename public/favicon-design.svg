@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <!-- Visor Gradient -->
+    <linearGradient id="visorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+  </defs>
+
+  <style>
+    .pet-body {
+      fill: #0f172a;
+    }
+    @media (prefers-color-scheme: dark) {
+      .pet-body {
+        fill: #f8fafc;
+      }
+    }
+  </style>
+
+  <!-- Solid Filled Circle representing the 'o' -->
+  <circle class="pet-body" cx="64" cy="78" r="24" />
+
+  <!-- Visor Shadow on the circle for realistic depth -->
+  <path d="M 34,56 Q 64,66 94,56" stroke="#090d16" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.25" />
+
+  <!-- Google-style Baseball Cap (Crown Panels) -->
+  <g>
+    <!-- Left Crown Panel (Dark Blue Shadow) -->
+    <path d="M 38,54 C 38,38 48,30 64,30 C 64,40 61,48 51,54 Z" fill="#1e3a8a" />
+    
+    <!-- Middle Crown Panel (Light Sky Blue Highlight) -->
+    <path d="M 51,54 C 61,48 64,40 64,30 C 64,40 67,48 77,54 Z" fill="#38bdf8" />
+    
+    <!-- Right Crown Panel (Medium Blue) -->
+    <path d="M 77,54 C 67,48 64,40 64,30 C 80,30 90,38 90,54 Z" fill="#2563eb" />
+    
+    <!-- Top Cap Button -->
+    <circle cx="64" cy="30" r="3.5" fill="#38bdf8" />
+  </g>
+
+  <!-- Cap Visor/Brim -->
+  <path d="M 32,54 Q 64,64 96,54 Q 64,52 32,54 Z" fill="url(#visorGradient)" />
+</svg>
