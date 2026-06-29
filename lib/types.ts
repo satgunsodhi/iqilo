@@ -94,17 +94,44 @@ export type XpState = {
   level: number;
 };
 
+export function getXpNeededForLevel(level: number): number {
+  if (level <= 0) return 0;
+  if (level >= 1 && level <= 7) {
+    return level * 1000;
+  }
+  if (level === 8) return 9000;
+  if (level === 9) return 11000;
+  if (level === 10) return 12500;
+  if (level === 11) return 14000;
+  if (level >= 12 && level <= 41) {
+    return 14000 + (level - 11) * 400;
+  }
+  if (level >= 42 && level <= 50) {
+    return 26000 + (level - 41) * 1200;
+  }
+  if (level >= 51 && level <= 65) {
+    return 98700;
+  }
+  if (level >= 66 && level <= 80) {
+    return 246750;
+  }
+  if (level >= 81 && level <= 90) {
+    return 493500;
+  }
+  return 1110375;
+}
+
 export function getLevelFromXp(xp: number): number {
+  const MAX_LEVEL = 200;
   let level = 1;
-  let xpNeeded = 200;
   let remainingXp = xp;
-  while (remainingXp >= xpNeeded) {
-    remainingXp -= xpNeeded;
-    level++;
-    if (level === 2) {
-      xpNeeded = 500;
+  while (level < MAX_LEVEL) {
+    const needed = getXpNeededForLevel(level);
+    if (remainingXp >= needed) {
+      remainingXp -= needed;
+      level++;
     } else {
-      xpNeeded = (level - 1) * 1000;
+      break;
     }
   }
   return level;
@@ -113,22 +140,16 @@ export function getLevelFromXp(xp: number): number {
 export function getXpForLevel(level: number): number {
   let total = 0;
   for (let i = 1; i < level; i++) {
-    if (i === 1) {
-      total += 200;
-    } else if (i === 2) {
-      total += 500;
-    } else {
-      total += (i - 1) * 1000;
-    }
+    total += getXpNeededForLevel(i);
   }
   return total;
 }
 
 export function getXpToNextLevel(currentXp: number): { current: number; needed: number; percent: number } {
   const level = getLevelFromXp(currentXp);
-  let xpAtLevel = getXpForLevel(level);
-  let xpNeeded = level === 1 ? 200 : level === 2 ? 500 : (level - 1) * 1000;
-  let current = currentXp - xpAtLevel;
+  const xpAtLevel = getXpForLevel(level);
+  const xpNeeded = getXpNeededForLevel(level);
+  const current = currentXp - xpAtLevel;
   return {
     current,
     needed: xpNeeded,

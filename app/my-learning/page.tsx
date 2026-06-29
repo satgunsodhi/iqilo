@@ -7,69 +7,36 @@ import { AchievementBadge } from "@/components/AchievementBadge";
 import { ActivityCalendar } from "@/components/ActivityCalendar";
 import { ProgressBar } from "@/components/ProgressBar";
 import { listCourses } from "@/lib/courses";
-import { getActivityMap, getCurrentStreak, getTotalActiveDays } from "@/lib/activity";
+import { useProgress, useGamification } from "@/hooks/useProgress";
+import { getActivityMap, getTotalActiveDays } from "@/lib/activity";
 import { BADGES } from "@/lib/achievements";
-import { useProgress } from "@/hooks/useProgress";
 import type { ActivityMap, BadgeId } from "@/lib/types";
 
 
 
 export default function MyLearningPage() {
-  const { store, hydrated, getCourseStats, getNextDay } = useProgress();
+  const { store, hydrated, getCourseStats, getNextDay, badges } = useProgress();
+  const { streak: gamStreak } = useGamification();
   const courses = listCourses();
   const [activityMap, setActivityMap] = useState<ActivityMap>({});
-  const [streak, setStreak] = useState(0);
   const [totalActive, setTotalActive] = useState(0);
 
   useEffect(() => {
-    setActivityMap(getActivityMap());
-    setStreak(getCurrentStreak());
-    setTotalActive(getTotalActiveDays());
+    const timer = setTimeout(() => {
+      setActivityMap(getActivityMap());
+      setTotalActive(getTotalActiveDays());
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Compute total completed across all courses
   const totalCompleted = hydrated
     ? Object.values(store).reduce((sum, p) => sum + (p?.completedDays?.length ?? 0), 0)
     : 0;
-  const totalDays = courses.reduce((sum, c) => sum + c.totalDays, 0);
 
   const startedCourses = hydrated ? courses.filter((c) => store[c.id] !== undefined) : [];
 
-  // Evaluate badges
-  function isUnlocked(id: BadgeId): boolean {
-    if (!hydrated) return false;
-    const allProgress = courses.map((c) => getCourseStats(c));
-
-    switch (id) {
-      case "first_day":       return totalCompleted >= 1;
-      case "streak_3":        return streak >= 3;
-      case "streak_7":        return streak >= 7;
-      case "week_1":          return allProgress.some((p) => p.completed >= 7);
-      case "halfway":         return allProgress.some((p) => p.percent >= 50);
-      case "course_complete": return allProgress.some((p) => p.completed >= p.total && p.total > 0);
-      case "all_notes": {
-        let noteCount = 0;
-        for (const c of courses) {
-          for (const w of c.weeks) {
-            for (const d of w.days) {
-              if (typeof localStorage !== "undefined" &&
-                  localStorage.getItem(`iqilo-notes-${c.id}-${d.dayNumber}`)?.trim()) {
-                noteCount++;
-              }
-            }
-          }
-        }
-        return noteCount >= 5;
-      }
-      case "speed_learner": {
-        const today = new Date().toISOString().slice(0, 10);
-        return (activityMap[today] ?? 0) >= 3;
-      }
-      default: return false;
-    }
-  }
-
-  const unlockedCount = BADGES.filter((b) => isUnlocked(b.id)).length;
+  const unlockedCount = hydrated ? badges.length : 0;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -94,7 +61,7 @@ export default function MyLearningPage() {
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {[
           { icon: Zap,    label: "Days Done",   value: totalCompleted,            color: "var(--accent-purple)" },
-          { icon: Flame,  label: "Day Streak",  value: `${streak}🔥`,            color: "var(--accent-red)"    },
+          { icon: Flame,  label: "Day Streak",  value: `${gamStreak.current}🔥`,            color: "var(--accent-red)"    },
           { icon: Trophy, label: "Badges",      value: `${unlockedCount}/${BADGES.length}`, color: "var(--accent-yellow)" },
           { icon: Star,   label: "Active Days", value: totalActive,               color: "var(--accent-green)"  },
         ].map(({ icon: Icon, label, value, color }) => (
@@ -206,7 +173,7 @@ export default function MyLearningPage() {
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5">
           {BADGES.map((badge) => (
-            <AchievementBadge key={badge.id} badge={badge} unlocked={isUnlocked(badge.id)} />
+            <AchievementBadge key={badge.id} badge={badge} unlocked={hydrated && badges.includes(badge.id)} />
           ))}
         </div>
       </section>

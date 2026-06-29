@@ -15,7 +15,7 @@ export function HelpSection() {
             Need a hand?
           </h3>
           <p className="help-description text-sm font-medium">
-            We're here to help you succeed
+            We&apos;re here to help you succeed
           </p>
         </div>
       </div>

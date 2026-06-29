@@ -9,6 +9,10 @@ type ResourceEmbedPanelProps = {
   onClose: () => void;
 };
 
+function getHostnameSafe(url: string): string {
+  try { return new URL(url).hostname; } catch { return url; }
+}
+
 export function ResourceEmbedPanel({ url, label, onClose }: ResourceEmbedPanelProps) {
   const [expanded, setExpanded] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -67,7 +71,7 @@ export function ResourceEmbedPanel({ url, label, onClose }: ResourceEmbedPanelPr
         >
           {/* Favicon */}
           <img
-            src={`https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=16`}
+            src={`https://www.google.com/s2/favicons?domain=${getHostnameSafe(url)}&sz=16`}
             alt=""
             className="h-4 w-4 rounded"
             onError={(e) => (e.currentTarget.style.display = "none")}
@@ -77,7 +81,7 @@ export function ResourceEmbedPanel({ url, label, onClose }: ResourceEmbedPanelPr
             {label}
           </p>
           <p className="hidden truncate text-xs font-medium sm:block" style={{ color: "var(--text-faint)", maxWidth: "160px" }}>
-            {new URL(url).hostname}
+            {getHostnameSafe(url)}
           </p>
 
           <div className="flex items-center gap-1">
@@ -143,7 +147,7 @@ export function ResourceEmbedPanel({ url, label, onClose }: ResourceEmbedPanelPr
               </span>
               <div>
                 <p className="mb-1 text-base font-black" style={{ color: "var(--text-primary)" }}>
-                  Can't embed this page
+                  Can&apos;t embed this page
                 </p>
                 <p className="max-w-xs text-sm font-medium" style={{ color: "var(--text-muted)" }}>
                   This site blocks embedding for security reasons. Open it in a new tab instead.

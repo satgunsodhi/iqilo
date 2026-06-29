@@ -10,13 +10,17 @@ export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
-    setMounted(true);
-    const saved = window.localStorage.getItem("iqilo-theme");
-    if (saved === "dark" || saved === "light") {
-      setTheme(saved);
-    } else {
-      setTheme("dark");
-    }
+    const timer = setTimeout(() => {
+      setMounted(true);
+      const saved = window.localStorage.getItem("iqilo-theme");
+      if (saved === "dark" || saved === "light") {
+        setTheme(saved);
+      } else {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        setTheme(prefersDark ? "dark" : "light");
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {

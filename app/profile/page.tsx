@@ -76,7 +76,7 @@ function WeeklyGoalRing({ completed, goal }: { completed: number; goal: number }
 }
 
 export default function ProfilePage() {
-  const { store, hydrated, checkAchievements } = useProgress();
+  const { store, hydrated } = useProgress();
   const { xp, streak, badges, xpToNextLevel } = useGamification();
   const { toast } = useToast();
   const courses = listCourses();
@@ -87,15 +87,19 @@ export default function ProfilePage() {
   const importRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const u = getUser();
-    setUser(u);
-    setDraft({ name: u.name, weeklyGoal: u.weeklyGoal });
+    const timer = setTimeout(() => {
+      const u = getUser();
+      setUser(u);
+      setDraft({ name: u.name, weeklyGoal: u.weeklyGoal });
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
+  const startedCourses = hydrated ? courses.filter((c) => store[c.id] !== undefined) : [];
   const totalCompleted = hydrated
-    ? Object.values(store).reduce((sum, p) => sum + (p?.completedDays?.length ?? 0), 0)
+    ? startedCourses.reduce((sum, c) => sum + (store[c.id]?.completedDays?.length ?? 0), 0)
     : 0;
-  const totalDays = courses.reduce((sum, c) => sum + c.totalDays, 0);
+  const totalDays = startedCourses.reduce((sum, c) => sum + c.totalDays, 0);
 
   // Calculate weekly completions from activity store
   const weeklyCompletions = (() => {
@@ -157,12 +161,8 @@ export default function ProfilePage() {
   };
 
   const handleReset = () => {
-    localStorage.removeItem("dsa-learner-progress");
-    localStorage.removeItem("iqilo-activity");
-    localStorage.removeItem("iqilo-tasks");
-    localStorage.removeItem("iqilo-xp");
-    localStorage.removeItem("iqilo-streak");
-    localStorage.removeItem("iqilo-badges");
+    const keysToRemove = Object.keys(localStorage).filter(k => k.startsWith("iqilo-") || k === "dsa-learner-progress");
+    keysToRemove.forEach(k => localStorage.removeItem(k));
     window.location.reload();
   };
 
@@ -240,7 +240,7 @@ export default function ProfilePage() {
               border: "1px solid var(--border-default)",
             }}
           >
-            <span className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>{xp.level}</span>
+            <span className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>{hydrated ? xp.level : "1"}</span>
             <span className="text-[9px] font-bold uppercase tracking-widest" style={{ color: "var(--text-faint)" }}>Level</span>
           </div>
         </div>
@@ -288,15 +288,15 @@ export default function ProfilePage() {
             <Zap className="h-4 w-4" style={{ color: "var(--text-primary)" }} />
             <span className="text-xs font-black uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>Experience</span>
           </div>
-          <p className="text-3xl font-black" style={{ color: "var(--text-primary)" }}>{xp.total}</p>
+          <p className="text-3xl font-black" style={{ color: "var(--text-primary)" }}>{hydrated ? xp.total : "0"}</p>
           <p className="mt-1 text-xs font-medium" style={{ color: "var(--text-muted)" }}>Total XP earned</p>
           <div className="mt-3">
             <div className="mb-1 flex items-center justify-between text-[10px] font-bold" style={{ color: "var(--text-faint)" }}>
-              <span>Level {xp.level}</span>
-              <span>{xpToNextLevel.current}/{xpToNextLevel.needed} XP</span>
+              <span>Level {hydrated ? xp.level : "1"}</span>
+              <span>{hydrated ? `${xpToNextLevel.current}/${xpToNextLevel.needed}` : "0/1000"} XP</span>
             </div>
             <div className="xp-bar-track h-2">
-              <div className="xp-bar-fill" style={{ width: `${xpToNextLevel.percent}%` }} />
+              <div className="xp-bar-fill" style={{ width: `${hydrated ? xpToNextLevel.percent : 0}%` }} />
             </div>
           </div>
         </div>

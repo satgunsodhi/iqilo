@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BrainCircuit, Search, LayoutDashboard, User, X, Zap } from "lucide-react";
+import { BrainCircuit, Search, LayoutDashboard, User, X, Code2, RefreshCw, Check, AlertCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { ThemeToggle } from "./ThemeToggle";
 import { StreakBadge } from "./StreakDisplay";
 import { listCourses } from "@/lib/courses";
 import { useGamification, useProgress } from "@/hooks/useProgress";
+import { useLeetCode } from "@/hooks/useLeetCode";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -20,6 +21,58 @@ export function SiteHeader() {
   const courses = listCourses();
   const { hydrated } = useProgress();
   const { xp, streak, xpToNextLevel } = useGamification();
+
+  const {
+    username: ltUsername,
+    syncStatus,
+    errorMsg,
+    lastSynced,
+    setUsername: setLtUsername,
+    sync: syncLeetCode,
+  } = useLeetCode();
+  const [leetcodeOpen, setLeetcodeOpen] = useState(false);
+  const [localUsername, setLocalUsername] = useState(ltUsername);
+  const [prevUsername, setPrevUsername] = useState(ltUsername);
+  const leetcodeRef = useRef<HTMLDivElement>(null);
+
+  // Sync state input initialization
+  if (ltUsername !== prevUsername) {
+    setLocalUsername(ltUsername);
+    setPrevUsername(ltUsername);
+  }
+
+  // Auto-sync on window focus & load
+  useEffect(() => {
+    if (!ltUsername) return;
+
+    function handleFocus() {
+      // Throttle syncs to once every 30 seconds
+      const now = Date.now();
+      const lastSyncedTime = lastSynced ? new Date(lastSynced).getTime() : 0;
+      if (now - lastSyncedTime > 30000 && syncStatus !== "syncing") {
+        syncLeetCode(ltUsername);
+      }
+    }
+
+    window.addEventListener("focus", handleFocus);
+    // Trigger on initial mount as well
+    handleFocus();
+
+    return () => window.removeEventListener("focus", handleFocus);
+  }, [ltUsername, lastSynced, syncStatus, syncLeetCode]);
+
+  // Close popover when clicking outside
+  useEffect(() => {
+    function handleOutsideClick(e: MouseEvent) {
+      if (leetcodeRef.current && !leetcodeRef.current.contains(e.target as Node)) {
+        setLeetcodeOpen(false);
+      }
+    }
+    if (leetcodeOpen) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [leetcodeOpen]);
 
   // Open search on Cmd+K / Ctrl+K
   useEffect(() => {
@@ -66,7 +119,7 @@ export function SiteHeader() {
       })();
 
   const navLinks = [
-    { href: "/", label: "Courses", icon: LayoutDashboard },
+    { href: "/", label: "Home", icon: LayoutDashboard },
     { href: "/my-learning", label: "My Learning", icon: LayoutDashboard },
     { href: "/profile", label: "Profile", icon: User },
   ];
@@ -75,23 +128,52 @@ export function SiteHeader() {
     <>
       <header
         className="sticky top-0 z-30 border-b glass-panel transition-all"
-        style={{ borderColor: "var(--border-subtle)" }}
+        style={{
+          borderColor: "var(--border-subtle)",
+          backgroundColor: "color-mix(in srgb, var(--bg-surface) 60%, transparent)",
+          backdropFilter: "blur(24px) saturate(180%)",
+        }}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           {/* Logo */}
           <Link href="/" className="group flex items-center gap-3">
-            <span
-              className="relative flex h-9 w-9 items-center justify-center rounded-xl shadow-md ring-1 ring-white/5 transition group-hover:scale-105"
-              style={{ background: "linear-gradient(135deg, var(--text-primary), color-mix(in srgb, var(--text-primary) 70%, transparent))" }}
-            >
-              <BrainCircuit className="h-5 w-5" style={{ color: "var(--accent-yellow)" }} />
-            </span>
-            <div className="hidden sm:block">
-              <p className="text-base font-black tracking-tight" style={{ color: "var(--text-primary)" }}>
-                iqilo
+            <svg viewBox="-5 -10 95 60" className="h-10 sm:h-12 w-auto transition-transform group-hover:scale-105" aria-label="iqilo logo">
+              <g fill="var(--text-primary)">
+                {/* i */}
+                <rect x="0" y="2" width="6" height="6" />
+                <rect x="0" y="12" width="6" height="20" />
+                
+                {/* q */}
+                <circle cx="22" cy="22" r="7" stroke="currentColor" strokeWidth="6" fill="none" />
+                <rect x="26" y="12" width="6" height="28" />
+
+                {/* i */}
+                <rect x="38" y="2" width="6" height="6" />
+                <rect x="38" y="12" width="6" height="20" />
+                <rect x="36" y="36" width="10" height="1" fill="var(--accent-blue, #3B82F6)" />
+
+                {/* l */}
+                <rect x="50" y="0" width="6" height="32" />
+                
+                {/* Flag Cap */}
+                <defs>
+                  <linearGradient id="flag-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="var(--accent-blue, #3B82F6)" />
+                    <stop offset="100%" stopColor="color-mix(in srgb, var(--accent-blue, #3B82F6) 50%, black)" />
+                  </linearGradient>
+                </defs>
+                <polygon points="56,0 70,4 56,10" fill="url(#flag-gradient)" />
+
+                {/* o */}
+                <circle cx="72" cy="22" r="7" stroke="currentColor" strokeWidth="6" fill="none" />
+              </g>
+            </svg>
+            <div className="hidden sm:block border-l-2 pl-3 ml-1 transition-colors" style={{ borderColor: "var(--border-subtle)" }}>
+              <p className="text-sm font-bold tracking-wide uppercase" style={{ color: "var(--text-primary)" }}>
+                Learning
               </p>
-              <p className="text-[10px] font-medium" style={{ color: "var(--text-muted)" }}>
-                Learning Platform
+              <p className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>
+                Platform
               </p>
             </div>
           </Link>
@@ -159,6 +241,118 @@ export function SiteHeader() {
               <div className="h-9 w-12 rounded-lg bg-[var(--bg-raised)] border border-[var(--border-subtle)] animate-pulse" />
             )}
 
+            {/* LeetCode Sync */}
+            {hydrated ? (
+              <div className="relative" ref={leetcodeRef}>
+                <button
+                  type="button"
+                  onClick={() => setLeetcodeOpen(!leetcodeOpen)}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border transition-all duration-200 hover:scale-105"
+                  style={{
+                    borderColor: leetcodeOpen
+                      ? "var(--accent-yellow)"
+                      : "var(--border-default)",
+                    background: leetcodeOpen
+                      ? "color-mix(in srgb, var(--accent-yellow) 8%, var(--bg-surface))"
+                      : "var(--bg-surface)",
+                    color: leetcodeOpen ? "var(--accent-yellow)" : "var(--text-muted)",
+                  }}
+                  title="LeetCode Integration"
+                >
+                  <Code2 className="h-4 w-4" />
+                </button>
+
+                {leetcodeOpen && (
+                  <div
+                    className="absolute right-0 mt-2 w-72 origin-top-right rounded-xl border p-4 shadow-xl transition-all duration-200 animate-scale-in"
+                    style={{
+                      background: "var(--bg-surface)",
+                      borderColor: "var(--border-subtle)",
+                      boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    <h3 className="mb-2 text-xs font-black uppercase tracking-wider" style={{ color: "var(--text-primary)" }}>
+                      LeetCode Sync
+                    </h3>
+                    <p className="mb-3 text-[11px]" style={{ color: "var(--text-muted)" }}>
+                      Automatically pull your latest accepted runs to mark practice questions as solved.
+                    </p>
+
+                    <div className="flex flex-col gap-2">
+                      <div>
+                        <label className="mb-1 block text-[10px] font-bold" style={{ color: "var(--text-faint)" }}>
+                          Username
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="LeetCode Username"
+                            value={localUsername}
+                            onChange={(e) => setLocalUsername(e.target.value)}
+                            className="flex-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold outline-none transition"
+                            style={{
+                              borderColor: "var(--border-default)",
+                              background: "var(--bg-sunken)",
+                              color: "var(--text-primary)",
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setLtUsername(localUsername);
+                              syncLeetCode(localUsername);
+                            }}
+                            disabled={syncStatus === "syncing"}
+                            className="flex items-center justify-center rounded-lg px-3 text-xs font-bold text-white transition-all disabled:opacity-50"
+                            style={{
+                              background: "linear-gradient(135deg, #f59e0b, #d97706)",
+                              boxShadow: "0 2px 4px color-mix(in srgb, #f59e0b 20%, transparent)",
+                            }}
+                          >
+                            {syncStatus === "syncing" ? (
+                              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              "Sync"
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Feedback message */}
+                      {syncStatus === "success" && (
+                        <div className="flex items-center gap-1.5 rounded-lg p-2 text-[11px] font-semibold animate-fade-in" style={{ background: "color-mix(in srgb, var(--accent-green) 10%, transparent)", color: "var(--accent-green)" }}>
+                          <Check className="h-3 w-3 shrink-0" />
+                          <span>Synced successfully!</span>
+                        </div>
+                      )}
+
+                      {syncStatus === "error" && errorMsg && (
+                        <div className="flex items-center gap-1.5 rounded-lg p-2 text-[11px] font-semibold animate-fade-in" style={{ background: "color-mix(in srgb, var(--accent-red) 10%, transparent)", color: "var(--accent-red)" }}>
+                          <AlertCircle className="h-3 w-3 shrink-0" />
+                          <span className="truncate text-xs">{errorMsg}</span>
+                        </div>
+                      )}
+
+                      {/* Last synced timestamp */}
+                      {lastSynced && (() => {
+                        const syncDate = new Date(lastSynced);
+                        const isToday = syncDate.toDateString() === new Date().toDateString();
+                        const timeStr = syncDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                        const label = isToday
+                          ? timeStr
+                          : `${syncDate.toLocaleDateString([], { month: 'short', day: 'numeric' })} · ${timeStr}`;
+                        return (
+                          <div className="text-[10px] font-medium mt-1 text-right" style={{ color: "var(--text-faint)" }}>
+                            Last synced: {label}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : null}
+
             {/* Search trigger */}
             <button
               type="button"
@@ -222,8 +416,8 @@ export function SiteHeader() {
             {/* Results */}
             {results.length > 0 && (
               <ul className="max-h-80 overflow-y-auto py-2">
-                {results.map((r, i) => (
-                  <li key={i}>
+                {results.map((r) => (
+                  <li key={r.href}>
                     <Link
                       href={r.href}
                       onClick={() => { setSearchOpen(false); setQuery(""); }}
@@ -252,7 +446,7 @@ export function SiteHeader() {
 
             {query.trim().length >= 2 && results.length === 0 && (
               <div className="px-4 py-6 text-center text-sm font-medium" style={{ color: "var(--text-muted)" }}>
-                No results for "<strong>{query}</strong>"
+                No results for &quot;<strong>{query}</strong>&quot;
               </div>
             )}
 

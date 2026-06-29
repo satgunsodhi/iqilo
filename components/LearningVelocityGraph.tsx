@@ -60,10 +60,11 @@ export function LearningVelocityGraph({ activity }: LearningVelocityGraphProps) 
                 <div
                   className={`w-full transition-all duration-500 ease-out group-hover:opacity-80 border-t-2`}
                   style={{ 
-                    height: `${Math.max(height, 8)}%`,
+                    height: item.count === 0 ? "2px" : `${Math.max(height, 8)}%`,
                     background: isToday ? "var(--text-primary)" : "var(--bg-sunken)",
                     borderColor: isToday ? "var(--text-primary)" : "var(--border-subtle)",
-                    boxShadow: isToday && item.count > 0 ? "none" : "none"
+                    boxShadow: isToday && item.count > 0 ? "none" : "none",
+                    opacity: item.count === 0 ? 0.2 : 1
                   }}
                   title={`${item.label}: ${item.count} day${item.count !== 1 ? "s" : ""}`}
                 />

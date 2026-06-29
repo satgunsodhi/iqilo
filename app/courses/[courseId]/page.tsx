@@ -17,6 +17,7 @@ const DIFFICULTY_COLORS: Record<string, string> = {
   Beginner:     "var(--accent-green)",
   Intermediate: "var(--accent-blue)",
   Advanced:     "var(--accent-red)",
+  Expert:       "var(--accent-purple)",
 };
 
 export default function CoursePage({ params }: PageProps) {

@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Sparkles, Play, BookOpen, Flame, Zap } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowRight, BookOpen, Flame, Zap } from "lucide-react";
+import { useEffect } from "react";
 import { listCourses } from "@/lib/courses";
 import { useProgress, useGamification } from "@/hooks/useProgress";
 import { getActivityMap } from "@/lib/activity";
@@ -13,8 +14,9 @@ import { HelpSection } from "@/components/HelpSection";
 
 export default function HomePage() {
   const courses = listCourses();
+  const router = useRouter();
   const { store, hydrated, getNextDay } = useProgress();
-  const { xp, streak, xpToNextLevel } = useGamification();
+  const { xp, streak } = useGamification();
   const activity = getActivityMap();
 
   // Find "continue where you left off" course
@@ -25,21 +27,13 @@ export default function HomePage() {
         .sort((a, b) => b.lastDay - a.lastDay)[0]
     : null;
 
-  // Find suggested next step (daily quest)
-  const dailyQuest = hydrated
-    ? courses
-        .map((c) => ({ course: c, nextDay: getNextDay(c), started: !!store[c.id] }))
-        .filter((x) => x.started && x.nextDay <= x.course.totalDays)
-        .sort((a, b) => a.nextDay - b.nextDay)[0]
-    : null;
-
   // Auto-redirect on first visit in the session
   useEffect(() => {
     if (hydrated && lastCourse) {
       const hasRedirected = sessionStorage.getItem("iqilo_auto_redirected");
       if (!hasRedirected) {
         sessionStorage.setItem("iqilo_auto_redirected", "true");
-        window.location.href = `/courses/${lastCourse.course.id}/day/${lastCourse.lastDay}`;
+        router.push(`/courses/${lastCourse.course.id}/day/${lastCourse.lastDay}`);
       }
     }
   }, [hydrated, lastCourse]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, Clock, Star, Swords, ChevronRight, BookOpen, Target, Sparkles } from "lucide-react";
 import type { Course } from "@/lib/types";
@@ -12,7 +12,6 @@ type RecommendedQuestsProps = {
   limit?: number;
 };
 
-const QUEST_ICONS = ["⚔️", "🧠", "🎯", "🚀"];
 
 export function RecommendedQuests({ courses, limit = 4 }: RecommendedQuestsProps) {
   const { getCourseStats, getNextDay, hydrated, store } = useProgress();
@@ -77,6 +76,13 @@ export function RecommendedQuests({ courses, limit = 4 }: RecommendedQuestsProps
   });
 
   const displayedCourses = sortedCourses.slice(0, limit);
+
+  // Reset selection if the displayed list changes (e.g. after course completion)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [displayedCourses.length]);
+
   const activeCourse = displayedCourses[selectedIndex] ?? displayedCourses[0];
 
   if (!activeCourse) return null;

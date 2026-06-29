@@ -18,8 +18,11 @@ export function TaskList({ courseId, dayNumber, tasks, onCompleteChange }: TaskL
   const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
-    setState(getTaskState(courseId, dayNumber));
-    setHydrated(true);
+    const timer = setTimeout(() => {
+      setState(getTaskState(courseId, dayNumber));
+      setHydrated(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [courseId, dayNumber]);
 
   const handleToggle = (index: number) => {

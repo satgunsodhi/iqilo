@@ -466,7 +466,7 @@ code {
 .border-default { border-color: var(--border-default); }
 
 .rounded-xl { border-radius: var(--radius-xl); }
-.rounded-2xl { border-radius: var(--radius-xl); }
+.rounded-2xl { border-radius: 16px; }
 
 /* ─── Certificate Card ───────────────────────────────────────────────── */
 .certificate-card {

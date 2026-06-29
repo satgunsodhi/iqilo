@@ -36,10 +36,13 @@ export function ActivityCalendar({ activity, weeks = 16 }: ActivityCalendarProps
   }, [activity, weeks]);
 
   // Group into columns of 7 (week columns)
-  const columns: (typeof cells)[] = [];
-  for (let i = 0; i < cells.length; i += 7) {
-    columns.push(cells.slice(i, i + 7));
-  }
+  const columns = useMemo(() => {
+    const cols: (typeof cells)[] = [];
+    for (let i = 0; i < cells.length; i += 7) {
+      cols.push(cells.slice(i, i + 7));
+    }
+    return cols;
+  }, [cells]);
 
   const months = useMemo(() => {
     const labels: { label: string; col: number }[] = [];

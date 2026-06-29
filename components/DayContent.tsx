@@ -12,17 +12,16 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { Course, Day, Week, Resource } from "@/lib/types";
+import type { Course, Day, Week } from "@/lib/types";
 import { CompletionToggle } from "./CompletionToggle";
 import { DayNotes } from "./DayNotes";
 import { DaySidebar } from "./DaySidebar";
 import { PitfallCallout } from "./PitfallCallout";
-import { PracticeCard } from "./PracticeCard";
-import { ResourceLink } from "./ResourceLink";
-import { TaskList } from "./TaskList";
 import { useProgress } from "@/hooks/useProgress";
 import { useToast } from "./ToastNotification";
 import { getTaskState } from "@/lib/tasks";
+import { BADGES } from "@/lib/achievements";
+import { useLeetCode } from "@/hooks/useLeetCode";
 
 type DayContentProps = {
   course: Course;
@@ -39,17 +38,35 @@ const PROTOCOL_META = [
 
 import { getResourceXp } from "@/lib/progress";
 
+type ActiveItemDataType = {
+  label?: string;
+  url?: string;
+  embed?: string;
+  platform?: string;
+  task?: string;
+  index?: number;
+  synthesize?: string;
+  grind?: string;
+  bridge?: string;
+  template?: string;
+};
+
 export function DayContent({ course, week, day }: DayContentProps) {
-  const { visitDay, getCourseStats, isDayComplete, toggleDay, isResourceComplete, toggleResource, hydrated } = useProgress();
+  const { visitDay, getCourseStats, isDayComplete, toggleDay, isResourceComplete, toggleResource, checkAchievements, hydrated } = useProgress();
+  const { isSolved: isLeetCodeSolved } = useLeetCode();
   const { toast } = useToast();
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [activeItemType, setActiveItemType] = useState<"resource" | "practice" | "task" | "protocol" | null>(null);
-  const [activeItemData, setActiveItemData] = useState<any>(null);
+  const [activeItemData, setActiveItemData] = useState<ActiveItemDataType | null>(null);
 
-  const handleSelectItem = (id: string, type: "resource" | "practice" | "task" | "protocol", item: any) => {
+  const handleSelectItem = (
+    id: string | null,
+    type: "resource" | "practice" | "task" | "protocol" | null,
+    item: unknown
+  ) => {
     setActiveItemId(id);
     setActiveItemType(type);
-    setActiveItemData(item);
+    setActiveItemData(item as ActiveItemDataType | null);
   };
 
   const prevDay = day.dayNumber > 1 ? day.dayNumber - 1 : null;
@@ -71,7 +88,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
       : true;
 
     const practiceDone = day.practice && day.practice.length > 0
-      ? day.practice.every((p) => isResourceComplete(course.id, p.url))
+      ? day.practice.every((p) => isResourceComplete(course.id, p.url) || (p.platform === "leetcode" && isLeetCodeSolved(p.url)))
       : true;
 
     const taskState = getTaskState(course.id, day.dayNumber);
@@ -81,9 +98,30 @@ export function DayContent({ course, week, day }: DayContentProps) {
 
     if (resourcesDone && practiceDone && tasksAllDone) {
       toggleDay(course.id, day.dayNumber, true);
+      const result = checkAchievements();
       toast("Day complete! Great work. 🎉", "success");
+
+      let dayMinutes = day?.estimatedMinutes;
+      if (!dayMinutes && course) {
+        dayMinutes = Math.round((course.estimatedHours ?? 45) * 60 / course.totalDays);
+      }
+      const dailyXp = (dayMinutes ?? 180) * 10;
+      const totalXp = dailyXp + result.xpGained;
+
+      if (totalXp > 0) {
+        toast(`+${totalXp} XP earned!`, "success");
+      }
+
+      for (const badgeId of result.newBadges) {
+        const badge = BADGES.find((b) => b.id === badgeId);
+        if (badge) {
+          setTimeout(() => {
+            toast(`🏆 Badge Unlocked: ${badge.name}!`, "info");
+          }, 600);
+        }
+      }
     }
-  });
+  }, [hydrated, complete, day, course, isResourceComplete, isLeetCodeSolved, toggleDay, checkAchievements, toast]);
 
   // Item active timer for auto-completion
   useEffect(() => {
@@ -93,6 +131,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
     if (isResourceComplete(course.id, activeItemId)) return;
 
     const timer = setTimeout(() => {
+      if (document.visibilityState !== "visible") return;
       toggleResource(course.id, activeItemId);
       const xp = getResourceXp(course.id, activeItemId);
       toast(`Marked as read! +${xp} XP earned!`, "success");
@@ -112,9 +151,15 @@ export function DayContent({ course, week, day }: DayContentProps) {
 
   return (
     <div className="flex gap-8">
-      {!activeItemType && (
-        <DaySidebar courseId={course.id} day={day} activeItemId={activeItemId} onSelectItem={handleSelectItem} />
-      )}
+      {/* DaySidebar always rendered — on mobile the FAB is preserved even when a panel is open.
+          hideDesktop collapses the desktop column when an item panel is active. */}
+      <DaySidebar
+        courseId={course.id}
+        day={day}
+        activeItemId={activeItemId}
+        onSelectItem={handleSelectItem}
+        hideDesktop={!!activeItemType}
+      />
 
       <div className="min-w-0 flex-1">
         {/* ── Sticky progress bar ─────────────────────────────────── */}
@@ -165,7 +210,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
             <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-raised)" }}>
               <div className="flex items-center gap-3">
                 <button
-                  onClick={() => handleSelectItem(null as any, null as any, null)}
+                  onClick={() => handleSelectItem(null, null, null)}
                   className="rounded-lg p-1.5 transition hover:bg-[var(--bg-sunken)]"
                   style={{ color: "var(--text-primary)" }}
                   title="Back to Day"
@@ -191,7 +236,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
                   </a>
                 )}
                 <button
-                  onClick={() => handleSelectItem(null as any, null as any, null)}
+                  onClick={() => handleSelectItem(null, null, null)}
                   className="rounded-lg p-1.5 transition hover:bg-[var(--bg-sunken)]"
                   style={{ color: "var(--text-muted)" }}
                 >
@@ -201,11 +246,11 @@ export function DayContent({ course, week, day }: DayContentProps) {
             </div>
             
             <div className="flex-1 w-full overflow-y-auto" style={{ background: "var(--bg-sunken)" }}>
-              {activeItemType === "resource" && (
+              {activeItemType === "resource" && activeItemData && (
                 activeItemData.embed === "youtube" ? (
                   <iframe
                     src={`https://www.youtube.com/embed/${
-                      activeItemData.url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/)?.[1] || ""
+                      activeItemData.url?.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/)?.[1] || ""
                     }`}
                     title={activeItemData.label}
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -222,7 +267,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
                 )
               )}
 
-              {activeItemType === "practice" && (
+              {activeItemType === "practice" && activeItemData && (
                 <div className="flex h-full flex-col items-center justify-center p-8 text-center">
                   <Target className="mb-4 h-16 w-16" style={{ color: "var(--accent-blue)" }} />
                   <h2 className="mb-6 text-2xl font-black" style={{ color: "var(--text-primary)" }}>{activeItemData.label}</h2>
@@ -239,7 +284,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
                 </div>
               )}
 
-              {activeItemType === "task" && (
+              {activeItemType === "task" && activeItemData && (
                 <div className="flex h-full flex-col items-center justify-center p-8 text-center">
                   <Check className="mb-4 h-16 w-16" style={{ color: "var(--accent-green)" }} />
                   <h2 className="text-2xl font-black" style={{ color: "var(--text-primary)" }}>{activeItemData.task}</h2>
@@ -249,11 +294,11 @@ export function DayContent({ course, week, day }: DayContentProps) {
                 </div>
               )}
 
-              {activeItemType === "protocol" && (
+              {activeItemType === "protocol" && activeItemData && (
                 <div className="mx-auto max-w-3xl p-6">
                   <div className="grid gap-4 sm:grid-cols-2">
                     {PROTOCOL_META.map((meta) => {
-                      const value = activeItemData[meta.key];
+                      const value = (activeItemData as Record<string, string | undefined>)[meta.key];
                       if (!value) return null;
                       return (
                         <div
@@ -368,7 +413,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
 
             {/* ── Bottom toggle ───────────────────────────────────────── */}
             <div className="mb-8">
-              <CompletionToggle courseId={course.id} dayNumber={day.dayNumber} />
+              {/* Removed duplicate CompletionToggle */}
             </div>
 
             {/* ── Day navigation ──────────────────────────────────────── */}

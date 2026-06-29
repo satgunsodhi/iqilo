@@ -1,6 +1,6 @@
 import type { Course, CourseProgress, ProgressStore } from "./types";
 import { recordActivity, removeActivity } from "./activity";
-import { updateStreakOnCompletion, addXp, XP_DAILY_COMPLETION } from "./achievements";
+import { updateStreakOnCompletion, addXp } from "./achievements";
 
 import { getCourseById } from "./courses";
 
@@ -49,9 +49,12 @@ export function toggleDay(
 ): ProgressStore {
   const current = getCourseProgress(store, courseId);
   const completed = new Set(current.completedDays);
+  let isAdding = false;
+
   if (forceState === true || (!forceState && !completed.has(dayNumber))) {
     if (!completed.has(dayNumber)) {
       completed.add(dayNumber);
+      isAdding = true;
       recordActivity();
       updateStreakOnCompletion();
       
@@ -68,6 +71,15 @@ export function toggleDay(
     if (completed.has(dayNumber)) {
       completed.delete(dayNumber);
       removeActivity();
+      
+      const course = getCourseById(courseId);
+      const day = course?.weeks.flatMap(w => w.days).find(d => d.dayNumber === dayNumber);
+      let dayMinutes = day?.estimatedMinutes;
+      if (!dayMinutes && course) {
+        dayMinutes = Math.round((course.estimatedHours ?? 45) * 60 / course.totalDays);
+      }
+      const dailyXp = (dayMinutes ?? 180) * 10;
+      addXp(-dailyXp);
     }
   }
   return {
@@ -75,7 +87,8 @@ export function toggleDay(
     [courseId]: {
       ...current,
       completedDays: Array.from(completed).sort((a, b) => a - b),
-      lastVisitedDay: dayNumber,
+      // Only advance lastVisitedDay when completing; preserve it when un-completing
+      ...(isAdding ? { lastVisitedDay: dayNumber } : {}),
     },
   };
 }
@@ -115,6 +128,23 @@ export function getResourceXp(courseId: string, resourceId: string): number {
   }
 
   return 0;
+}
+
+export function getTaskXp(courseId: string, dayNumber: number): number {
+  const course = getCourseById(courseId);
+  if (!course) return 0;
+  
+  const day = course.weeks.flatMap(w => w.days).find(d => d.dayNumber === dayNumber);
+  if (!day || !day.tasks || day.tasks.length === 0) return 0;
+
+  const totalDays = course.totalDays || 30;
+  const dayMinutes = day.estimatedMinutes || Math.round((course.estimatedHours ?? 45) * 60 / totalDays);
+  const dailyTotalXp = dayMinutes * 10;
+  
+  const numTasks = day.tasks.length;
+  const taskWeight = 0.25;
+  
+  return Math.round((taskWeight * dailyTotalXp) / numTasks);
 }
 
 export function isResourceComplete(

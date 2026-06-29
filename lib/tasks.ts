@@ -1,4 +1,6 @@
 import type { DayTaskState, TaskStore } from "./types";
+import { getTaskXp } from "./progress";
+import { addXp } from "./achievements";
 
 const TASK_KEY = "iqilo-tasks";
 
@@ -41,6 +43,15 @@ export function toggleTask(
   if (!store[courseId][dayNumber]) store[courseId][dayNumber] = {};
 
   const current = !!store[courseId][dayNumber][taskIndex];
+  const isAdding = !current;
+  const itemXp = getTaskXp(courseId, dayNumber);
+  
+  if (isAdding) {
+    if (itemXp > 0) addXp(itemXp);
+  } else {
+    if (itemXp > 0) addXp(-itemXp);
+  }
+  
   store[courseId][dayNumber][taskIndex] = !current;
   saveStore(store);
   return store[courseId][dayNumber];

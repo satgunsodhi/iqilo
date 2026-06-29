@@ -20,13 +20,18 @@ export function DayNotes({ courseId, dayNumber }: DayNotesProps) {
   const [text, setText] = useState("");
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   // Load on mount
   useEffect(() => {
-    const stored = localStorage.getItem(storageKey(courseId, dayNumber));
-    const time = localStorage.getItem(savedAtKey(courseId, dayNumber));
-    if (stored) setText(stored);
-    if (time) setSavedAt(time);
+    const timer = setTimeout(() => {
+      const stored = localStorage.getItem(storageKey(courseId, dayNumber));
+      const time = localStorage.getItem(savedAtKey(courseId, dayNumber));
+      if (stored !== null) setText(stored);
+      setSavedAt(time);
+      setLoaded(true);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [courseId, dayNumber]);
 
   const save = useCallback(() => {
@@ -40,7 +45,7 @@ export function DayNotes({ courseId, dayNumber }: DayNotesProps) {
 
   // Auto-save on change (debounced 1.5s)
   useEffect(() => {
-    if (!text) return;
+    if (!loaded) return;
     const t = setTimeout(() => {
       localStorage.setItem(storageKey(courseId, dayNumber), text);
       const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });

@@ -1,3 +1,4 @@
+import { getLevelFromXp } from "./types";
 import type { Badge, BadgeId, Course, ProgressStore, StreakData, XpState, BadgeUnlock } from "./types";
 
 // ── Achievement Definitions ─────────────────────────────────────────────────
@@ -172,12 +173,17 @@ export function saveXp(xp: XpState) {
 
 export function addXp(amount: number): XpState {
   const current = loadXp();
-  const newXp = {
-    currentXp: current.currentXp + amount,
-    totalXp: current.totalXp + amount,
-    level: current.level,
+  const newCurrentXp = current.currentXp + amount;
+  const newTotalXp = current.totalXp + amount;
+  const newXp: XpState = {
+    currentXp: newCurrentXp,
+    totalXp: newTotalXp,
+    level: getLevelFromXp(newCurrentXp),
   };
   saveXp(newXp);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("iqilo-xp-update"));
+  }
   return newXp;
 }
 
@@ -223,7 +229,6 @@ export function isBadgeUnlocked(badgeId: BadgeId): boolean {
 export type UnlockResult = {
   newBadges: BadgeId[];
   xpGained: number;
-  streakUpdated: { newStreak: number; streakBroken: boolean };
 };
 
 export function checkAchievements(
@@ -233,7 +238,6 @@ export function checkAchievements(
   const result: UnlockResult = {
     newBadges: [],
     xpGained: 0,
-    streakUpdated: updateStreakOnCompletion(),
   };
 
   const totalCompletedDays = Object.values(progress).reduce(

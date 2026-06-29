@@ -22,7 +22,20 @@ type ResourceLinkProps = {
 declare global {
   interface Window {
     onYouTubeIframeAPIReady: () => void;
-    YT: any;
+    YT: {
+      Player: new (element: HTMLIFrameElement, options: {
+        events: {
+          onStateChange: (event: { data: number }) => void;
+        };
+      }) => {
+        getCurrentTime: () => number;
+        getDuration: () => number;
+        destroy?: () => void;
+      };
+      PlayerState: {
+        PLAYING: number;
+      };
+    };
   }
 }
 
@@ -62,7 +75,7 @@ export function ResourceLink({ courseId, resource, onSelect }: ResourceLinkProps
   const { isResourceComplete, toggleResource, setResourceComplete, hydrated } = useProgress();
   const { toast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<{ getCurrentTime: () => number; getDuration: () => number; destroy?: () => void } | null>(null);
 
   const done = hydrated && isResourceComplete(courseId, resource.url);
 
@@ -86,7 +99,7 @@ export function ResourceLink({ courseId, resource, onSelect }: ResourceLinkProps
         
         playerRef.current = new window.YT.Player(iframeRef.current, {
           events: {
-            onStateChange: (event: any) => {
+            onStateChange: (event: { data: number }) => {
               if (event.data === window.YT.PlayerState.PLAYING) {
                 interval = setInterval(() => {
                   if (playerRef.current && playerRef.current.getCurrentTime) {
@@ -118,11 +131,11 @@ export function ResourceLink({ courseId, resource, onSelect }: ResourceLinkProps
             setTimeout(() => {
               if (playerRef.current?.destroy) playerRef.current.destroy();
             }, 0);
-          } catch (e) {}
+          } catch {}
         }
       };
     }
-  }, [courseId, resource.embed, resource.url, hydrated, done, setResourceComplete]);
+  }, [courseId, resource.embed, resource.url, hydrated, done, setResourceComplete, toast]);
 
   if (resource.embed === "youtube") {
     const videoId = getYouTubeId(resource.url);

@@ -50,7 +50,6 @@ export function getCurrentStreak(): number {
   const activity = getActivityMap();
   let streak = 0;
   const cur = new Date();
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const iso = cur.toISOString().slice(0, 10);
     if (activity[iso] && activity[iso] > 0) {

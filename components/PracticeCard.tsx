@@ -1,5 +1,6 @@
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Check } from "lucide-react";
 import type { PracticeProblem } from "@/lib/types";
+import { useLeetCode } from "@/hooks/useLeetCode";
 
 type PracticeCardProps = {
   problem: PracticeProblem;
@@ -27,6 +28,9 @@ export function PracticeCard({ problem }: PracticeCardProps) {
   const label = platformLabel[platform];
   const accent = platformAccent[platform];
 
+  const { isSolved } = useLeetCode();
+  const solved = platform === "leetcode" && isSolved(problem.url);
+
   return (
     <a
       href={problem.url}
@@ -36,16 +40,31 @@ export function PracticeCard({ problem }: PracticeCardProps) {
       style={{ border: "1px solid var(--border-subtle)", background: "var(--bg-surface)" }}
     >
       <div className="min-w-0">
-        <span
-          className="mb-1.5 inline-block rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
-          style={{
-            borderColor: `color-mix(in srgb, ${accent} 30%, transparent)`,
-            background: `color-mix(in srgb, ${accent} 10%, transparent)`,
-            color: accent,
-          }}
-        >
-          {label}
-        </span>
+        <div className="flex items-center gap-2 mb-1.5">
+          <span
+            className="inline-block rounded-md border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide"
+            style={{
+              borderColor: `color-mix(in srgb, ${accent} 30%, transparent)`,
+              background: `color-mix(in srgb, ${accent} 10%, transparent)`,
+              color: accent,
+            }}
+          >
+            {label}
+          </span>
+          {solved && (
+            <span
+              className="inline-flex items-center gap-0.5 rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide animate-fade-in"
+              style={{
+                borderColor: "color-mix(in srgb, var(--accent-green) 30%, transparent)",
+                background: "color-mix(in srgb, var(--accent-green) 10%, transparent)",
+                color: "var(--accent-green)",
+              }}
+            >
+              <Check className="h-2.5 w-2.5" />
+              Solved
+            </span>
+          )}
+        </div>
         <p className="truncate text-sm font-bold" style={{ color: "var(--text-primary)" }}>
           {problem.label}
         </p>

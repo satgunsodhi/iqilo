@@ -5,17 +5,22 @@ const USER_KEY = "iqilo-user";
 const DEFAULT_USER: User = {
   name: "Learner",
   weeklyGoal: 5,
-  joinedAt: new Date().toISOString(),
+  joinedAt: "", // Set lazily
 };
 
 export function getUser(): User {
-  if (typeof window === "undefined") return DEFAULT_USER;
+  if (typeof window === "undefined") return { ...DEFAULT_USER, joinedAt: new Date().toISOString() };
   try {
     const raw = localStorage.getItem(USER_KEY);
-    if (!raw) return DEFAULT_USER;
-    return { ...DEFAULT_USER, ...JSON.parse(raw) } as User;
+    if (!raw) {
+      const newUser = { ...DEFAULT_USER, joinedAt: new Date().toISOString() };
+      localStorage.setItem(USER_KEY, JSON.stringify(newUser));
+      return newUser;
+    }
+    const parsed = JSON.parse(raw);
+    return { ...DEFAULT_USER, ...parsed, joinedAt: parsed.joinedAt || new Date().toISOString() } as User;
   } catch {
-    return DEFAULT_USER;
+    return { ...DEFAULT_USER, joinedAt: new Date().toISOString() };
   }
 }
 

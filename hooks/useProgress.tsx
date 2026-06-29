@@ -7,13 +7,11 @@ import {
   useMemo,
   useSyncExternalStore,
   type ReactNode,
-  useRef,
   useEffect,
   useState,
 } from "react";
 import type { Course, ProgressStore } from "@/lib/types";
 import {
-  createEmptyProgress,
   exportProgressJson,
   getCompletionStats,
   getCourseProgress,
@@ -33,7 +31,6 @@ import {
   getLongestStreak,
   loadXp,
   loadUnlockedBadges,
-  BADGES,
   checkAchievements as checkAchievementsFn,
 } from "@/lib/achievements";
 import { getLevelFromXp, getXpToNextLevel } from "@/lib/types";
@@ -78,6 +75,12 @@ function notifyXpListeners() {
   xpStore = null; // invalidate cache
   xpListeners.forEach((l) => l());
 }
+
+const defaultGamificationSnapshot: GamificationSnapshot = {
+  xp: { current: 0, total: 0, level: 1 },
+  streak: { current: 0, longest: 0 },
+  badges: [],
+};
 
 // ── Context Type ───────────────────────────────────────────────────────────
 type ProgressContextValue = {
@@ -139,7 +142,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const hydrated = useSyncExternalStore(subscribe, getTrue, getFalse);
 
   // XP/Streak sync
-  const gamification = useSyncExternalStore(subscribeXp, getXpSnapshot, getXpSnapshot);
+  const gamification = useSyncExternalStore(subscribeXp, getXpSnapshot, () => defaultGamificationSnapshot);
 
   // Trigger re-render on localStorage events (cross-tab sync)
   const [, setTick] = useState(0);
@@ -152,8 +155,16 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         reRender();
       }
     }
+    function handleLocalUpdate() {
+      notifyXpListeners();
+      reRender();
+    }
     window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
+    window.addEventListener("iqilo-xp-update", handleLocalUpdate);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("iqilo-xp-update", handleLocalUpdate);
+    };
   }, [reRender]);
 
   const toggleDay = useCallback((courseId: string, dayNumber: number, forceState?: boolean) => {
@@ -174,17 +185,24 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     return result;
   }, [reRender]);
 
+  const xpCurrent = gamification.xp.current;
+  const xpTotal = gamification.xp.total;
+  const xpLevel = gamification.xp.level;
+  const streakCurrent = gamification.streak.current;
+  const streakLongest = gamification.streak.longest;
+  const badgesList = gamification.badges;
+
   const xpInfo = useMemo(() => {
     return {
-      current: gamification.xp.current,
-      total: gamification.xp.total,
-      level: gamification.xp.level,
+      current: xpCurrent,
+      total: xpTotal,
+      level: xpLevel,
     };
-  }, [gamification.xp.current, gamification.xp.total, gamification.xp.level]);
+  }, [xpCurrent, xpTotal, xpLevel]);
 
   const xpToNextLevel = useMemo(() => {
-    return getXpToNextLevel(gamification.xp.current);
-  }, [gamification.xp.current]);
+    return getXpToNextLevel(xpCurrent);
+  }, [xpCurrent]);
 
   const value = useMemo<ProgressContextValue>(
     () => ({
@@ -206,11 +224,11 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       exportProgress: () => exportProgressJson(store),
       xp: xpInfo,
       xpToNextLevel,
-      streak: { current: gamification.streak.current, longest: gamification.streak.longest },
-      badges: gamification.badges,
+      streak: { current: streakCurrent, longest: streakLongest },
+      badges: badgesList,
       checkAchievements,
     }),
-    [hydrated, store, toggleDay, visitDay, gamification, xpInfo, xpToNextLevel, checkAchievements]
+    [hydrated, store, toggleDay, visitDay, xpInfo, xpToNextLevel, streakCurrent, streakLongest, badgesList, checkAchievements]
   );
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
