@@ -12,23 +12,23 @@ export function HelpSection() {
         </div>
         <div>
           <h3 className="help-title text-base font-black">
-            Need a hand?
+            Resources
           </h3>
           <p className="help-description text-sm font-medium">
-            We&apos;re here to help you succeed
+            Explore guides and documentation
           </p>
         </div>
       </div>
 
       <div className="flex flex-col gap-3 relative z-10">
-        <button className="interactive help-button flex items-center gap-3 rounded-2xl px-5 py-4 text-left text-sm font-bold shadow-sm">
+        <a href="https://deepwiki.com/satgunsodhi/iqilo" target="_blank" rel="noopener noreferrer" className="interactive help-button flex items-center gap-3 rounded-2xl px-5 py-4 text-left text-sm font-bold shadow-sm">
           <BookOpen className="help-button-icon-purple h-4 w-4" />
           <span>Browse documentation</span>
-        </button>
-        <button className="interactive help-button flex items-center gap-3 rounded-2xl px-5 py-4 text-left text-sm font-bold shadow-sm">
+        </a>
+        <a href="mailto:satgunsodhi@gmail.com" className="interactive help-button flex items-center gap-3 rounded-2xl px-5 py-4 text-left text-sm font-bold shadow-sm">
           <Mail className="help-button-icon-green h-4 w-4" />
-          <span>Contact support</span>
-        </button>
+          <span>Email Satgun</span>
+        </a>
       </div>
     </div>
   );
