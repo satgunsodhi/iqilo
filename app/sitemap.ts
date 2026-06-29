@@ -1,8 +1,18 @@
 import { MetadataRoute } from 'next'
- 
+
+import { listCourses } from '@/lib/courses'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://iqilo.vercel.com' // Using your vercel domain
-  
+
+  const courses = listCourses()
+  const courseUrls = courses.map((course) => ({
+    url: `${baseUrl}/courses/${course.id}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
+
   return [
     {
       url: `${baseUrl}`,
@@ -28,5 +38,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.5,
     },
+    ...courseUrls,
   ]
 }
