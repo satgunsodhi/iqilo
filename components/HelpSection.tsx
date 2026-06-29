@@ -25,10 +25,13 @@ export function HelpSection() {
           <BookOpen className="help-button-icon-purple h-4 w-4" />
           <span>Explore Source Code</span>
         </a>
-        <a href="mailto:satgunsodhi@gmail.com" className="interactive help-button flex items-center gap-3 rounded-2xl px-5 py-4 text-left text-sm font-bold shadow-sm">
-          <Mail className="help-button-icon-green h-4 w-4" />
-          <span>Email Satgun</span>
-        </a>
+        <div className="flex items-center gap-2 px-2 mt-1 text-sm font-medium">
+          <Mail className="h-4 w-4 flex-shrink-0 text-foreground/60" />
+          <span className="text-foreground/80">Email:</span>
+          <a href="mailto:satgunsodhi@gmail.com" className="text-blue-500 hover:text-blue-400 hover:underline transition-colors select-text">
+            satgunsodhi@gmail.com
+          </a>
+        </div>
       </div>
     </div>
   );
