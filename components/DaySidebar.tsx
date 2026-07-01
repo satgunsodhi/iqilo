@@ -192,7 +192,18 @@ function SidebarContent({ courseId, day, activeItemId, onSelectItem, collapsed }
                     target: "_blank", 
                     rel: "noopener noreferrer",
                     onClick: () => {
-                      if (prob.platform !== "leetcode" && prob.platform !== "cses" && !complete) {
+                      if (prob.platform === "cses") {
+                        const taskId = prob.url.match(/cses\.fi\/problemset\/task\/(\d+)/)?.[1];
+                        if (taskId) {
+                          try {
+                            const visited = JSON.parse(localStorage.getItem("iqilo-cses-visited") || "[]");
+                            if (!visited.includes(taskId)) {
+                              visited.push(taskId);
+                              localStorage.setItem("iqilo-cses-visited", JSON.stringify(visited));
+                            }
+                          } catch (err) {}
+                        }
+                      } else if (prob.platform !== "leetcode" && !complete) {
                         toggleResource(courseId, prob.url);
                         const xp = getResourceXp(courseId, prob.url);
                         if (xp > 0) toast(`+${xp} XP earned!`, "success");
