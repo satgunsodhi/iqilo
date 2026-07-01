@@ -309,12 +309,14 @@ code {
 .gradient-text {
   background: linear-gradient(70deg, var(--accent-blue) -0.25%, var(--accent-purple) 49.07%, var(--accent-pink) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
 }
 .gradient-text-gold {
   background: linear-gradient(70deg, var(--accent-yellow) -0.25%, var(--accent-orange) 49.67%, var(--accent-red) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
 }
