@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { JSDOM } from "jsdom";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -17,21 +16,18 @@ export async function GET(request: Request) {
     }
 
     const html = await response.text();
-    const dom = new JSDOM(html);
-    const document = dom.window.document;
-
-    const taskLinks = document.querySelectorAll('a[href^="/problemset/task/"]');
     const solvedTaskIds = new Set<string>();
 
-    taskLinks.forEach((link) => {
-      const href = link.getAttribute("href");
-      if (href) {
-        const match = href.match(/\/problemset\/task\/(\d+)/);
-        if (match && match[1]) {
-          solvedTaskIds.add(match[1]);
-        }
+    // Using regex to parse /problemset/task/(\d+) links.
+    // This removes the heavy dependency on 'jsdom', which is prone to failing
+    // in serverless / edge environments on hosted platforms like Vercel.
+    const regex = /\/problemset\/task\/(\d+)/g;
+    let match;
+    while ((match = regex.exec(html)) !== null) {
+      if (match[1]) {
+        solvedTaskIds.add(match[1]);
       }
-    });
+    }
 
     return NextResponse.json({ solved: Array.from(solvedTaskIds) });
   } catch (error) {
