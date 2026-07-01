@@ -146,6 +146,7 @@ function SidebarContent({ courseId, day, activeItemId, onSelectItem, collapsed }
                         complete={complete}
                       />
                       {!collapsed && <span className={`truncate ${complete ? "line-through opacity-60" : ""}`}>{res.label}</span>}
+                      {!collapsed && !isEmbeddable && <ExternalLink className="h-3 w-3 shrink-0 opacity-55" />}
                     </div>
                     {!collapsed && getResourceXp(courseId, res.url) > 0 && (
                       <span
