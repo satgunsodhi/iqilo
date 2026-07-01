@@ -15,13 +15,24 @@ export const deepLearningQuantRoadmap: Course = {
     id: "python-for-quants-deep-learning-portfolio",
     title: "Python for Quants IV: Deep Learning & Portfolios",
     description:
-        "An advanced, hands-on course that takes quantitative trading to the next level with deep learning and sophisticated portfolio management. Covers time-series deep learning (LSTMs, Transformers), reinforcement learning for trading, modern portfolio optimization (risk parity, Black-Litterman), and the integration of these techniques into production-ready quant systems.",
+        "An exhaustive, production-grade curriculum designed to elevate quantitative engineering to the institutional frontier. This roadmap transitions from PyTorch computational graphs to sequence modeling with LSTMs and TimesFM Transformers. It subsequently deep-dives into Deep Reinforcement Learning (PPO, Stable-Baselines3, FinRL) to automate execution, before anchoring neural network alphas into rigorous portfolio optimization (Black-Litterman, Hierarchical Risk Parity) and high-throughput streaming (Kafka, Redis).",
     difficulty: "Expert",
-    tags: ["Neural Networks (LSTMs)", "Transformer Architectures", "Deep Reinforcement Learning", "Mean-Variance Optimization", "Black-Litterman Model", "Risk Parity Allocations"],
-    estimatedHours: 84,
+    tags: [
+        "PyTorch Autograd",
+        "Transformer Architectures",
+        "TimesFM & PatchTST",
+        "Deep Reinforcement Learning (PPO)",
+        "Stable-Baselines3",
+        "FinRL Modular Architecture",
+        "PyPortfolioOpt",
+        "Black-Litterman Model",
+        "Hierarchical Risk Parity",
+        "Kafka & Redis Event Streaming"
+    ],
+    estimatedHours: 112,
     category: "Quant Finance",
-    tagline: "Deploy deep learning and advanced optimization to build cutting-edge quant strategies.",
-    prerequisites: ["python-for-quants-predictive-modeling"],
+    tagline: "Architect, train, and deploy AI-driven trading agents and optimized portfolios.",
+    prerequisites: ["python-for-quants-predictive-modeling", "advanced-linear-algebra", "stochastic-calculus"],
     totalDays: 28,
     weeks: [
         {
@@ -30,626 +41,731 @@ export const deepLearningQuantRoadmap: Course = {
             days: [
                 {
                     dayNumber: 1,
-                    title: "PyTorch/TensorFlow Fundamentals for Quant",
+                    title: "PyTorch Autograd & Computational Graphs for Quants",
                     objective:
-                        "Establish a solid foundation in PyTorch (or TensorFlow) for building neural networks. Understand tensors, automatic differentiation, and the training loop, all within the context of financial data.",
+                        "Establish an uncompromising foundation in PyTorch tensor operations and reverse automatic differentiation. Understand how directed acyclic graphs (DAGs) are constructed dynamically during the forward pass, and how to harness custom loss functions that penalize asymmetric financial drawdowns rather than standard mean-squared error.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "PyTorch Tutorials",
-                            url: "https://pytorch.org/tutorials/",
+                            label: "PyTorch Autograd Mechanics",
+                            url: "https://docs.pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html",
                         },
                         {
-                            label: "TensorFlow Tutorials",
-                            url: "https://www.tensorflow.org/tutorials",
+                            label: "PyTorch Tensors Tutorial",
+                            url: "https://docs.pytorch.org/tutorials/beginner/basics/tensorqs_tutorial.html",
+                        }
+                    ],
+                    practice: [
+                        {
+                            platform: "kaggle",
+                            label: "Autograd Mechanics Implementation",
+                            url: "https://www.kaggle.com/code/aisuko/autograd-mechanics-in-pytorch",
+                        }
+                    ],
+                    pitfall:
+                        "In-place operations (e.g., x.add_(1)) aggressively overwrite memory and can silently break the Autograd DAG if the original tensor is required for backpropagation. Furthermore, failing to call optimizer.zero_grad() inside the training loop causes gradients to accumulate endlessly, leading to catastrophic parameter explosion.",
+                },
+                {
+                    dayNumber: 2,
+                    title: "Advanced DataLoaders & Time-Series Windowing",
+                    objective:
+                        "Master the architecture of custom PyTorch and TensorFlow DataLoaders tailored for high-frequency tick data. Implement rolling and expanding window mechanisms to structure sequential input without introducing look-ahead bias, ensuring target variables strictly align with out-of-sample forward horizons.",
+                    protocol: QUANT_PROTOCOL_DL,
+                    resources: [
+                        {
+                            label: "TensorFlow Time Series Windowing",
+                            url: "https://www.tensorflow.org/tutorials/structured_data/time_series",
                         },
+                        {
+                            label: "Custom Training Walkthrough",
+                            url: "https://www.tensorflow.org/tutorials/customization/custom_training_walkthrough",
+                        }
                     ],
                     practice: [
                         {
                             platform: "github",
-                            label: "PyTorch for Finance (GitHub)",
+                            label: "PyTorch for Finance (Data Handlers)",
                             url: "https://github.com/oliviermt/pytorch-finance",
-                        },
+                        }
                     ],
                     pitfall:
-                        "Deep learning is data-hungry and prone to overfitting. Financial datasets are often small and noisy. Always use regularization (dropout, weight decay) and early stopping. Start with a simple baseline model before scaling up.",
-                },
-                {
-                    dayNumber: 2,
-                    title: "Recurrent Neural Networks (RNNs) & LSTMs",
-                    objective:
-                        "Implement RNNs and Long Short-Term Memory (LSTM) networks for sequential financial data. Use them to predict future returns, volatility, or other time-series targets.",
-                    protocol: QUANT_PROTOCOL_DL,
-                    resources: [
-                        {
-                            label: "LSTM for Time Series (PyTorch)",
-                            url: "https://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html",
-                        },
-                        {
-                            label: "LSTM for Time Series (TensorFlow)",
-                            url: "https://www.tensorflow.org/tutorials/structured_data/time_series",
-                        },
-                    ],
-                    practice: [
-                        {
-                            platform: "google",
-                            label: "LSTM for Stock Prediction",
-                            url: "https://www.google.com/search?q=lstm+stock+prediction+python",
-                        },
-                    ],
-                    pitfall:
-                        "LSTMs can suffer from vanishing/exploding gradients. Use gradient clipping and proper weight initialization. Also, be wary of look-ahead bias: ensure your sequences are aligned correctly in time.",
+                        "Data leakage is the single most common failure in quantitative machine learning. Shuffling a time-series DataLoader indiscriminately will destroy the temporal sequence and leak future context into the training batch. Always use SequentialSampler or ensure indices are generated monotonically.",
                 },
                 {
                     dayNumber: 3,
-                    title: "Attention Mechanisms & Transformers",
+                    title: "Multilayer Perceptrons for Cross-Sectional Alpha",
                     objective:
-                        "Understand the Transformer architecture and its application to financial time-series. Implement a simple Transformer or use the `transformers` library for multi-head attention and positional encoding.",
+                        "Design Feedforward Neural Networks (MLPs) to ingest normalized Fama-French factors, technical indicators, and fundamental ratios. Learn to apply dropout and batch normalization to mitigate the severe overfitting inherent in noisy, cross-sectional financial datasets.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "The Annotated Transformer",
-                            url: "https://nlp.seas.harvard.edu/2018/04/03/attention.html",
+                            label: "Statsmodels Fama-French Factor Model",
+                            url: "https://sec-api.io/resources/fama-french-factor-model",
                         },
                         {
-                            label: "Hugging Face Transformers",
-                            url: "https://huggingface.co/docs/transformers/index",
-                        },
+                            label: "Fama-French Model Explained",
+                            url: "https://www.quantt.co.uk/resources/fama-french-model-explained",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Transformer for Time Series",
-                            url: "https://www.google.com/search?q=transformer+time+series+python",
-                        },
+                            platform: "github",
+                            label: "Visualizing Gradients Tutorial",
+                            url: "https://github.com/pytorch/tutorials/blob/main/intermediate_source/visualizing_gradients_tutorial.py",
+                        }
                     ],
                     pitfall:
-                        "Transformers are computationally expensive and require large datasets. For small financial datasets, they may not outperform simpler models. Use them for high-frequency or large-scale alternative data.",
+                        "Financial tabular data is highly non-stationary and prone to extreme outliers. Feeding raw, unscaled prices or unbounded ratios directly into an MLP will result in saturated activation functions (e.g., dying ReLUs) and stagnant learning. Strict Winsorization and robust scaling (e.g., RobustScaler) are non-negotiable.",
                 },
                 {
                     dayNumber: 4,
-                    title: "Autoencoders & Anomaly Detection",
+                    title: "LSTMs & Recurrent Architectures for Volatility Modeling",
                     objective:
-                        "Use autoencoders (variational, denoising) to learn latent representations of financial data. Apply them for anomaly detection (e.g., market crashes, fraud) and feature extraction for subsequent models.",
+                        "Transition from static tabular data to temporal sequences using Long Short-Term Memory (LSTM) networks. Exploit the cell state and hidden state to model regime shifts and localized volatility clustering over medium-term horizons.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Autoencoders (PyTorch)",
-                            url: "https://pytorch.org/tutorials/beginner/dcgan_faces_tutorial.html",
+                            label: "TensorFlow RNN & LSTM Time Series",
+                            url: "https://www.tensorflow.org/tutorials/structured_data/time_series#recurrent_neural_network",
                         },
                         {
-                            label: "Anomaly Detection in Finance",
-                            url: "https://www.google.com/search?q=autoencoder+anomaly+detection+finance+python",
-                        },
+                            label: "PyTorch RNN Implementation Guide",
+                            url: "https://docs.pytorch.org/tutorials/intermediate/pytorch_with_examples.html",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Autoencoder for Market Anomalies",
-                            url: "https://www.google.com/search?q=autoencoder+financial+anomaly+detection",
-                        },
+                            platform: "github",
+                            label: "Dair-AI PyTorch Notebooks (RNNs)",
+                            url: "https://github.com/dair-ai/pytorch_notebooks",
+                        }
                     ],
                     pitfall:
-                        "Autoencoders can reconstruct anomalies well if they are common in the training set. Use a validation set with known anomalies to tune the threshold. The reconstruction error alone is not always sufficient.",
+                        "LSTMs are notoriously sensitive to the scale of the target variable. Furthermore, relying on the hidden state to retain memory across separate batches (stateful LSTMs) requires meticulous manual resetting at the end of each physical sequence/epoch, otherwise the model hallucinates connections between separate assets.",
                 },
                 {
                     dayNumber: 5,
-                    title: "Graph Neural Networks (GNNs) for Market Structure",
+                    title: "1D Convolutional Networks for High-Frequency Microstructure",
                     objective:
-                        "Explore the use of Graph Neural Networks to model interconnections between assets (e.g., correlation networks, sector relationships). Use GNNs to generate signals based on relational data.",
+                        "Deploy Conv1D layers to perform rapid, parallelized feature extraction across high-frequency order book data. Understand how temporal convolutions act as complex, non-linear moving average filters to detect micro-imbalances.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "PyTorch Geometric",
-                            url: "https://pytorch-geometric.readthedocs.io/en/latest/",
+                            label: "TF Convolutional Neural Network",
+                            url: "https://www.tensorflow.org/tutorials/structured_data/time_series#convolution_neural_network",
                         },
                         {
-                            label: "GNN for Finance",
-                            url: "https://www.google.com/search?q=graph+neural+network+finance",
-                        },
+                            label: "TF Customization Basics",
+                            url: "https://www.tensorflow.org/tutorials/customization/basics",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "GNN for Stock Prediction",
-                            url: "https://www.google.com/search?q=gnn+stock+prediction",
-                        },
+                            platform: "kaggle",
+                            label: "Rolling Regression Factor Timings",
+                            url: "https://www.kaggle.com/code/eugeniyosetrov/rolling-regression",
+                        }
                     ],
                     pitfall:
-                        "GNNs require a well-defined graph structure. Building a meaningful graph (e.g., based on correlations, sector) is non-trivial. Also, GNNs are computationally heavy; start with small graphs.",
+                        "Choosing an inappropriate kernel size or stride can completely mask high-frequency signals. Additionally, without causal padding (padding only on the left of the sequence), a standard Conv1D layer will inherently look ahead to future data points, introducing catastrophic look-ahead bias.",
                 },
                 {
                     dayNumber: 6,
-                    title: "Interpretability & Explainability",
+                    title: "Temporal Autoencoders for Market Anomaly Detection",
                     objective:
-                        "Learn to interpret deep learning models using techniques like SHAP, LIME, and attention visualization. Understand which features and patterns drive predictions to build trust and avoid black-box pitfalls.",
+                        "Engineer sequence-to-sequence Autoencoders to learn compressed, latent representations of 'normal' market regimes. Utilize the reconstruction error (MAE) as an unsupervised dynamic threshold to detect flash crashes or anomalous asset behavior.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "SHAP Documentation",
-                            url: "https://shap.readthedocs.io/en/latest/",
+                            label: "Keras Timeseries Anomaly Detection",
+                            url: "https://keras.io/examples/timeseries/timeseries_anomaly_detection/",
                         },
                         {
-                            label: "LIME Documentation",
-                            url: "https://lime-ml.readthedocs.io/en/latest/",
-                        },
+                            label: "Hugging Face Timeseries Autoencoder",
+                            url: "https://huggingface.co/keras-io/timeseries-anomaly-detection",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Explainable AI for Finance",
-                            url: "https://www.google.com/search?q=shap+finance+python",
-                        },
+                            platform: "github",
+                            label: "Autoencoder Reconstruction Loss Tuning",
+                            url: "https://cenos-interkiwwu.zivgitlabpages.uni-muenster.de/machine-learning-library/website/posts/time_series_anomaly_detection/",
+                        }
                     ],
                     pitfall:
-                        "Interpretability is crucial in finance for regulatory and risk reasons. Don't rely solely on black-box models. Always validate that the model's explanations align with domain knowledge.",
+                        "Training the Autoencoder on a dataset that already includes severe anomalies will force the network to learn and successfully reconstruct the anomalies themselves, effectively nullifying its detection capability. Training data must be rigorously sanitized.",
                 },
                 {
                     dayNumber: 7,
-                    title: "Timed Simulation: Deep Learning Signal Generation",
+                    title: "Capstone: End-to-End Deep Learning Risk Forecaster",
                     objective:
-                        "Simulate a research task to build a deep learning-based signal generation pipeline under time pressure.",
-                    tasks: [
-                        "Within a strict 90-minute block, load 5 years of high-frequency data for a single asset.",
-                        "Build an LSTM model to predict 1-hour ahead returns.",
-                        "Train the model with proper validation and early stopping.",
-                        "Generate a trading signal based on the model's output and evaluate it on a test period.",
+                        "Integrate Week 1 concepts into a monolithic production script. Build a robust pipeline that ingests raw tick data, applies custom windowing, trains a multi-layer LSTM to predict conditional Value-at-Risk (CVaR), and outputs signals via an automated PyTorch loop.",
+                    protocol: QUANT_PROTOCOL_DL,
+                    resources: [
+                        {
+                            label: "Two-Dimensional Tensors in PyTorch",
+                            url: "https://machinelearningmastery.com/two-dimensional-tensors-in-pytorch/",
+                        }
                     ],
-                },
-            ],
+                    practice: [
+                        {
+                            platform: "github",
+                            label: "Deploying Custom Models",
+                            url: "https://github.com/oliviermt/pytorch-finance",
+                        }
+                    ],
+                    pitfall:
+                        "Failing to toggle `model.eval()` and wrap inference in `torch.no_grad()` during the validation and live-prediction phases will inadvertently leave dropout layers active and waste massive amounts of GPU memory by persisting the computation graph.",
+                }
+            ]
         },
         {
             weekNumber: 2,
-            title: "Reinforcement Learning for Trading",
+            title: "Advanced Sequence Modeling & Transformer Architectures",
             days: [
                 {
                     dayNumber: 8,
-                    title: "RL Fundamentals & Gym Environment",
+                    title: "Attention Mechanisms & Financial Context",
                     objective:
-                        "Understand reinforcement learning basics: agents, environments, states, actions, rewards. Set up a custom trading environment using OpenAI Gym or a similar framework.",
+                        "Deconstruct the mathematics of Scaled Dot-Product Attention. Understand how Query, Key, and Value matrices allow a model to weigh the relevance of disparate historical data points simultaneously, bypassing the sequential bottleneck of RNNs.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "OpenAI Gym",
-                            url: "https://gym.openai.com/",
+                            label: "The Annotated Transformer (Harvard NLP)",
+                            url: "http://nlp.seas.harvard.edu/2018/04/03/attention.html",
                         },
                         {
-                            label: "Stable-Baselines3",
-                            url: "https://stable-baselines3.readthedocs.io/",
-                        },
+                            label: "Attention in Equations (Stanford CS224W)",
+                            url: "https://yao-lab.github.io/course/statml/2022/slides/Lecture09_transformer.pdf",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Trading Environment with Gym",
-                            url: "https://www.google.com/search?q=gym+trading+environment",
-                        },
+                            platform: "github",
+                            label: "Annotated Transformer Implementation",
+                            url: "https://github.com/harvardnlp/annotated-transformer",
+                        }
                     ],
                     pitfall:
-                        "Designing a proper reward function is critical. A simple reward (e.g., profit) may lead to excessive risk-taking. Include penalties for drawdowns and transaction costs.",
+                        "Attention mechanisms are permutation-invariant. Without strictly enforced Positional Encodings, a Transformer views time-series data as an unordered set of observations, destroying the chronological reality of market data and rendering the alpha signals meaningless.",
                 },
                 {
                     dayNumber: 9,
-                    title: "Deep Q-Networks (DQN) for Trading",
+                    title: "The Transformer Architecture for Asset Pricing",
                     objective:
-                        "Implement a DQN agent to learn optimal trading policies. Compare its performance against a benchmark strategy.",
+                        "Assemble a complete Encoder-Decoder Transformer from scratch. Map multi-head attention and position-wise feed-forward networks to multi-variate financial datasets to predict complex, interconnected asset trajectories.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "DQN Paper (Nature)",
-                            url: "https://www.nature.com/articles/nature14236",
+                            label: "Transformer Model Architecture",
+                            url: "http://nlp.seas.harvard.edu/2018/04/01/attention.html#model-architecture",
                         },
                         {
-                            label: "DQN Implementation (PyTorch)",
-                            url: "https://pytorch.org/tutorials/intermediate/reinforcement_q_learning.html",
-                        },
+                            label: "Scaled Dot-Product Attention Details",
+                            url: "https://machine-learning-note.readthedocs.io/en/latest/attention.html",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "DQN for Stock Trading",
-                            url: "https://www.google.com/search?q=dqn+trading+python",
-                        },
+                            platform: "github",
+                            label: "PyTorch Multi-Head Attention",
+                            url: "https://pytorch.org/tutorials/beginner/transformer_tutorial.html",
+                        }
                     ],
                     pitfall:
-                        "DQN can be unstable. Use experience replay, target networks, and careful hyperparameter tuning. Training can be slow; start with a small state space.",
+                        "In decoder-based forecasting, failing to apply a strict causal mask (upper triangular masking) will allow the self-attention heads to 'look forward' into future price targets during the training phase, artificially inflating validation performance.",
                 },
                 {
                     dayNumber: 10,
-                    title: "Policy Gradients & Actor-Critic Methods",
+                    title: "Hugging Face Time-Series AutoClasses",
                     objective:
-                        "Move beyond value-based methods to policy gradients and actor-critic (A2C, PPO) algorithms. Implement a simple actor-critic agent for trading.",
+                        "Transition from manual architectures to the Hugging Face Transformers ecosystem. Leverage AutoClass pipelines and configurations specifically tuned for multi-variate time-series, standardizing the workflow for institutional-grade scaling.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "PPO (Proximal Policy Optimization)",
-                            url: "https://openai.com/blog/openai-baselines-ppo/",
+                            label: "HF Transformers Time Series Models",
+                            url: "https://huggingface.co/docs/transformers/model_doc/time_series_transformer",
                         },
                         {
-                            label: "Stable-Baselines3 PPO",
-                            url: "https://stable-baselines3.readthedocs.io/en/master/modules/ppo.html",
-                        },
+                            label: "HF API Main Classes",
+                            url: "https://huggingface.co/docs/transformers/v4.47.1/index",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Actor-Critic for Portfolio Optimization",
-                            url: "https://www.google.com/search?q=actor-critic+trading",
-                        },
+                            platform: "huggingface",
+                            label: "Time Series Inference Pipelines",
+                            url: "https://huggingface.co/docs/transformers/v4.26.1/model_doc/time_series_transformer",
+                        }
                     ],
                     pitfall:
-                        "Policy gradient methods can be sample-inefficient. Use parallel environments and careful hyperparameter tuning. Also, ensure the environment is stationary; non-stationary markets can break RL policies.",
+                        "Hugging Face models often expect rigid dimension schemas. Misaligning your dataset's frequency parameter (e.g., treating hourly data as daily) will severely degrade the internal embedding logic and output dimension mapping.",
                 },
                 {
                     dayNumber: 11,
-                    title: "Multi-Agent & Portfolio RL",
+                    title: "PatchTST: Channel-Independent Horizons",
                     objective:
-                        "Extend RL to multiple assets and portfolio management. Learn to train agents that allocate capital across a portfolio, considering correlations and risk.",
+                        "Implement Patch Time Series Transformers (PatchTST) to divide historical price sequences into vectorized patches. Exploit channel-independence to treat each asset as a distinct univariate sequence, drastically reducing computational overhead while extending forecasting horizons.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Multi-Agent RL (MARL)",
-                            url: "https://www.google.com/search?q=multi-agent+reinforcement+learning",
-                        },
+                            label: "Hugging Face PatchTST Guide",
+                            url: "https://huggingface.co/blog/patchtst",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Portfolio RL with Stable-Baselines3",
-                            url: "https://www.google.com/search?q=portfolio+reinforcement+learning",
-                        },
+                            platform: "huggingface",
+                            label: "PatchTST Implementation Specs",
+                            url: "https://huggingface.co/blog/patchtst#load-and-prepare-datasets",
+                        }
                     ],
                     pitfall:
-                        "Multi-agent RL adds significant complexity. Start with a single-agent that controls a portfolio directly (action = allocation weights) before moving to separate agents.",
+                        "Selecting a `patch_length` that does not evenly divide your `context_length` will lead to padding artifacts that skew the attention weights. Additionally, high `random_mask_ratio` during fine-tuning on highly volatile data can obscure critical structural breaks.",
                 },
                 {
                     dayNumber: 12,
-                    title: "Risk-Aware RL & Constrained Optimization",
+                    title: "TimesFM: Zero-Shot Foundation Models",
                     objective:
-                        "Incorporate risk constraints into RL (e.g., CVaR, max drawdown) using constrained policy optimization or reward shaping. Learn to balance return and risk.",
+                        "Deploy Google's Time Series Foundation Model (TimesFM). Understand how patched-decoder style attention, pre-trained on massive multi-domain corpora, provides highly accurate zero-shot quantile forecasts without requiring asset-specific fine-tuning.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Constrained RL",
-                            url: "https://www.google.com/search?q=constrained+reinforcement+learning",
+                            label: "TimesFM Transformers Documentation",
+                            url: "https://huggingface.co/docs/transformers/model_doc/timesfm",
                         },
+                        {
+                            label: "Google TimesFM 2.5 Model Card",
+                            url: "https://huggingface.co/google/timesfm-2.5-200m-transformers",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Risk-Aware RL for Finance",
-                            url: "https://www.google.com/search?q=risk+constrained+rl+trading",
-                        },
+                            platform: "github",
+                            label: "HuggingFace TimesFM Repository",
+                            url: "https://huggingface.co/google/timesfm-2.5-200m-transformers/tree/main",
+                        }
                     ],
                     pitfall:
-                        "Adding risk constraints can make training significantly harder and less stable. Use a Lagrangian approach or reward shaping with a risk penalty.",
+                        "Foundation models like TimesFM return probabilistic distributions (`full_predictions` for quantiles) rather than simple point estimates. Extracting only the mean prediction discards the model's inherent uncertainty quantification, ignoring vital risk-management data.",
                 },
                 {
                     dayNumber: 13,
-                    title: "Meta-Learning & Transfer Learning",
+                    title: "Spatio-Temporal Graph Neural Networks (PyG)",
                     objective:
-                        "Explore meta-learning (learning to learn) for trading strategies that adapt quickly to new market regimes. Use transfer learning to leverage knowledge from similar assets.",
+                        "Incorporate structural market relationships using PyTorch Geometric (PyG). Model equities as nodes and their correlations as dynamic edges, utilizing DCRNN or Spatio-Temporal attention to predict contagion effects across interconnected sectors.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Model-Agnostic Meta-Learning (MAML)",
-                            url: "https://arxiv.org/abs/1703.03400",
+                            label: "PyTorch Geometric Introduction",
+                            url: "https://pytorch-geometric.readthedocs.io/en/2.6.1/get_started/introduction.html",
                         },
+                        {
+                            label: "PyTorch Geometric Temporal Signals",
+                            url: "https://pytorch-geometric-temporal.readthedocs.io/en/latest/notes/introduction.html",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Meta-Learning for Finance",
-                            url: "https://www.google.com/search?q=meta+learning+trading",
-                        },
+                            platform: "github",
+                            label: "PyTorch Geometric Colabs",
+                            url: "https://pytorch-geometric.readthedocs.io/en/2.6.0/get_started/colabs.html",
+                        }
                     ],
                     pitfall:
-                        "Meta-learning is an active research area and may not be practical for most applications. Start with simple transfer learning (fine-tuning a pre-trained model).",
+                        "Graph structures in finance are typically fully connected and extremely dense. Failing to prune low-weight edges (thresholding correlations) will result in OOM (Out of Memory) errors and severe over-smoothing, rendering all node embeddings identical.",
                 },
                 {
                     dayNumber: 14,
-                    title: "Timed Simulation: RL Trading Agent",
+                    title: "Capstone: Transformer-Based Alpha Pipeline",
                     objective:
-                        "Simulate building an RL trading agent under time pressure.",
-                    tasks: [
-                        "Within a strict 90-minute block, create a Gym trading environment for a single stock.",
-                        "Implement a DQN agent and train it for a limited number of episodes.",
-                        "Backtest the trained agent on a validation period.",
-                        "Compare its performance to a buy-and-hold benchmark.",
+                        "Architect a complete Transformer inference engine. Sub-sample 10-minute order book intervals, encode features via PatchTST, and orchestrate the model to output forward-looking density forecasts. Serialize the network via TorchScript for zero-latency deployment.",
+                    protocol: QUANT_PROTOCOL_DL,
+                    resources: [
+                        {
+                            label: "Hugging Face Exporting Utilities",
+                            url: "https://huggingface.co/docs/transformers/v4.26.1/model_doc/time_series_transformer#how-to-guides",
+                        }
                     ],
-                },
-            ],
+                    practice: [
+                        {
+                            platform: "github",
+                            label: "TimesFM Prediction Outputs",
+                            url: "https://huggingface.co/docs/transformers/model_doc/timesfm#usage",
+                        }
+                    ],
+                    pitfall:
+                        "Exporting state-heavy Transformer models to ONNX or TorchScript requires rigid input tensors. Dynamic sequence lengths will break the execution graph during compilation. You must strictly enforce a fixed `forecast_context_len` during the tracing phase.",
+                }
+            ]
         },
         {
             weekNumber: 3,
-            title: "Advanced Portfolio Optimization & Risk Management",
+            title: "Deep Reinforcement Learning for Algorithmic Trading",
             days: [
                 {
                     dayNumber: 15,
-                    title: "Mean-Variance Optimization Revisited",
+                    title: "MDP Formulation & Gymnasium Core API",
                     objective:
-                        "Review classical Markowitz mean-variance optimization. Implement it with practical constraints (long-only, turnover limits, etc.) using `scipy.optimize`.",
+                        "Formalize trading as a Markov Decision Process (MDP). Master the Farama Gymnasium API by explicitly defining custom discrete/continuous Action Spaces, complex Observation Spaces, and reward functions designed to maximize risk-adjusted returns.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Portfolio Optimization (scipy)",
-                            url: "https://docs.scipy.org/doc/scipy/reference/optimize.html",
+                            label: "Gymnasium Custom Environment Creation",
+                            url: "https://gymnasium.farama.org/tutorials/gymnasium_basics/environment_creation/",
                         },
+                        {
+                            label: "Gymnasium API Overview",
+                            url: "https://gymnasium.farama.org/api/env/",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Markowitz Portfolio Optimization",
-                            url: "https://www.google.com/search?q=markowitz+python+scipy",
-                        },
+                            platform: "github",
+                            label: "GridWorld Env Implementation",
+                            url: "https://gymnasium.farama.org/v1.1.1/introduction/create_custom_env/",
+                        }
                     ],
                     pitfall:
-                        "Mean-variance optimization is highly sensitive to input estimates (returns and covariance). Use robust estimators (e.g., shrinkage, Ledoit-Wolf) and consider Bayesian approaches.",
+                        "If transaction costs, liquidity depth, or slippage are omitted from the `step()` function, the RL agent will instantly learn a high-frequency churn strategy that appears limitlessly profitable in simulation but bankrupts the account live.",
                 },
                 {
                     dayNumber: 16,
-                    title: "Risk Parity & Equal Risk Contribution",
+                    title: "Building Financial Gyms with gym-anytrading",
                     objective:
-                        "Implement risk parity portfolios where each asset contributes equally to total portfolio risk. Use optimization to find weights that equalize marginal risk contributions.",
+                        "Transition into domain-specific simulators using `gym-anytrading`. Interface your custom datasets with pre-built trading classes, understanding how the environment tracks positions, unrealized PnL, and automatically structures the temporal observation window.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Risk Parity (PyPortfolioOpt)",
-                            url: "https://pyportfolioopt.readthedocs.io/en/latest/RiskParity.html",
+                            label: "gym-anytrading Documentation",
+                            url: "https://github.com/AminHP/gym-anytrading",
                         },
+                        {
+                            label: "Gymnasium Third-Party Financial Envs",
+                            url: "https://github.com/Farama-Foundation/Gymnasium/blob/main/docs/environments/third_party_environments.md",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Risk Parity with Python",
-                            url: "https://www.google.com/search?q=risk+parity+python",
-                        },
+                            platform: "github",
+                            label: "PPO Optuna Tuned Trading Agent",
+                            url: "https://github.com/Greenskin44/stock-trading-with-PPO-and-Optuna",
+                        }
                     ],
                     pitfall:
-                        "Risk parity assumes a positive covariance matrix and may still be concentrated if correlations are high. Consider combining with minimum variance or other approaches.",
+                        "By default, simplistic trading environments use naive reward schemas (e.g., immediate step PnL). This creates extreme variance and sparse feedback. The reward function must be meticulously reshaped (e.g., differential Sharpe Ratio) to ensure stable policy gradients.",
                 },
                 {
                     dayNumber: 17,
-                    title: "Black-Litterman & Bayesian Approaches",
+                    title: "Value-Based DRL: Deep Q-Networks (DQN)",
                     objective:
-                        "Incorporate subjective views into portfolio optimization using the Black-Litterman model. Blend prior (equilibrium) returns with investor views to produce more stable allocations.",
+                        "Implement Deep Q-Networks to map market states to explicit Q-values representing optimal discrete actions. Build Replay Buffers and Target Networks to decorrelate temporal data and stabilize the Bellman equation updates during backpropagation.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Black-Litterman (PyPortfolioOpt)",
-                            url: "https://pyportfolioopt.readthedocs.io/en/latest/BlackLitterman.html",
+                            label: "PyTorch Reinforcement Q-Learning",
+                            url: "https://docs.pytorch.org/tutorials/intermediate/reinforcement_q_learning.html",
                         },
+                        {
+                            label: "Stable-Baselines3 DQN Implementation",
+                            url: "https://stable-baselines3.readthedocs.io/en/master/modules/dqn.html",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Black-Litterman Example",
-                            url: "https://www.google.com/search?q=black+litterman+python",
-                        },
+                            platform: "github",
+                            label: "PyTorch Gridworld DQN",
+                            url: "https://github.com/mingen-pan/Reinforcement-Learning-Q-learning-Gridworld-Pytorch",
+                        }
                     ],
                     pitfall:
-                        "Views must be expressed carefully (absolute or relative) and with confidence. Overconfident views can dominate the prior and lead to unstable allocations.",
+                        "DQN is strictly limited to discrete action spaces. Attempting to force continuous portfolio weights into a discrete array exponentially inflates the action space dimension, resulting in intractable exploration and total policy collapse. Use only for binary directional bets.",
                 },
                 {
                     dayNumber: 18,
-                    title: "Factor Investing & Smart Beta",
+                    title: "Policy Gradients & PPO Fundamentals",
                     objective:
-                        "Build factor-based portfolios (value, momentum, quality, etc.) and understand how to combine them for smart beta strategies. Use `statsmodels` or `alphalens` for factor analysis.",
+                        "Ascend to state-of-the-art Policy Gradients. Understand how Proximal Policy Optimization (PPO) directly maximizes a surrogate objective function using clipped probability ratios, preventing catastrophic destruction of the actor network during optimization.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "alphalens (Factor Analysis)",
-                            url: "https://github.com/quantopian/alphalens",
+                            label: "OpenAI Spinning Up: PPO",
+                            url: "https://spinningup.openai.com/en/latest/algorithms/ppo.html",
                         },
+                        {
+                            label: "Spinning Up: Intro to Policy Optimization",
+                            url: "https://spinningup.openai.com/en/latest/spinningup/rl_intro3.html",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Factor Investing with Python",
-                            url: "https://www.google.com/search?q=factor+investing+python",
-                        },
+                            platform: "github",
+                            label: "Spinning Up PPO PyTorch Source",
+                            url: "https://spinningup.openai.com/en/latest/_modules/spinup/algos/pytorch/ppo/ppo.html",
+                        }
                     ],
                     pitfall:
-                        "Factors can decay over time. Regularly re-evaluate factor performance and be mindful of data-snooping bias.",
+                        "PPO is highly sensitive to the scale of its advantage estimates. If the rewards emitted by your financial environment are unscaled, the Generalized Advantage Estimator (GAE) will produce massive gradients that circumvent the clipping ratio, destabilizing trust region optimization.",
                 },
                 {
                     dayNumber: 19,
-                    title: "Risk Management: VaR, CVaR & Stress Testing",
+                    title: "Stable-Baselines3 for Production Agents",
                     objective:
-                        "Implement Value-at-Risk (VaR) and Conditional VaR (CVaR) using historical simulation, parametric, and Monte Carlo methods. Conduct stress testing on extreme market scenarios.",
+                        "Abstract RL algorithms into scalable architectures using Stable-Baselines3. Configure SubprocVecEnv for highly parallelized multi-environment rollouts, exponentially accelerating experience gathering across disparate asset classes and market permutations.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "VaR and CVaR (scipy)",
-                            url: "https://www.google.com/search?q=var+cvar+python+scipy",
+                            label: "SB3 PPO Documentation",
+                            url: "https://stable-baselines3.readthedocs.io/en/v2.5.0/modules/ppo.html",
                         },
+                        {
+                            label: "SB3 Custom Environments Guide",
+                            url: "https://stable-baselines3.readthedocs.io/en/master/guide/custom_env.html",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Risk Management in Python",
-                            url: "https://www.google.com/search?q=value+at+risk+python",
-                        },
+                            platform: "github",
+                            label: "SB3 Environment Checker",
+                            url: "https://stable-baselines3.readthedocs.io/en/master/_modules/stable_baselines3/common/env_checker.html",
+                        }
                     ],
                     pitfall:
-                        "VaR is not subadditive and can underestimate tail risk. Use CVaR for a more coherent risk measure. Always test on out-of-sample periods.",
+                        "When using stacked or custom Dict observation spaces, SB3's default feature extractors will fail unless explicitly overridden. Furthermore, ensure that `env.reset()` properly seeds the environment; otherwise, parallel workers will simulate the exact same stochastic market path.",
                 },
                 {
                     dayNumber: 20,
-                    title: "Factor Model & Performance Attribution",
+                    title: "FinRL Framework: Automated Multi-Agent Architecture",
                     objective:
-                        "Use multi-factor models (Fama-French, Barra) to attribute portfolio performance to systematic risk factors. Understand how to decompose returns and assess manager skill.",
+                        "Deploy the FinRL library to orchestrate complex financial workflows. Transition from single-stock environments to multi-asset portfolio allocation grids, utilizing decoupled modular layers for data preprocessing, environment building, and parallelized DRL agent deployment.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Fama-French Data (Kenneth French)",
-                            url: "https://mba.tuck.dartmouth.edu/pages/faculty/ken.french/data_library.html",
+                            label: "FinRL GitHub Repository",
+                            url: "https://github.com/AI4Finance-Foundation/FinRL",
                         },
+                        {
+                            label: "FinRL Portfolio Allocation Tutorial",
+                            url: "https://finrl.readthedocs.io/en/latest/tutorial/Introduction/PortfolioAllocation.html",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Performance Attribution with Python",
-                            url: "https://www.google.com/search?q=performance+attribution+python",
-                        },
+                            platform: "github",
+                            label: "FinRL Portfolio Allocation (NeurIPS)",
+                            url: "https://github.com/AI4Finance-Foundation/FinRL-Tutorials/blob/master/1-Introduction/FinRL_PortfolioAllocation_NeurIPS_2020.ipynb",
+                        }
                     ],
                     pitfall:
-                        "Factor models are backward-looking. Be cautious about using them to predict future performance; they explain past returns but may not capture new risk sources.",
+                        "Relying entirely on FinRL's default wrappers can obscure underlying data logic. Its default data processors may inadvertently introduce look-ahead bias if temporal splits between 'trade' and 'train' datasets are poorly aligned, especially when technical indicators use excessive rolling windows.",
                 },
                 {
                     dayNumber: 21,
-                    title: "Timed Simulation: Portfolio Optimization",
+                    title: "Capstone: Training a Multi-Asset PPO Allocation Agent",
                     objective:
-                        "Simulate a portfolio construction task under time pressure.",
-                    tasks: [
-                        "Within a strict 90-minute block, load returns data for a universe of 50 stocks.",
-                        "Compute the global minimum variance portfolio and the tangency portfolio (Max Sharpe).",
-                        "Implement a risk parity portfolio using the equal risk contribution method.",
-                        "Compare the three portfolios on a validation period using Sharpe, drawdown, and CVaR.",
+                        "Execute the complete Week 3 pipeline. Define a continuous action space matching the dimensions of a 30-asset portfolio. Train a PPO actor-critic network via Stable-Baselines3 and FinRL to dynamically output Softmax-normalized capital allocation weights over 10 years of market data.",
+                    protocol: QUANT_PROTOCOL_DL,
+                    resources: [
+                        {
+                            label: "FinRL-Trading Modular Infrastructure",
+                            url: "https://github.com/AI4Finance-Foundation/FinRL-Trading",
+                        }
                     ],
-                },
-            ],
+                    practice: [
+                        {
+                            platform: "github",
+                            label: "FinRL Multi-Crypto Trading Demo",
+                            url: "https://github.com/AI4Finance-Foundation/FinRL-Tutorials",
+                        }
+                    ],
+                    pitfall:
+                        "Without strict normalization bounds inside the Gym environment, the PPO continuous policy may output values far outside the [-1, 1] range. Applying Softmax on unbounded, extreme raw logits will instantly saturate the weights to absolute 1.0 or 0.0, destroying portfolio diversification.",
+                }
+            ]
         },
         {
             weekNumber: 4,
-            title: "Production Systems, Monitoring & Integration",
+            title: "Advanced Portfolio Optimization & Production Deployment",
             days: [
                 {
                     dayNumber: 22,
-                    title: "Deploying Deep Learning Models in Production",
+                    title: "Mean-Variance Optimization & PyPortfolioOpt",
                     objective:
-                        "Learn to serve deep learning models using ONNX, TorchScript, or TensorFlow Serving. Build a real-time prediction service for trading signals.",
+                        "Ground deep learning signals in classical optimization theory using PyPortfolioOpt. Translate raw AI predictions into optimized target weights by computing the Efficient Frontier, maximizing the Sharpe ratio subject to strict operational and liquidity constraints.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "PyTorch Production",
-                            url: "https://pytorch.org/tutorials/beginner/Intro_to_TorchScript_tutorial.html",
+                            label: "PyPortfolioOpt Mean-Variance Documentation",
+                            url: "https://pyportfolioopt.readthedocs.io/en/latest/MeanVariance.html",
                         },
                         {
-                            label: "TensorFlow Serving",
-                            url: "https://www.tensorflow.org/tfx/guide/serving",
-                        },
+                            label: "PyPortfolioOpt User Guide",
+                            url: "https://pyportfolioopt.readthedocs.io/en/latest/UserGuide.html",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Deploy ML Model to AWS/GCP",
-                            url: "https://www.google.com/search?q=deploy+ml+model+aws+lambda",
-                        },
+                            platform: "github",
+                            label: "Efficient Frontier Source Implementation",
+                            url: "https://pyportfolioopt.readthedocs.io/en/stable/_modules/pypfopt/efficient_frontier/efficient_frontier.html",
+                        }
                     ],
                     pitfall:
-                        "Model latency is critical for trading. Optimize inference speed (e.g., quantization, pruning). Also, ensure version control and A/B testing of models.",
+                        "Classical Mean-Variance Optimization is incredibly sensitive to the covariance matrix. Utilizing sample covariance on highly collinear financial assets will yield a non-invertible or singular matrix, causing the CVXPY solver to silently fail. Covariance shrinkage (e.g., Ledoit-Wolf) is mandatory.",
                 },
                 {
                     dayNumber: 23,
-                    title: "Real-Time Data Pipelines & Backtesting Integration",
+                    title: "The Black-Litterman Model: Blending AI Alpha",
                     objective:
-                        "Build a real-time data pipeline using Kafka, WebSockets, or Redis. Integrate it with your backtesting framework to replay historical data or run live.",
+                        "Resolve MVO instability using Bayesian allocation via the Black-Litterman model. Inject your Deep Learning outputs as confidence-weighted absolute or relative 'views' into the optimizer, beautifully merging machine-generated alpha with the market capitalization-implied equilibrium.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Apache Kafka Python",
-                            url: "https://kafka-python.readthedocs.io/",
+                            label: "PyPortfolioOpt Black-Litterman Allocation",
+                            url: "https://pyportfolioopt.readthedocs.io/en/latest/BlackLitterman.html",
                         },
                         {
-                            label: "WebSocket Client",
-                            url: "https://websockets.readthedocs.io/",
-                        },
+                            label: "Black-Litterman Source Module",
+                            url: "https://pyportfolioopt.readthedocs.io/en/latest/_modules/pypfopt/black_litterman.html",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Real-Time Data Pipeline",
-                            url: "https://www.google.com/search?q=real+time+data+pipeline+python",
-                        },
+                            platform: "github",
+                            label: "PyPortfolioOpt BL Integration",
+                            url: "https://github.com/robertmartin8/PyPortfolioOpt/blob/master/docs/BlackLitterman.rst",
+                        }
                     ],
                     pitfall:
-                        "Real-time systems introduce new failure modes (connection drops, data delays, out-of-order data). Implement robust error handling and monitoring.",
+                        "Assigning absolute 100% confidence to the deep learning model's view matrix (omega) completely overrides the Bayesian prior. If the network experiences a distributional shift, the portfolio will allocate with blinding, unchecked concentration. Calibrate tau and the confidence matrix systematically.",
                 },
                 {
                     dayNumber: 24,
-                    title: "Automated Strategy Execution & Order Management",
+                    title: "Hierarchical Risk Parity (HRP) for Tail-Risk",
                     objective:
-                        "Build an order management system (OMS) that interfaces with brokerage APIs. Implement risk checks (position limits, max order size) and execution algorithms (VWAP, TWAP).",
+                        "Deploy Hierarchical Risk Parity (HRP) as an alternative to quadratic optimization. Cluster assets dynamically based on distance matrices to allocate capital hierarchically, neutralizing extreme volatility spikes and preserving deep diversification regardless of market crashes.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Alpaca Trading API",
-                            url: "https://alpaca.markets/docs/",
+                            label: "PyPortfolioOpt Other Optimizers (HRP)",
+                            url: "https://pyportfolioopt.readthedocs.io/en/latest/OtherOptimizers.html",
                         },
                         {
-                            label: "IBKR API",
-                            url: "https://interactivebrokers.github.io/tws-api/",
-                        },
+                            label: "HRP Module Source",
+                            url: "https://pyportfolioopt.readthedocs.io/en/stable/_modules/pypfopt/hierarchical_portfolio.html",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Automated Trading System",
-                            url: "https://www.google.com/search?q=automated+trading+system+python",
-                        },
+                            platform: "github",
+                            label: "HRP Opt Architecture Analysis",
+                            url: "https://github.com/robertmartin8/PyPortfolioOpt/issues/128",
+                        }
                     ],
                     pitfall:
-                        "Execution is non-trivial. Paper trade extensively before going live. Include slippage and latency modeling in your backtests.",
+                        "HRP relies heavily on scipy's linkage method (e.g., 'single', 'complete', 'ward'). Using 'single' linkage on noisy financial correlation matrices can cause the dendrogram to chain together linearly rather than forming distinct clusters, destroying the intended diversification mechanism.",
                 },
                 {
                     dayNumber: 25,
-                    title: "Monitoring, Alerts & Logging",
+                    title: "Model Interpretability: Captum & SHAP",
                     objective:
-                        "Set up monitoring dashboards (Grafana, Prometheus) and alerts for your trading system. Track performance metrics (P&L, drawdown, Sharpe) in real-time.",
+                        "De-obfuscate black-box predictions. Apply PyTorch Captum and SHAP (Shapley Additive exPlanations) to tabular market data to map Local Feature Attributions. Ensure quantitative signals comply with institutional transparency requirements and internal risk governance.",
                     protocol: QUANT_PROTOCOL_DL,
                     resources: [
                         {
-                            label: "Prometheus Python Client",
-                            url: "https://github.com/prometheus/client_python",
+                            label: "PyTorch Tabular Explainability (Captum)",
+                            url: "https://pytorch-tabular.readthedocs.io/en/latest/explainability/",
                         },
+                        {
+                            label: "PyTorch Tabular SHAP Tutorial",
+                            url: "https://pytorch-tabular.readthedocs.io/en/latest/tutorials/14-Explainability/",
+                        }
                     ],
                     practice: [
                         {
-                            platform: "google",
-                            label: "Monitoring for Trading Systems",
-                            url: "https://www.google.com/search?q=monitoring+trading+system+python",
-                        },
+                            platform: "github",
+                            label: "AWS ML Model Interpretability",
+                            url: "https://docs.aws.amazon.com/pdfs/prescriptive-guidance/latest/ml-model-interpretability/ml-model-interpretability.pdf",
+                        }
                     ],
                     pitfall:
-                        "Monitoring is often neglected until something breaks. Set up alerts for excessive drawdown, connection failures, and unusual behavior.",
+                        "Calculating KernelSHAP or DeepLIFT across large time-series ensembles is computationally paralyzing. Furthermore, feature attributions assume feature independence; in finance, macroeconomic factors are highly correlated, which can artificially dilute the attributed importance of collinear features.",
                 },
                 {
                     dayNumber: 26,
-                    title: "Template Consolidation 3",
+                    title: "High-Frequency Ingestion with Redis Streams",
                     objective:
-                        "Create a personal Python quant library with reusable templates for deep learning, RL, portfolio optimization, and production deployment.",
-                    tasks: [
-                        "Re-engineer from scratch core templates for: LSTM signal model, DQN agent, risk parity optimizer, and real-time prediction service.",
-                        "Ensure every template includes comprehensive documentation, error handling, and logging.",
+                        "Construct sub-millisecond data ingest pipelines using Redis Streams. Append live exchange telemetry via XADD, and process ordered events asynchronously through independent Consumer Groups (XREADGROUP), ensuring real-time inference engines are never starved of data.",
+                    protocol: QUANT_PROTOCOL_DL,
+                    resources: [
+                        {
+                            label: "Streaming LLM / Model Output via Redis",
+                            url: "https://redis.io/tutorials/howtos/solutions/streams/streaming-llm-output/",
+                        },
+                        {
+                            label: "Fast Data Ingest Pipeline with Redis",
+                            url: "https://redis.io/tutorials/fast-data-ingest-pipeline-with-redis/",
+                        }
                     ],
+                    practice: [
+                        {
+                            platform: "github",
+                            label: "Interservice Communication (Redis)",
+                            url: "https://redis.io/tutorials/howtos/solutions/microservices/interservice-communication/",
+                        }
+                    ],
+                    pitfall:
+                        "Failing to acknowledge (ACK) messages after consumer processing will leave pending entries locked indefinitely in the consumer group's PEL (Pending Entries List). This rapidly exhausts RAM and causes silent failures in event replay and crash-recovery procedures.",
                 },
                 {
                     dayNumber: 27,
-                    title: "Mock Project: End-to-End Quant System",
+                    title: "Distributed Trading Pipelines via Confluent Kafka",
                     objective:
-                        "Simulate building a complete production-ready quant system from data ingestion to execution.",
-                    tasks: [
-                        "Design a deep learning-based strategy (e.g., LSTM + RL portfolio allocation).",
-                        "Build a real-time data pipeline (simulated or with WebSocket).",
-                        "Implement the strategy execution with risk checks and order management.",
-                        "Deploy a monitoring dashboard to track performance.",
-                        "Present the system architecture and results.",
+                        "Scale the operational footprint utilizing Confluent Kafka for Python. Separate order-execution servers from GPU inference boxes using a fault-tolerant Pub/Sub architecture, enabling exact-once semantics and unblocked asynchronous IO for institutional-grade reliability.",
+                    protocol: QUANT_PROTOCOL_DL,
+                    resources: [
+                        {
+                            label: "Confluent Kafka Python Overview",
+                            url: "https://docs.confluent.io/kafka-clients/python/current/overview.html",
+                        },
+                        {
+                            label: "Kafka Python Consumer Example",
+                            url: "https://github.com/confluentinc/confluent-kafka-python/blob/master/examples/consumer.py",
+                        }
                     ],
+                    practice: [
+                        {
+                            platform: "github",
+                            label: "Kafka AsyncIO Usage Patterns",
+                            url: "https://github.com/confluentinc/confluent-kafka-python/blob/master/examples/asyncio_example.py",
+                        }
+                    ],
+                    pitfall:
+                        "In highly concurrent Python microservices, employing the synchronous Kafka producer within an async event loop (e.g., FastAPI) blocks the entire thread. Use the `AIOProducer` or explicitly offload synchronous `poll()` and `flush()` methods to an isolated `ThreadPoolExecutor`.",
                 },
                 {
                     dayNumber: 28,
-                    title: "Final Review & Career Path",
+                    title: "Capstone: Live Trading Architecture Integration",
                     objective:
-                        "Consolidate all skills and plan next steps in the quant career path.",
-                    tasks: [
-                        "Review all code, templates, and notes from the past 4 weeks.",
-                        "Identify areas for further study (e.g., high-frequency, derivatives, crypto).",
-                        "Explore resources for job interviews (quant research, trading, systematic strategies).",
-                        "Rest and reset for continuous learning.",
+                        "Deploy the ultimate synthesis. Wire real-time market data through Kafka into a containerized TimesFM Transformer and a PPO Reinforcement Learning agent. Route the raw signals through PyPortfolioOpt (HRP and Black-Litterman) to dynamically size positions, streaming execution commands via Redis back to the brokerage.",
+                    protocol: QUANT_PROTOCOL_DL,
+                    resources: [
+                        {
+                            label: "Kafka Python Producer Configuration",
+                            url: "https://github.com/confluentinc/confluent-kafka-python/blob/master/examples/producer.py",
+                        }
                     ],
-                },
-            ],
-        },
-    ],
+                    practice: [
+                        {
+                            platform: "github",
+                            label: "End-to-End Execution Architecture",
+                            url: "https://github.com/AI4Finance-Foundation/FinRL-Trading",
+                        }
+                    ],
+                    pitfall:
+                        "The ultimate peril of live algorithmic trading is execution drift. If the simulated environment's step logic diverges from the live brokerage latency by even 50 milliseconds, the RL agent's learned policy is nullified. Meticulous event-timestamp synchronization across Kafka partitions is vital to align simulation with reality.",
+                }
+            ]
+        }
+    ]
 };
