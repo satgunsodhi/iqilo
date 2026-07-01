@@ -70,6 +70,7 @@ function loadYouTubeApi(): Promise<void> {
 
 import { useToast } from "@/components/ToastNotification";
 import { getResourceXp } from "@/lib/progress";
+import { checkIsEmbeddable } from "@/lib/embed";
 
 export function ResourceLink({ courseId, resource, onSelect }: ResourceLinkProps) {
   const { isResourceComplete, toggleResource, setResourceComplete, hydrated } = useProgress();
@@ -78,6 +79,7 @@ export function ResourceLink({ courseId, resource, onSelect }: ResourceLinkProps
   const playerRef = useRef<{ getCurrentTime: () => number; getDuration: () => number; destroy?: () => void } | null>(null);
 
   const done = hydrated && isResourceComplete(courseId, resource.url);
+  const isEmbeddable = resource.embed === "youtube" || checkIsEmbeddable(resource.url, resource.embeddable);
 
   const handleToggle = () => {
     const wasDone = isResourceComplete(courseId, resource.url);
@@ -105,11 +107,13 @@ export function ResourceLink({ courseId, resource, onSelect }: ResourceLinkProps
                   if (playerRef.current && playerRef.current.getCurrentTime) {
                     const currentTime = playerRef.current.getCurrentTime();
                     const duration = playerRef.current.getDuration();
-                    if (duration > 0 && (currentTime / duration) >= 0.6) {
+                    const isLongEnough = duration > 0 && (currentTime / duration) >= 0.6;
+                    const isTwoMinutes = currentTime >= 120;
+                    if (isLongEnough || isTwoMinutes) {
                       setResourceComplete(courseId, resource.url, true);
                       const xp = getResourceXp(courseId, resource.url);
                       if (xp > 0) {
-                        toast(`+${xp} XP earned! (Watched 60%)`, "success");
+                        toast(`+${xp} XP earned! (Watched ${isTwoMinutes ? "2 min" : "60%"})`, "success");
                       }
                       clearInterval(interval);
                     }
@@ -217,34 +221,68 @@ export function ResourceLink({ courseId, resource, onSelect }: ResourceLinkProps
 
         <div className="flex shrink-0 items-center gap-1">
           {/* Read/Watch button */}
-          <button
-            type="button"
-            onClick={onSelect}
-            className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-black transition-all duration-150 hover:opacity-80 active:scale-95"
-            style={{
-              background: "color-mix(in srgb, var(--accent-purple) 10%, transparent)",
-              color: "var(--accent-purple)",
-              border: "1px solid color-mix(in srgb, var(--accent-purple) 20%, transparent)",
-            }}
-            title="Open resource"
-          >
-            {resource.embed === "youtube" ? <Play className="h-3.5 w-3.5" /> : <BookOpen className="h-3.5 w-3.5" />}
-            <span className="hidden sm:inline">
-              {resource.embed === "youtube" ? "Watch" : "Read"}
-            </span>
-          </button>
+          {isEmbeddable ? (
+            <button
+              type="button"
+              onClick={onSelect}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-black transition-all duration-150 hover:opacity-80 active:scale-95"
+              style={{
+                background: "color-mix(in srgb, var(--accent-purple) 10%, transparent)",
+                color: "var(--accent-purple)",
+                border: "1px solid color-mix(in srgb, var(--accent-purple) 20%, transparent)",
+              }}
+              title="Open resource"
+            >
+              {resource.embed === "youtube" ? <Play className="h-3.5 w-3.5" /> : <BookOpen className="h-3.5 w-3.5" />}
+              <span className="hidden sm:inline">
+                {resource.embed === "youtube" ? "Watch" : "Read"}
+              </span>
+            </button>
+          ) : (
+            <a
+              href={resource.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                if (!done) {
+                  setResourceComplete(courseId, resource.url, true);
+                  const xp = getResourceXp(courseId, resource.url);
+                  if (xp > 0) toast(`+${xp} XP earned!`, "success");
+                }
+              }}
+              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-black transition-all duration-150 hover:opacity-80 active:scale-95"
+              style={{
+                background: "color-mix(in srgb, var(--accent-blue) 10%, transparent)",
+                color: "var(--accent-blue)",
+                border: "1px solid color-mix(in srgb, var(--accent-blue) 20%, transparent)",
+              }}
+              title="Open resource in new tab"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Open</span>
+            </a>
+          )}
 
-          {/* External link */}
-          <a
-            href={resource.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg p-1.5 transition hover:opacity-70"
-            style={{ color: "var(--text-faint)" }}
-            title="Open in new tab"
-          >
-            <ExternalLink className="h-4 w-4" />
-          </a>
+          {/* External link fallback button only if embeddable */}
+          {isEmbeddable && (
+            <a
+              href={resource.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                if (!done) {
+                  setResourceComplete(courseId, resource.url, true);
+                  const xp = getResourceXp(courseId, resource.url);
+                  if (xp > 0) toast(`+${xp} XP earned!`, "success");
+                }
+              }}
+              className="rounded-lg p-1.5 transition hover:opacity-70"
+              style={{ color: "var(--text-faint)" }}
+              title="Open in new tab"
+            >
+              <ExternalLink className="h-4 w-4" />
+            </a>
+          )}
         </div>
       </div>
     </>

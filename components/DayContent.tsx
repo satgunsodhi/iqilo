@@ -22,6 +22,7 @@ import { useToast } from "./ToastNotification";
 import { getTaskState } from "@/lib/tasks";
 import { BADGES } from "@/lib/achievements";
 import { useLeetCode } from "@/hooks/useLeetCode";
+import { useCses } from "@/hooks/useCses";
 
 type DayContentProps = {
   course: Course;
@@ -54,6 +55,7 @@ type ActiveItemDataType = {
 export function DayContent({ course, week, day }: DayContentProps) {
   const { visitDay, getCourseStats, isDayComplete, toggleDay, isResourceComplete, toggleResource, checkAchievements, hydrated } = useProgress();
   const { isSolved: isLeetCodeSolved } = useLeetCode();
+  const { isSolved: isCsesSolved } = useCses();
   const { toast } = useToast();
   const [activeItemId, setActiveItemId] = useState<string | null>(null);
   const [activeItemType, setActiveItemType] = useState<"resource" | "practice" | "task" | "protocol" | null>(null);
@@ -88,7 +90,11 @@ export function DayContent({ course, week, day }: DayContentProps) {
       : true;
 
     const practiceDone = day.practice && day.practice.length > 0
-      ? day.practice.every((p) => isResourceComplete(course.id, p.url) || (p.platform === "leetcode" && isLeetCodeSolved(p.url)))
+      ? day.practice.every((p) => {
+          if (p.platform === "leetcode") return isLeetCodeSolved(p.url);
+          if (p.platform === "cses") return isCsesSolved(p.url);
+          return isResourceComplete(course.id, p.url);
+        })
       : true;
 
     const taskState = getTaskState(course.id, day.dayNumber);
@@ -135,7 +141,7 @@ export function DayContent({ course, week, day }: DayContentProps) {
       toggleResource(course.id, activeItemId);
       const xp = getResourceXp(course.id, activeItemId);
       toast(`Marked as read! +${xp} XP earned!`, "success");
-    }, 30000); // 30 seconds
+    }, 120000); // 2 minutes (120,000 ms)
 
     return () => clearTimeout(timer);
   }, [hydrated, activeItemId, activeItemType, course.id, isResourceComplete, toggleResource, toast]);

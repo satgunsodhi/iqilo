@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronLeft, ChevronRight, Menu, X, Activity, FileText, Code, Play } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Menu, X, Activity, FileText, Code, Play, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
 import type { Day } from "@/lib/types";
 import { useProgress } from "@/hooks/useProgress";
@@ -9,6 +9,9 @@ import { getTaskState, toggleTask } from "@/lib/tasks";
 import { useToast } from "@/components/ToastNotification";
 import { getResourceXp, getTaskXp } from "@/lib/progress";
 import { useLeetCode } from "@/hooks/useLeetCode";
+import { useCses } from "@/hooks/useCses";
+import { checkIsEmbeddable } from "@/lib/embed";
+import { PlatformIcon } from "@/components/PlatformIcon";
 
 type DaySidebarProps = {
   courseId: string;
@@ -52,6 +55,7 @@ type SidebarContentProps = DaySidebarProps & { collapsed?: boolean };
 function SidebarContent({ courseId, day, activeItemId, onSelectItem, collapsed }: SidebarContentProps) {
   const { isResourceComplete, toggleResource, hydrated } = useProgress();
   const { isSolved: isLeetCodeSolved } = useLeetCode();
+  const { isSolved: isCsesSolved } = useCses();
   const { toast } = useToast();
   const [taskState, setTaskState] = useState<Record<number, boolean>>({});
 
@@ -93,10 +97,27 @@ function SidebarContent({ courseId, day, activeItemId, onSelectItem, collapsed }
             {day.resources.map((res) => {
               const complete = hydrated && isResourceComplete(courseId, res.url);
               const active = activeItemId === res.url;
+              const isEmbeddable = res.embed === "youtube" || checkIsEmbeddable(res.url, res.embeddable);
+              
+              const Element = isEmbeddable ? "button" : "a";
+              const elementProps = isEmbeddable
+                ? { onClick: () => onSelectItem(res.url, "resource", res) }
+                : { 
+                    href: res.url, 
+                    target: "_blank", 
+                    rel: "noopener noreferrer",
+                    onClick: () => {
+                      if (!complete) {
+                        toggleResource(courseId, res.url);
+                        const xp = getResourceXp(courseId, res.url);
+                        if (xp > 0) toast(`+${xp} XP earned!`, "success");
+                      }
+                    }
+                  };
               return (
                 <li key={res.url}>
-                  <button
-                    onClick={() => onSelectItem(res.url, "resource", res)}
+                  <Element
+                    {...elementProps}
                     title={collapsed ? res.label : undefined}
                     className={`flex w-full items-center rounded-lg py-2 text-sm font-semibold transition-all duration-150 text-left ${collapsed ? "justify-center px-0" : "justify-between px-2"}`}
                     style={
@@ -134,7 +155,7 @@ function SidebarContent({ courseId, day, activeItemId, onSelectItem, collapsed }
                         +{getResourceXp(courseId, res.url)}
                       </span>
                     )}
-                  </button>
+                  </Element>
                 </li>
               );
             })}
@@ -153,12 +174,34 @@ function SidebarContent({ courseId, day, activeItemId, onSelectItem, collapsed }
           <ul className="space-y-1">
             {day.practice.map((prob) => {
               const lcSolved = prob.platform === "leetcode" && isLeetCodeSolved(prob.url);
-              const complete = hydrated && (isResourceComplete(courseId, prob.url) || lcSolved);
+              const csSolved = prob.platform === "cses" && isCsesSolved(prob.url);
+              const complete = hydrated && (
+                prob.platform === "leetcode" ? lcSolved :
+                prob.platform === "cses" ? csSolved :
+                isResourceComplete(courseId, prob.url)
+              );
               const active = activeItemId === prob.url;
+              const isEmbeddable = checkIsEmbeddable(prob.url, false);
+              
+              const Element = isEmbeddable ? "button" : "a";
+              const elementProps = isEmbeddable
+                ? { onClick: () => onSelectItem(prob.url, "practice", prob) }
+                : { 
+                    href: prob.url, 
+                    target: "_blank", 
+                    rel: "noopener noreferrer",
+                    onClick: () => {
+                      if (prob.platform !== "leetcode" && prob.platform !== "cses" && !complete) {
+                        toggleResource(courseId, prob.url);
+                        const xp = getResourceXp(courseId, prob.url);
+                        if (xp > 0) toast(`+${xp} XP earned!`, "success");
+                      }
+                    }
+                  };
               return (
                 <li key={prob.url}>
-                  <button
-                    onClick={() => onSelectItem(prob.url, "practice", prob)}
+                  <Element
+                    {...elementProps}
                     title={collapsed ? prob.label : undefined}
                     className={`flex w-full items-center rounded-lg py-2 text-sm font-semibold transition-all duration-150 text-left ${collapsed ? "justify-center px-0" : "justify-between px-2"}`}
                     style={
@@ -168,21 +211,15 @@ function SidebarContent({ courseId, day, activeItemId, onSelectItem, collapsed }
                     }
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      {!collapsed && (
-                        <div
-                          onClick={(e) => handleResourceToggle(e, prob.url)}
-                          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md transition-colors cursor-pointer"
-                          style={
-                            complete
-                              ? { background: "var(--accent-green)", color: "white" }
-                              : { background: "var(--bg-sunken)", border: "1px solid var(--border-subtle)", color: "transparent" }
-                          }
-                        >
-                          {complete && <Check className="h-3 w-3" strokeWidth={3} />}
-                        </div>
-                      )}
-                      <Favicon url={prob.url} fallback={Code} complete={complete} />
+                      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md">
+                        <PlatformIcon 
+                          platform={prob.platform} 
+                          className="h-4 w-4" 
+                          style={complete ? { color: "var(--accent-green)" } : undefined}
+                        />
+                      </div>
                       {!collapsed && <span className={`truncate ${complete ? "line-through opacity-60" : ""}`}>{prob.label}</span>}
+                      {!collapsed && !isEmbeddable && <ExternalLink className="h-3 w-3 shrink-0 opacity-55" />}
                     </div>
                     {!collapsed && getResourceXp(courseId, prob.url) > 0 && (
                       <span
@@ -192,7 +229,7 @@ function SidebarContent({ courseId, day, activeItemId, onSelectItem, collapsed }
                         +{getResourceXp(courseId, prob.url)}
                       </span>
                     )}
-                  </button>
+                  </Element>
                 </li>
               );
             })}

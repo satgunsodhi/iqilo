@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { BrainCircuit, Search, LayoutDashboard, User, X, Code2, RefreshCw, Check, AlertCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 
 import { ThemeToggle } from "./ThemeToggle";
 import { StreakBadge } from "./StreakDisplay";
 import { listCourses } from "@/lib/courses";
 import { useGamification, useProgress } from "@/hooks/useProgress";
 import { useLeetCode } from "@/hooks/useLeetCode";
-
+import { useCses } from "@/hooks/useCses";
 export function SiteHeader() {
   const pathname = usePathname();
   const router = useRouter();
@@ -30,9 +30,21 @@ export function SiteHeader() {
     setUsername: setLtUsername,
     sync: syncLeetCode,
   } = useLeetCode();
+  
+  const {
+    userId: csUserId,
+    syncStatus: csesSyncStatus,
+    errorMsg: csesErrorMsg,
+    lastSynced: csesLastSynced,
+    setUserId: setCsesUserId,
+    sync: syncCses,
+  } = useCses();
+
   const [leetcodeOpen, setLeetcodeOpen] = useState(false);
   const [localUsername, setLocalUsername] = useState(ltUsername);
   const [prevUsername, setPrevUsername] = useState(ltUsername);
+  const [localCsesUserId, setLocalCsesUserId] = useState(csUserId);
+  const [prevCsesUserId, setPrevCsesUserId] = useState(csUserId);
   const leetcodeRef = useRef<HTMLDivElement>(null);
 
   // Sync state input initialization
@@ -40,17 +52,88 @@ export function SiteHeader() {
     setLocalUsername(ltUsername);
     setPrevUsername(ltUsername);
   }
+  if (csUserId !== prevCsesUserId) {
+    setLocalCsesUserId(csUserId);
+    setPrevCsesUserId(csUserId);
+  }
+
+  // Parse active day to see if it contains LeetCode/CSES problems
+  const activeDayPlatforms = useMemo(() => {
+    if (!pathname) return { hasLeetCode: false, hasCses: false };
+    const match = pathname.match(/^\/courses\/([^/]+)\/day\/([^/]+)/);
+    if (!match) return { hasLeetCode: false, hasCses: false };
+    
+    const courseId = match[1];
+    const dayNum = parseInt(match[2], 10);
+    
+    const course = courses.find((c) => c.id === courseId);
+    if (!course) return { hasLeetCode: false, hasCses: false };
+    
+    const day = course.weeks.flatMap((w) => w.days).find((d) => d.dayNumber === dayNum);
+    if (!day || !day.practice) return { hasLeetCode: false, hasCses: false };
+    
+    return {
+      hasLeetCode: day.practice.some((p) => p.platform === "leetcode"),
+      hasCses: day.practice.some((p) => p.platform === "cses"),
+    };
+  }, [pathname, courses]);
+
+  const syncRef = useRef({
+    ltUsername,
+    lastSynced,
+    syncStatus,
+    syncLeetCode,
+    csUserId,
+    csesLastSynced,
+    csesSyncStatus,
+    syncCses,
+    activeDayPlatforms,
+  });
+
+  useEffect(() => {
+    syncRef.current = {
+      ltUsername,
+      lastSynced,
+      syncStatus,
+      syncLeetCode,
+      csUserId,
+      csesLastSynced,
+      csesSyncStatus,
+      syncCses,
+      activeDayPlatforms,
+    };
+  });
 
   // Auto-sync on window focus & load
   useEffect(() => {
-    if (!ltUsername) return;
-
     function handleFocus() {
+      const {
+        ltUsername,
+        lastSynced,
+        syncStatus,
+        syncLeetCode,
+        csUserId,
+        csesLastSynced,
+        csesSyncStatus,
+        syncCses,
+        activeDayPlatforms,
+      } = syncRef.current;
+
       // Throttle syncs to once every 30 seconds
       const now = Date.now();
-      const lastSyncedTime = lastSynced ? new Date(lastSynced).getTime() : 0;
-      if (now - lastSyncedTime > 30000 && syncStatus !== "syncing") {
-        syncLeetCode(ltUsername);
+      
+      if (ltUsername && activeDayPlatforms.hasLeetCode) {
+        const lastSyncedTime = lastSynced ? new Date(lastSynced).getTime() : 0;
+        if (now - lastSyncedTime > 30000 && syncStatus !== "syncing") {
+          syncLeetCode(ltUsername);
+        }
+      }
+      
+      if (csUserId && activeDayPlatforms.hasCses) {
+        const csesLastSyncedTime = csesLastSynced ? new Date(csesLastSynced).getTime() : 0;
+        if (now - csesLastSyncedTime > 30000 && csesSyncStatus !== "syncing") {
+          syncCses(csUserId);
+        }
       }
     }
 
@@ -59,7 +142,7 @@ export function SiteHeader() {
     handleFocus();
 
     return () => window.removeEventListener("focus", handleFocus);
-  }, [ltUsername, lastSynced, syncStatus, syncLeetCode]);
+  }, []);
 
   // Close popover when clicking outside
   useEffect(() => {
@@ -348,6 +431,81 @@ export function SiteHeader() {
                           </div>
                         );
                       })()}
+                    </div>
+                    
+                    {/* CSES Sync Section */}
+                    <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--border-subtle)" }}>
+                      <h3 className="mb-2 text-xs font-black uppercase tracking-wider" style={{ color: "var(--text-primary)" }}>
+                        CSES Sync
+                      </h3>
+                      <div className="flex flex-col gap-2">
+                        <div>
+                          <label className="mb-1 block text-[10px] font-bold" style={{ color: "var(--text-faint)" }}>
+                            CSES User ID (numeric)
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              placeholder="CSES ID"
+                              value={localCsesUserId}
+                              onChange={(e) => setLocalCsesUserId(e.target.value)}
+                              className="flex-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold outline-none transition"
+                              style={{
+                                borderColor: "var(--border-default)",
+                                background: "var(--bg-sunken)",
+                                color: "var(--text-primary)",
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setCsesUserId(localCsesUserId);
+                                syncCses(localCsesUserId);
+                              }}
+                              disabled={csesSyncStatus === "syncing"}
+                              className="flex items-center justify-center rounded-lg px-3 text-xs font-bold text-white transition-all disabled:opacity-50"
+                              style={{
+                                background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+                                boxShadow: "0 2px 4px color-mix(in srgb, #3b82f6 20%, transparent)",
+                              }}
+                            >
+                              {csesSyncStatus === "syncing" ? (
+                                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                "Sync"
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        {csesSyncStatus === "success" && (
+                          <div className="flex items-center gap-1.5 rounded-lg p-2 text-[11px] font-semibold animate-fade-in" style={{ background: "color-mix(in srgb, var(--accent-green) 10%, transparent)", color: "var(--accent-green)" }}>
+                            <Check className="h-3 w-3 shrink-0" />
+                            <span>Synced successfully!</span>
+                          </div>
+                        )}
+
+                        {csesSyncStatus === "error" && csesErrorMsg && (
+                          <div className="flex items-center gap-1.5 rounded-lg p-2 text-[11px] font-semibold animate-fade-in" style={{ background: "color-mix(in srgb, var(--accent-red) 10%, transparent)", color: "var(--accent-red)" }}>
+                            <AlertCircle className="h-3 w-3 shrink-0" />
+                            <span className="truncate text-xs">{csesErrorMsg}</span>
+                          </div>
+                        )}
+
+                        {csesLastSynced && (() => {
+                          const syncDate = new Date(csesLastSynced);
+                          const isToday = syncDate.toDateString() === new Date().toDateString();
+                          const timeStr = syncDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                          const label = isToday
+                            ? timeStr
+                            : `${syncDate.toLocaleDateString([], { month: 'short', day: 'numeric' })} · ${timeStr}`;
+                          return (
+                            <div className="text-[10px] font-medium mt-1 text-right" style={{ color: "var(--text-faint)" }}>
+                              Last synced: {label}
+                            </div>
+                          );
+                        })()}
+                      </div>
                     </div>
                   </div>
                 )}
