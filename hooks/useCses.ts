@@ -143,6 +143,21 @@ export function useCses() {
         }
       });
 
+      // Merge visited CSES tasks (fallback since CSES profiles are public-private/non-listable)
+      try {
+        const visitedStr = localStorage.getItem("iqilo-cses-visited");
+        if (visitedStr) {
+          const visited: string[] = JSON.parse(visitedStr);
+          visited.forEach((taskId) => {
+            if (taskId) {
+              newCache[taskId] = true;
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Failed to parse cses-visited storage:", err);
+      }
+
       updateState({
         cache: newCache,
         lastSynced: new Date().toISOString(),

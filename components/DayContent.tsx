@@ -281,6 +281,20 @@ export function DayContent({ course, week, day }: DayContentProps) {
                     href={activeItemData.url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => {
+                      if (activeItemData.platform === "cses") {
+                        const taskId = activeItemData.url?.match(/cses\.fi\/problemset\/task\/(\d+)/)?.[1];
+                        if (taskId) {
+                          try {
+                            const visited = JSON.parse(localStorage.getItem("iqilo-cses-visited") || "[]");
+                            if (!visited.includes(taskId)) {
+                              visited.push(taskId);
+                              localStorage.setItem("iqilo-cses-visited", JSON.stringify(visited));
+                            }
+                          } catch (err) {}
+                        }
+                      }
+                    }}
                     className="inline-flex items-center gap-2 rounded-xl px-6 py-3 font-bold text-white shadow-md transition hover:scale-105 active:scale-95"
                     style={{ background: "linear-gradient(135deg, var(--accent-blue), var(--accent-purple))" }}
                   >

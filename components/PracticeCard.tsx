@@ -49,6 +49,17 @@ export function PracticeCard({ problem, courseId }: PracticeCardProps) {
       onClick={() => {
         if (platform === "other" && courseId && !solved) {
           setResourceComplete(courseId, problem.url, true);
+        } else if (platform === "cses") {
+          const taskId = problem.url.match(/cses\.fi\/problemset\/task\/(\d+)/)?.[1];
+          if (taskId) {
+            try {
+              const visited = JSON.parse(localStorage.getItem("iqilo-cses-visited") || "[]");
+              if (!visited.includes(taskId)) {
+                visited.push(taskId);
+                localStorage.setItem("iqilo-cses-visited", JSON.stringify(visited));
+              }
+            } catch (err) {}
+          }
         }
       }}
       className="group flex items-center justify-between gap-3 rounded-xl px-4 py-3 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"

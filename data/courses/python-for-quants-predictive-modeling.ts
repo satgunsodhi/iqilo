@@ -26,634 +26,614 @@ export const QuantMLRoadmap: Course = {
     weeks: [
         {
             weekNumber: 1,
-            title: "Time-Series Analysis & Forecasting with Statsmodels",
+            title: "Advanced Time-Series & Volatility Modeling",
             days: [
                 {
                     dayNumber: 1,
-                    title: "Time-Series Fundamentals & Statsmodels",
+                    title: "Stationarity & Unit Root Testing",
                     objective:
-                        "Revisit core time-series concepts (stationarity, autocorrelation) and learn how to leverage the `statsmodels` library for descriptive analysis, visualization, and statistical tests (ADF, KPSS).",
+                        "Master formal statistical testing for stationarity. Implement the Augmented Dickey-Fuller (ADF) test to identify unit roots, paired with the Kwiatkowski-Phillips-Schmidt-Shin (KPSS) test to verify trend stationarity. This dual-testing approach strictly prevents the misclassification of difference-stationary versus trend-stationary price series.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Time Series analysis (statsmodels.tsa)",
-                            url: "https://www.statsmodels.org/stable/tsa.html",
-                        },
-                        {
-                            label: "Time Series Analysis in Python (Official Docs)",
-                            url: "https://www.statsmodels.org/stable/examples/index.html#time-series-analysis",
-                        },
+                            label: "Stationarity and Detrending (ADF/KPSS) - Statsmodels",
+                            url: "https://www.statsmodels.org/stable/examples/notebooks/generated/stationarity_detrending_adf_kpss.html",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "QuantConnect Time-Series Tutorial",
-                            url: "https://www.quantconnect.com/tutorials",
-                        },
+                            label: "Apply ADF and KPSS tests to a 10-year SPY dataset and plot the differenced series.",
+                            url: "https://www.statsmodels.org/stable/examples/notebooks/generated/stationarity_detrending_adf_kpss.html",
+                        }
                     ],
                     pitfall:
-                        "Financial time series are almost always non-stationary. Always apply a transformation (e.g., differencing, log-returns) before fitting models like ARIMA. Relying on visual inspection is not enough; always use statistical tests like ADF (Augmented Dickey-Fuller) to formally check for stationarity.",
+                        "Integer differencing to achieve strict stationarity completely erases the structural memory of the price series. Over-differencing results in a series of pure noise with zero predictive power, destroying the signal before modeling even begins."
                 },
                 {
                     dayNumber: 2,
-                    title: "ARIMA Models for Forecasting",
+                    title: "ARIMA Modeling for Asset Returns",
                     objective:
-                        "Master the ARIMA (Autoregressive Integrated Moving Average) model. Learn model identification (ACF/PACF plots), parameter selection (p, d, q), and how to use `statsmodels` to fit, forecast, and evaluate ARIMA models on financial returns.",
+                        "Implement Autoregressive Integrated Moving Average (ARIMA) models. Utilize Autocorrelation Function (ACF) and Partial Autocorrelation Function (PACF) plots to identify optimal (p, d, q) parameters, optimizing the fit via Akaike Information Criterion (AIC).",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "ARIMA Models (statsmodels)",
-                            url: "https://www.statsmodels.org/stable/generated/statsmodels.tsa.arima.model.ARIMA.html",
-                        },
-                        {
-                            label: "ARIMA Example Notebook",
-                            url: "https://www.statsmodels.org/stable/examples/notebooks/generated/arima.html",
-                        },
+                            label: "Building an ARIMA Model for a Financial Dataset",
+                            url: "https://github.com/GoogleCloudPlatform/training-data-analyst/blob/master/courses/ai-for-finance/solution/arima_model.ipynb",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "ARIMA Model for Stock Price Forecasting",
-                            url: "https://www.google.com/search?q=arima+model+python+finance",
-                        },
+                            label: "Fit an ARIMA(3,0,1) model to logarithmic returns of AAPL stock.",
+                            url: "https://github.com/microsoft/ML-For-Beginners/blob/main/7-TimeSeries/2-ARIMA/working/notebook.ipynb",
+                        }
                     ],
                     pitfall:
-                        "ARIMA models assume linearity and a stable underlying process. They are notoriously poor at forecasting financial returns in practice due to non-linearities and structural breaks. Use them for baseline and understanding, but be cautious about deploying them for live trading.",
+                        "ARIMA assumes homoscedasticity, meaning a constant variance over time. Because financial markets exhibit extreme volatility clustering, ARIMA models will produce confidence intervals that are dangerously narrow during market crashes, leading to catastrophic risk underestimation."
                 },
                 {
                     dayNumber: 3,
-                    title: "Seasonal ARIMA (SARIMA) & Exogenous Variables (SARIMAX)",
+                    title: "Seasonal ARIMA & Exogenous Features (SARIMAX)",
                     objective:
-                        "Extend ARIMA to handle seasonality (e.g., intraday patterns) and incorporate exogenous variables (e.g., market factors, economic indicators) using the SARIMAX model in `statsmodels`.",
+                        "Extend ARIMA to handle market seasonality and exogenous variables. Implement SARIMAX to inject macroeconomic indicators, such as interest rates or the VIX, as external regressors into the baseline time-series forecast.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "SARIMAX (statsmodels)",
-                            url: "https://www.statsmodels.org/stable/generated/statsmodels.tsa.statespace.sarimax.SARIMAX.html",
-                        },
-                        {
-                            label: "SARIMAX Example",
-                            url: "https://www.statsmodels.org/stable/examples/notebooks/generated/sarimax.html",
-                        },
+                            label: "Seasonal ARIMA (SARIMAX) Tutorial Notebook",
+                            url: "https://github.com/DiploDatos/AnalisisSeriesTemporales/blob/master/Tutorial05%20Seasonal%20ARIMA.ipynb",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Advanced Time Series Forecasting with SARIMAX",
-                            url: "https://www.google.com/search?q=sarimax+example+python",
-                        },
+                            label: "Incorporate lagged VIX data as an exogenous variable in a SARIMAX forecast of SPY returns.",
+                            url: "https://github.com/PacktPublishing/Time-Series-Analysis-with-Python-Cookbook-Second-Edition/blob/main/code/Ch9/Chapter_9.ipynb",
+                        }
                     ],
                     pitfall:
-                        "Including too many exogenous variables (X) can lead to overfitting. Always use a validation set and cross-validation to select features. Also, ensure your exogenous variables are known for the forecast period, which is a significant limitation in real-time trading.",
+                        "Look-ahead bias is rampant when using exogenous variables. If today's closing VIX is used to predict today's closing SPY, the model is invalid. External features must strictly be shifted by at least one period relative to the target."
                 },
                 {
                     dayNumber: 4,
-                    title: "Volatility Modeling: ARCH & GARCH",
+                    title: "Volatility Clustering: ARCH & GARCH Models",
                     objective:
-                        "Understand and implement volatility clustering models using the `arch` library. Fit GARCH (Generalized Autoregressive Conditional Heteroskedasticity) models to capture the time-varying volatility of financial returns.",
+                        "Model conditional heteroskedasticity. Utilize the `arch` library to fit GARCH(1,1) models, capturing the phenomenon where large return fluctuations are followed by large fluctuations, accurately predicting future market variance.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Arch Library Documentation",
-                            url: "https://arch.readthedocs.io/en/latest/",
-                        },
-                        {
-                            label: "Arch Library (PyPI)",
-                            url: "https://pypi.org/project/arch/",
-                        },
+                            label: "Univariate Volatility Modeling - Arch",
+                            url: "https://arch.readthedocs.io/en/latest/univariate/univariate_volatility_modeling.html",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Volatility Forecasting with GARCH",
-                            url: "https://www.google.com/search?q=garch+model+python+finance",
-                        },
+                            label: "Fit a GARCH(1,1) model with a Student's T distribution to daily S&P 500 returns.",
+                            url: "https://arch.readthedocs.io/en/latest/univariate/univariate_volatility_modeling.html",
+                        }
                     ],
                     pitfall:
-                        "GARCH models are sensitive to outliers and structural breaks. The assumption of a normal distribution for errors is often violated; consider using Student-t or skewed distributions for more robust volatility forecasts.",
+                        "Maximum Likelihood Estimation (MLE) for GARCH optimization often fails to converge if the return series variance is extremely small. Financial returns must be rescaled (e.g., multiply log returns by 100) before passing them to the solver."
                 },
                 {
                     dayNumber: 5,
-                    title: "Vector Autoregression (VAR) for Multi-Asset",
+                    title: "Heavy-Tailed Distributions & Phat-GARCH",
                     objective:
-                        "Move beyond univariate models to analyze multivariate time-series using VAR (Vector Autoregression). Use it to model the interdependencies between multiple assets and perform impulse response analysis.",
+                        "Address the non-Gaussian nature of financial returns. Replace standard normal residual assumptions with Pareto and Skewed Student's T distributions within GARCH frameworks to capture extreme tail risks.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "VAR (statsmodels)",
-                            url: "https://www.statsmodels.org/stable/vector_ar.html",
-                        },
+                            label: "Phat-GARCH Implementation Notebook",
+                            url: "https://phat.readthedocs.io/en/latest/notebooks/phatgarch.html",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "VAR Model for Macroeconomic Forecasting",
-                            url: "https://www.google.com/search?q=var+model+python+finance",
-                        },
+                            label: "Implement an ARMA(2,2)-GARCH(1,1) process using heavy-tailed residuals via the Phat distribution.",
+                            url: "https://phat.readthedocs.io/en/latest/notebooks/phatgarch.html",
+                        }
                     ],
                     pitfall:
-                        "VAR models require a large number of parameters, which quickly leads to overfitting. Use lag selection criteria (AIC, BIC) and be mindful of the curse of dimensionality. They are best suited for medium-dimensional systems (e.g., 5-10 assets).",
+                        "Relying on standard Gaussian residual mapping systematically underprices deep out-of-the-money options and underestimates Value-at-Risk (VaR), as it assumes market crashes happen exponentially less often than they actually do."
                 },
                 {
                     dayNumber: 6,
-                    title: "Cointegration & Pairs Trading",
+                    title: "Cointegration & Statistical Arbitrage",
                     objective:
-                        "Learn the concept of cointegration and how to identify cointegrated pairs using the Johansen test. Apply this to build a classic pairs trading strategy, a foundational statistical arbitrage technique.",
+                        "Distinguish between correlation and cointegration. Utilize the Johansen test and Engle-Granger two-step method to identify stationary linear combinations of non-stationary price series for pairs trading.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Cointegration Test (statsmodels)",
-                            url: "https://www.statsmodels.org/stable/generated/statsmodels.tsa.vector_ar.vecm.coint_johansen.html",
-                        },
+                            label: "Pairs Trading Implementation Example",
+                            url: "https://github.com/polakowo/vectorbt/blob/master/examples/PairsTrading.ipynb",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Pairs Trading Strategy with Python",
-                            url: "https://www.google.com/search?q=pairs+trading+python+cointegration",
-                        },
+                            label: "Test KO (Coca-Cola) and PEP (PepsiCo) for cointegration and calculate a dynamic hedge ratio.",
+                            url: "https://github.com/polakowo/vectorbt/blob/master/examples/PairsTrading.ipynb",
+                        }
                     ],
                     pitfall:
-                        "Cointegration is not the same as correlation. Two highly correlated assets can drift apart permanently (not cointegrated), leading to catastrophic losses in a pairs trade. Always test for cointegration and be strict with your entry/exit thresholds.",
+                        "Assuming a cointegrated pair will remain cointegrated indefinitely is a fatal error. Structural breaks, M&A activity, or regulatory changes can permanently decouple the spread, resulting in catastrophic drawdowns if hard stop-losses are omitted."
                 },
                 {
                     dayNumber: 7,
-                    title: "Timed Simulation: Time-Series Forecasting",
+                    title: "Timed Simulation: Volatility & Cointegration",
                     objective:
-                        "Simulate a quantitative research task to reinforce time-series modeling skills under time pressure.",
+                        "Simulate a strict quantitative research sprint focusing on volatility forecasting and statistical arbitrage under time pressure.",
                     tasks: [
-                        "Within a strict 90-minute block, load 10 years of daily S&P 500 returns.",
-                        "Fit an ARIMA, GARCH, and a simple VAR model to forecast volatility and returns.",
-                        "Backtest a simple volatility-based trading strategy (e.g., buy when volatility is low).",
-                        "Evaluate the models using out-of-sample RMSE and create a performance summary.",
+                        "Within 90 minutes, ingest 15 years of daily data for GLD and GDX.",
+                        "Perform an ADF test to prove non-stationarity of the raw price series.",
+                        "Fit a GARCH(1,1) model to GLD returns to forecast next-day variance.",
+                        "Run a Johansen cointegration test between GLD and GDX, establishing a rolling Z-score for the spread.",
+                        "Write a script that triggers a simulated entry when the Z-score exceeds +/- 2.0."
                     ],
-                },
-            ],
+                    protocol: QUANT_PROTOCOL_ADV
+                }
+            ]
         },
         {
             weekNumber: 2,
-            title: "Machine Learning for Alpha Generation",
+            title: "Feature Engineering & Overfitting Prevention",
             days: [
                 {
                     dayNumber: 8,
-                    title: "ML Fundamentals & Scikit-learn",
+                    title: "Advanced Indicator Engineering with Pandas-TA",
                     objective:
-                        "Establish a robust machine learning pipeline using `scikit-learn`. Master data preprocessing (scaling, encoding), cross-validation, and model evaluation metrics specifically for financial data.",
+                        "Accelerate feature engineering using the `pandas-ta` library. Programmatically generate hundreds of technical, momentum, and volume-based indicators across large dataframe arrays utilizing multiprocessing and fluent chaining.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Scikit-learn User Guide",
-                            url: "https://scikit-learn.org/stable/user_guide.html",
-                        },
-                        {
-                            label: "Scikit-learn: Machine Learning in Python",
-                            url: "https://scikit-learn.org/stable/",
-                        },
+                            label: "Pandas TA Classic - Technical Analysis Library",
+                            url: "https://github.com/xgboosted/pandas-ta-classic/blob/main/index.md",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Scikit-learn Tutorials",
-                            url: "https://scikit-learn.org/stable/tutorial/index.html",
-                        },
+                            label: "Use the df.ta.strategy() method to bulk-append MACD, RSI, and Bollinger Band variations to a dataset.",
+                            url: "https://github.com/xgboosted/pandas-ta-classic/blob/main/index.md",
+                        }
                     ],
                     pitfall:
-                        "In financial machine learning, standard cross-validation (e.g., k-fold) leads to look-ahead bias. Always use time-series split or purged cross-validation to respect the temporal order of data.",
+                        "Bulk-generating features creates large blocks of NaN values at the start of the dataset due to initial rolling lookback windows. If these are not explicitly dropped, downstream ML algorithms will silently learn from zero-padded noise."
                 },
                 {
                     dayNumber: 9,
-                    title: "Feature Engineering for Financial Data",
+                    title: "Temporal Alignment & Resampling",
                     objective:
-                        "Learn to create predictive features from raw price and volume data: technical indicators, lagged returns, rolling statistics, and macro features. Explore automated feature engineering libraries.",
+                        "Master the pandas `resample` and `ohlc` API to correctly aggregate high-frequency tick data into lower-frequency bars without inducing lookahead bias.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Feature Engineering for Finance",
-                            url: "https://www.google.com/search?q=feature+engineering+for+quant+trading+python",
-                        },
+                            label: "Pandas Resample Documentation",
+                            url: "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.resample.html",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "QuantConnect Feature Engineering",
-                            url: "https://www.quantconnect.com/tutorials",
-                        },
+                            label: "Downsample 1-minute tick data into 15-minute OHLC bars using closed='left' and label='left'.",
+                            url: "https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.resample.html",
+                        }
                     ],
                     pitfall:
-                        "Feature engineering is the most important part of a quant workflow. Avoid using information that wouldn't be available at the time of prediction (look-ahead bias). Always use `.shift()` to align signals correctly.",
+                        "Using the default `closed='right'` or `label='right'` parameters when resampling data can inadvertently include the closing tick of a forward window, leaking future price action into current historical bars."
                 },
                 {
                     dayNumber: 10,
-                    title: "Tree-Based Models: Random Forest & XGBoost",
+                    title: "Alternative Data: NLP & Sentiment Analysis",
                     objective:
-                        "Implement and tune powerful tree-based models (Random Forest, XGBoost) for classification and regression tasks, such as predicting future price direction or returns.",
+                        "Incorporate unstructured text data into algorithmic signals. Utilize the NLTK VADER sentiment analyzer to score financial news headlines, quantifying market sentiment polarity and intensity.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "XGBoost Documentation",
-                            url: "https://xgboost.readthedocs.io/en/stable/",
-                        },
-                        {
-                            label: "Scikit-learn Ensemble Methods",
-                            url: "https://scikit-learn.org/stable/modules/ensemble.html",
-                        },
+                            label: "NLTK Sentiment VADER Source Code",
+                            url: "https://www.nltk.org/_modules/nltk/sentiment/vader.html",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "XGBoost for Financial Forecasting",
-                            url: "https://www.google.com/search?q=xgboost+finance+python",
-                        },
+                            label: "Process a CSV of 1,000 financial headlines, extract the VADER compound scores, and map them chronologically.",
+                            url: "https://www.nltk.org/_modules/nltk/sentiment/vader.html",
+                        }
                     ],
                     pitfall:
-                        "Tree-based models are prone to overfitting, especially with a large number of features. Use early stopping, regularization, and feature importance analysis to create a more robust model.",
+                        "Standard NLP lexicons (like generic VADER) fail miserably on financial domain jargon. Words like 'vice', 'liability', or 'bear' carry specific financial meanings that generic sentiment models misclassify as strictly negative human emotions."
                 },
                 {
                     dayNumber: 11,
-                    title: "Linear Models & Regularization (Ridge, Lasso)",
+                    title: "Tree-Based Classifiers: Random Forest & XGBoost",
                     objective:
-                        "Apply linear models with L1 (Lasso) and L2 (Ridge) regularization for feature selection and to prevent overfitting. Use these for factor modeling and risk exposure analysis.",
+                        "Implement ensemble decision trees for financial classification. Configure Random Forest and XGBoost to predict forward return buckets based on highly dimensional feature sets.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Linear Models (scikit-learn)",
-                            url: "https://scikit-learn.org/stable/modules/linear_model.html",
-                        },
+                            label: "XGBoost Official Documentation",
+                            url: "https://xgboost.readthedocs.io/en/stable/",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Regularized Linear Models for Finance",
-                            url: "https://www.google.com/search?q=lasso+ridge+finance+python",
-                        },
+                            label: "Train an XGBoost classifier on pandas-ta features to predict the sign of the next day's return.",
+                            url: "https://xgboost.readthedocs.io/en/stable/",
+                        }
                     ],
                     pitfall:
-                        "Linear models are highly interpretable, but they assume linearity. Feature engineering (e.g., polynomial features, interactions) can help capture non-linear relationships, but this increases the risk of overfitting.",
+                        "Tree-based models cannot extrapolate outside the bounds of their training data. If XGBoost is trained to predict raw prices on a dataset ranging from $10 to $100, it will never predict a price above $100 in production. Always target stationary returns."
                 },
                 {
                     dayNumber: 12,
-                    title: "Support Vector Machines & Neural Networks",
+                    title: "Defeating Look-Ahead Bias: Purged K-Fold CV",
                     objective:
-                        "Explore the application of non-linear models like SVM and Neural Networks for financial prediction. Understand their strengths, weaknesses, and computational costs.",
+                        "Understand the critical failure of standard cross-validation in finance. Implement Purged K-Fold CV using `mlfinlab` to systematically embargo temporal overlaps between train and test boundaries.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "SVM (scikit-learn)",
-                            url: "https://scikit-learn.org/stable/modules/svm.html",
-                        },
-                        {
-                            label: "Neural Network Models (scikit-learn)",
-                            url: "https://scikit-learn.org/stable/modules/neural_networks_supervised.html",
-                        },
+                            label: "MLFinlab: Chapter 7 CV Notebook",
+                            url: "https://github.com/hudson-and-thames/example-notebooks/blob/main/Cross_validation/Chapter7_Cross_Validation.ipynb",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "MLPClassifier for Trading Signals",
-                            url: "https://www.google.com/search?q=neural+network+trading+python",
-                        },
+                            label: "Compare the cross-validated accuracy of an XGBoost model using standard K-Fold versus Purged K-Fold.",
+                            url: "https://github.com/hudson-and-thames/example-notebooks/blob/main/Cross_validation/Chapter7_Cross_Validation.ipynb",
+                        }
                     ],
                     pitfall:
-                        "Neural networks are data-hungry and prone to overfitting. For most financial datasets (which are relatively small and noisy), simpler models like regularized linear models or XGBoost often outperform deep learning.",
+                        "Standard K-Fold randomly shuffles data. Due to autocorrelation, Tuesday's data leaks Monday's answer if Tuesday is in the training set and Monday is in the test set, producing falsely inflated out-of-sample metrics."
                 },
                 {
                     dayNumber: 13,
-                    title: "Model Evaluation & Feature Selection",
+                    title: "Combinatorial Purged Cross-Validation (CPCV)",
                     objective:
-                        "Master the evaluation of financial ML models. Use purged cross-validation, walk-forward analysis, and performance metrics (Sharpe, Sortino, Hit Rate) that matter to a trader.",
+                        "Extend purged validation to generate multiple backtest paths. Utilize CPCV to compute the mean and variance of the Sharpe ratio across diverse, non-overlapping historical trajectories.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Model Evaluation (scikit-learn)",
-                            url: "https://scikit-learn.org/stable/modules/model_evaluation.html",
-                        },
-                        {
-                            label: "Feature Selection (scikit-learn)",
-                            url: "https://scikit-learn.org/stable/modules/feature_selection.html",
-                        },
+                            label: "MLFinlab: Combinatorial Purged K-Fold Source",
+                            url: "https://github.com/hudson-and-thames/mlfinlab/blob/master/mlfinlab/cross_validation/combinatorial.py",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "ML for Trading Evaluation",
-                            url: "https://www.google.com/search?q=walk+forward+analysis+python",
-                        },
+                            label: "Implement CPCV with N=6 splits and K=2 combinations to generate multiple out-of-sample prediction paths for a classifier.",
+                            url: "https://github.com/hudson-and-thames/mlfinlab/blob/master/mlfinlab/cross_validation/combinatorial.py",
+                        }
                     ],
                     pitfall:
-                        "Accuracy is a poor metric for financial classification. Focus on metrics that align with trading goals: Sharpe ratio, maximum drawdown, and profit factor. Always evaluate on a realistic, out-of-sample period.",
+                        "Setting the embargo period too low fails to protect against overlapping event outcomes (e.g., a 5-day return label crossing the train/test boundary). The embargo must strictly exceed the maximum holding period of the strategy."
                 },
                 {
                     dayNumber: 14,
-                    title: "Timed Simulation: ML Signal Generation",
+                    title: "Timed Simulation: ML Signal Pipeline",
                     objective:
-                        "Simulate a research task to build a complete ML-based signal generation pipeline under time pressure.",
+                        "Simulate a complete feature engineering and robust validation pipeline under strict time constraints.",
                     tasks: [
-                        "Within a strict 90-minute block, engineer a set of features from 5 years of stock data.",
-                        "Train an XGBoost classifier to predict next-day price movement.",
-                        "Backtest a strategy based on the model's signals.",
-                        "Evaluate the strategy using walk-forward analysis and report the Sharpe ratio.",
+                        "Within 90 minutes, download 10 years of OHLCV data for an asset.",
+                        "Generate 30 technical indicators using pandas-ta.",
+                        "Define a binary classification target of the next 5-day forward return.",
+                        "Train a Random Forest classifier.",
+                        "Validate the model using Purged K-Fold CV, explicitly logging the realistic out-of-sample F1 score."
                     ],
-                },
-            ],
+                    protocol: QUANT_PROTOCOL_ADV
+                }
+            ]
         },
         {
             weekNumber: 3,
-            title: "Backtesting, Strategy Development & Deployment",
+            title: "Vectorized & Event-Driven Strategy Backtesting",
             days: [
                 {
                     dayNumber: 15,
-                    title: "Vectorized Backtesting with VectorBT",
+                    title: "Blazing Fast Vectorized Backtesting: VectorBT",
                     objective:
-                        "Learn to build fast, vectorized backtests using VectorBT. Design a simple momentum strategy, compute performance metrics, and visualize equity curves.",
+                        "Utilize NumPy and Pandas to simulate thousands of trades instantly. Master the `vectorbt` library to execute vectorized backtests for matrix-based signals like Moving Average Crossovers.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "VectorBT Documentation",
-                            url: "https://vectorbt.dev/",
-                        },
-                        {
-                            label: "VectorBT GitHub Repository",
-                            url: "https://github.com/polakowo/vectorbt",
-                        },
+                            label: "VectorBT: Bitcoin DMAC Example",
+                            url: "https://github.com/polakowo/vectorbt/blob/master/examples/BitcoinDMAC.ipynb",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "VectorBT Examples",
-                            url: "https://vectorbt.dev/examples/",
-                        },
+                            label: "Replicate a Dual Moving Average Crossover (DMAC) on Bitcoin data using VectorBT's Portfolio.from_signals method.",
+                            url: "https://github.com/polakowo/vectorbt/blob/master/examples/BitcoinDMAC.ipynb",
+                        }
                     ],
                     pitfall:
-                        "Vectorized backtesting is fast but can be unrealistic. It assumes you can trade at the exact price and ignores execution costs. Always incorporate realistic slippage and commission models.",
+                        "Vectorized backtesting assumes 100% execution probability at exactly the closing price of the signal bar. It inherently ignores limit order queuing, bid-ask spread crossing, and liquidity depth, creating a dangerous illusion of frictionless profitability."
                 },
                 {
                     dayNumber: 16,
-                    title: "Event-Driven Backtesting with Backtrader",
+                    title: "Walk-Forward Optimization",
                     objective:
-                        "Build an event-driven backtesting framework using Backtrader. This approach is more realistic for simulating order execution and handling complex trading rules.",
+                        "Avoid curve-fitting static parameters to historical data. Implement Walk-Forward Optimization in `vectorbt` to dynamically recalibrate moving average lengths across rolling in-sample and out-of-sample windows.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Backtrader Documentation",
-                            url: "https://www.backtrader.com/docu/",
-                        },
+                            label: "VectorBT: Walk-Forward Optimization Example",
+                            url: "https://github.com/polakowo/vectorbt/blob/master/examples/WalkForwardOptimization.ipynb",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Backtrader Quickstart",
-                            url: "https://www.backtrader.com/docu/quickstart/quickstart.html",
-                        },
+                            label: "Construct a rolling split generator with 2-year in-sample and 180-day out-of-sample periods, optimizing MACD parameters dynamically.",
+                            url: "https://github.com/polakowo/vectorbt/blob/master/examples/WalkForwardOptimization.ipynb",
+                        }
                     ],
                     pitfall:
-                        "Event-driven backtesting is more computationally expensive than vectorized. Use it for strategies with complex order logic, but for simple strategies, vectorized backtesting is often sufficient and much faster.",
+                        "Re-optimizing parameters too frequently (e.g., daily recalibration) causes the algorithm to chase market noise rather than structural alpha. This leads to whipsaw losses and destroys the strategy's transaction cost budget."
                 },
                 {
                     dayNumber: 17,
-                    title: "Performance Metrics & Risk Analysis",
+                    title: "Portfolio Optimization & PyPortfolioOpt",
                     objective:
-                        "Go beyond Sharpe ratio. Implement a comprehensive suite of performance metrics: Sortino Ratio, Calmar Ratio, Maximum Drawdown, and statistical tests (t-test, bootstrapping) to evaluate strategy robustness.",
+                        "Transition from single-asset signals to multi-asset allocation. Integrate `PyPortfolioOpt` to compute the Tangency Portfolio (Maximum Sharpe) and Minimum Volatility allocations based on historical covariance.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "ffn - Financial Functions for Python",
-                            url: "https://pypi.org/project/ffn/",
+                            label: "PyPortfolioOpt: Mean-Variance Optimization",
+                            url: "https://github.com/PyPortfolio/PyPortfolioOpt",
                         },
                         {
-                            label: "Performance Metrics (QuantConnect)",
-                            url: "https://www.quantconnect.com/docs/v2/lean-cli/tutorials/statistics",
-                        },
+                            label: "VectorBT: Portfolio Optimization Simulation",
+                            url: "https://github.com/polakowo/vectorbt/blob/master/examples/PortfolioOptimization.ipynb",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Performance Metrics with ffn",
-                            url: "https://www.google.com/search?q=ffn+python+finance",
-                        },
+                            label: "Calculate the max Sharpe portfolio weights for a basket of 10 tech stocks, then simulate the equity curve in VectorBT.",
+                            url: "https://github.com/polakowo/vectorbt/blob/master/examples/PortfolioOptimization.ipynb",
+                        }
                     ],
                     pitfall:
-                        "Don't just look at Sharpe ratio. Evaluate maximum drawdown, win rate, and profit factor. A strategy with a high Sharpe but a huge drawdown is not suitable for live trading.",
+                        "Mean-Variance Optimization is an error-maximizer. Tiny estimation errors in expected returns lead to extreme corner solutions. Always apply Ledoit-Wolf shrinkage to the covariance matrix to constrain outlier weights."
                 },
                 {
                     dayNumber: 18,
-                    title: "Multi-Asset & Portfolio Backtesting",
+                    title: "Event-Driven Backtesting: Backtrader Mechanics",
                     objective:
-                        "Extend backtesting to multi-asset portfolios. Implement position sizing (e.g., Kelly Criterion, risk parity) and rebalancing logic.",
+                        "Transition to realistic event-driven architecture. Master the fundamental loops, data feeds, and class structures (Cerebro, Strategy, Data) required to run detailed chronological simulations in `backtrader`.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Portfolio Optimization (scipy)",
-                            url: "https://docs.scipy.org/doc/scipy/reference/optimize.html",
-                        },
+                            label: "Backtrader Documentation: Quickstart",
+                            url: "https://www.backtrader.com/docu/quickstart/quickstart.html",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Portfolio Backtesting with Python",
-                            url: "https://www.google.com/search?q=portfolio+backtesting+python",
-                        },
+                            label: "Implement a basic custom Strategy class in Backtrader that triggers a market buy order when the RSI crosses below 30.",
+                            url: "https://www.backtrader.com/docu/quickstart/quickstart.html",
+                        }
                     ],
                     pitfall:
-                        "Portfolio-level backtesting introduces new challenges: correlations between assets, rebalancing frequency, and transaction costs. Ignoring these can lead to overoptimistic results.",
+                        "Event-driven engines process data linearly and are inherently slow in native Python. Attempting to pass unoptimized, massive tick-level DataFrames into `Cerebro` without proper parsing will cause severe memory bottlenecks."
                 },
                 {
                     dayNumber: 19,
-                    title: "Dealing with Look-Ahead Bias & Overfitting",
+                    title: "Advanced Order Execution & Slippage Modeling",
                     objective:
-                        "Master the critical concepts of look-ahead bias and overfitting in quant finance. Learn techniques to detect and prevent them, ensuring your strategies are robust.",
+                        "Simulate real-world trading constraints. Implement limit orders, stop-losses, and realistic commission/slippage models within the `backtrader` framework to stress-test strategy resilience.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Purged Cross-Validation",
-                            url: "https://www.google.com/search?q=purged+cross+validation+python",
-                        },
+                            label: "Backtrader: Interactive Brokers Sample Test",
+                            url: "https://github.com/backtrader/backtrader/tree/master/samples/ibtest",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Walk-Forward Analysis Tutorial",
-                            url: "https://www.google.com/search?q=walk+forward+analysis+python",
-                        },
+                            label: "Modify a Backtrader script to inject 5 basis points of slippage and $1.00 commissions per trade, observing the equity curve decay.",
+                            url: "https://github.com/backtrader/backtrader/tree/master/samples/ibtest",
+                        }
                     ],
                     pitfall:
-                        "The biggest pitfall in quant finance is overfitting to historical data. Always use a strict out-of-sample period and multiple robustness checks (e.g., parameter sensitivity analysis, different market regimes).",
+                        "Naive backtesters assume stop-loss orders execute at the exact trigger price. In reality, during market gaps (e.g., opening bells, news events), stop market orders will suffer massive negative slippage, filling at prices far worse than simulated."
                 },
                 {
                     dayNumber: 20,
-                    title: "Live Data & Alpaca/IBKR Integration",
+                    title: "Institutional Performance Reporting: QuantStats",
                     objective:
-                        "Connect your strategies to live market data feeds and brokerage APIs (e.g., Alpaca, Interactive Brokers). Build a simple execution system.",
+                        "Generate comprehensive tear sheets to evaluate risk-adjusted performance. Extract return series from backtests and use `QuantStats` to compute Calmar, Sortino, Maximum Drawdown, and rolling volatility metrics.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Alpaca Trading API Docs",
-                            url: "https://alpaca.markets/docs/",
-                        },
-                        {
-                            label: "IBKR API Python Docs",
-                            url: "https://interactivebrokers.github.io/tws-api/",
-                        },
+                            label: "QuantStats: Reports Module Source",
+                            url: "https://github.com/ranaroussi/quantstats/blob/main/quantstats/reports.py",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Alpaca Python SDK",
-                            url: "https://github.com/alpacahq/alpaca-trade-api-python",
-                        },
+                            label: "Extract the equity curve from a Backtrader run and generate a full HTML tear sheet using qs.reports.html().",
+                            url: "https://github.com/ranaroussi/quantstats/blob/main/quantstats/reports.py",
+                        }
                     ],
                     pitfall:
-                        "Live trading is vastly different from backtesting. Expect execution delays, slippage, and API failures. Start with paper trading and small positions. Robust error handling is not optional.",
+                        "Comparing an active strategy against a benchmark index like SPY introduces survivorship bias if the testing universe includes delisted stocks while the index only tracks successful survivors. Always evaluate against a rigorously matched benchmark universe."
                 },
                 {
                     dayNumber: 21,
-                    title: "Timed Simulation: Build a Live Strategy",
+                    title: "Timed Simulation: End-to-End Backtest & Tear Sheet",
                     objective:
-                        "Simulate building a complete strategy from data ingestion to live signal generation under time pressure.",
+                        "Execute a complete strategy validation loop under strict time constraints.",
                     tasks: [
-                        "Within a strict 90-minute block, write a script that pulls live data from an API.",
-                        "Generate a trading signal based on a simple moving average crossover.",
-                        "Place a paper trade through the Alpaca API.",
-                        "Log the trade and send a notification.",
+                        "Within 90 minutes, configure a Backtrader Cerebro instance with daily AAPL data.",
+                        "Code a Bollinger Band mean-reversion strategy including commissions and slippage.",
+                        "Execute the backtest and extract the daily portfolio returns.",
+                        "Pass the returns to QuantStats to generate an HTML tear sheet.",
+                        "Identify and formally document the strategy's max drawdown duration."
                     ],
-                },
-            ],
+                    protocol: QUANT_PROTOCOL_ADV
+                }
+            ]
         },
         {
             weekNumber: 4,
-            title: "Advanced Topics & Project Integration",
+            title: "Reinforcement Learning, API Execution & MLOps",
             days: [
                 {
                     dayNumber: 22,
                     title: "Reinforcement Learning for Trading",
                     objective:
-                        "Explore the application of Reinforcement Learning (RL) to trading. Understand the concepts of agents, environments, and rewards. Implement a simple Q-learning or DQN agent.",
+                        "Formulate trading as a Markov Decision Process (MDP). Utilize `gym-anytrading` to build custom OpenAI Gym environments, defining discrete action spaces and reward functions for RL agents.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "Stable-Baselines3 Documentation",
-                            url: "https://stable-baselines3.readthedocs.io/en/master/",
+                            label: "Gym-Anytrading GitHub Notebook Example",
+                            url: "https://github.com/AminHP/gym-anytrading/blob/master/README.ipynb",
                         },
                         {
-                            label: "Deep RL for Trading (Book)",
-                            url: "https://www.google.com/search?q=deep+reinforcement+learning+for+trading",
-                        },
+                            label: "Crosslearn RL Application with Gym-Anytrading",
+                            url: "https://colab.research.google.com/github/cpohagwu/crosslearn/blob/main/examples/04_gym-anytrading_reinforce_chronos2.ipynb",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "RL for Trading Tutorial",
-                            url: "https://www.google.com/search?q=reinforcement+learning+trading+python",
-                        },
+                            label: "Instantiate a `forex-v0` gym environment and run a baseline random-action agent, tracking step rewards.",
+                            url: "https://github.com/AminHP/gym-anytrading/blob/master/README.ipynb",
+                        }
                     ],
                     pitfall:
-                        "RL is a highly advanced and computationally expensive field. It is not a silver bullet. Most successful quant firms use simpler, more interpretable models. Start with a toy problem before attempting live markets.",
+                        "Sparse and noisy reward functions cause RL agents to converge on trivial, sub-optimal policies. If trade fees are high and market signal is low, the agent will rapidly learn that the mathematical optimum is to simply execute zero trades."
                 },
                 {
                     dayNumber: 23,
-                    title: "Alternative Data & NLP",
+                    title: "MetaTrader RL Integration",
                     objective:
-                        "Learn how to incorporate alternative data sources (e.g., news, social media sentiment) into your trading models using Natural Language Processing (NLP).",
+                        "Bridge standard RL gym environments with professional trading platforms. Implement `gym-mtsim` to simulate RL operations mirroring the MetaTrader 5 ecosystem.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "NLTK Documentation",
-                            url: "https://www.nltk.org/",
-                        },
-                        {
-                            label: "Sentiment Analysis with VADER",
-                            url: "https://www.google.com/search?q=vader+sentiment+analysis+python",
-                        },
+                            label: "Gym-MTSim Usage Example",
+                            url: "https://github.com/AminHP/gym-mtsim",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "NLP for Trading",
-                            url: "https://www.google.com/search?q=nlp+for+trading+python",
-                        },
+                            label: "Instantiate an MtSimulator environment, define a unit currency and leverage profile, and fetch the real-time balance state.",
+                            url: "https://github.com/AminHP/gym-mtsim",
+                        }
                     ],
                     pitfall:
-                        "Alternative data is often noisy and requires significant cleaning. Sentiment analysis models can be easily fooled. Always validate your signals against actual price movements.",
+                        "Directly transferring an agent trained on isolated historical price streams to a simulator simulating live margins and dynamic spreads often leads to immediate liquidation. Margin utilization constraints must be encoded directly into the reward penalty function."
                 },
                 {
                     dayNumber: 24,
-                    title: "High-Frequency & Tick Data",
+                    title: "Live Integration: Alpaca Data & Paper Trading",
                     objective:
-                        "Understand the challenges and opportunities of high-frequency trading. Learn to work with tick data, handle massive datasets, and implement micro-structure models.",
+                        "Bridge the gap between backtesting and live execution. Utilize the `alpaca-py` SDK to pull live streaming data and execute programmatic paper trades in a simulated broker environment.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "High-Frequency Trading (Book)",
-                            url: "https://www.google.com/search?q=high+frequency+trading+python",
-                        },
+                            label: "Alpaca-Py: Options Trading Basic Tutorial",
+                            url: "https://github.com/alpacahq/alpaca-py/blob/master/examples/options-trading-basic.ipynb",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Tick Data Analysis",
-                            url: "https://www.google.com/search?q=tick+data+analysis+python",
-                        },
+                            label: "Authenticate an Alpaca paper trading client, stream the latest SPY quote, and programmatically submit a bracket order.",
+                            url: "https://github.com/alpacahq/alpaca-py/blob/master/examples/options-trading-basic.ipynb",
+                        }
                     ],
                     pitfall:
-                        "HFT requires ultra-low latency infrastructure. It is not feasible for retail traders. Focus on the analytical aspects, but be aware of the practical limitations.",
+                        "Production API endpoints enforce strict rate limits and suffer from occasional websocket disconnects. Without implementing exponential backoff retries and robust reconnection logic, a live trading script will crash silently, leaving open orders unmanaged."
                 },
                 {
                     dayNumber: 25,
-                    title: "Productionizing ML Models",
+                    title: "Advanced Execution: Options Spreads via API",
                     objective:
-                        "Learn how to deploy machine learning models into a production environment. Use tools like MLflow, Docker, and cloud platforms to manage and monitor models.",
+                        "Programmatically construct and execute complex, multi-leg options derivatives. Use the Alpaca API to calculate Black-Scholes Greeks, filter contracts, and submit Iron Condors and Calendar Spreads.",
                     protocol: QUANT_PROTOCOL_ADV,
                     resources: [
                         {
-                            label: "MLflow Documentation",
-                            url: "https://mlflow.org/docs/latest/index.html",
-                        },
+                            label: "Alpaca-Py: Options Iron Condor Example",
+                            url: "https://github.com/alpacahq/alpaca-py/blob/master/examples/options/options-iron-condor.ipynb?ref=alpaca.markets",
+                        }
                     ],
                     practice: [
                         {
                             platform: "other",
-                            label: "Deploying ML Models",
-                            url: "https://www.google.com/search?q=mlflow+python+tutorial",
-                        },
+                            label: "Filter an options chain to find contracts forming an Iron Condor with delta < 0.20 and programmatically execute the spread.",
+                            url: "https://github.com/alpacahq/alpaca-py/blob/master/examples/options/options-iron-condor.ipynb?ref=alpaca.markets",
+                        }
                     ],
                     pitfall:
-                        "Production ML requires continuous monitoring and retraining. Models decay over time as market regimes change. Automate your retraining pipeline.",
+                        "Executing multi-leg options programmatically exposes the portfolio to severe early assignment risk on short legs. Ignoring dividend ex-dates or hard-to-borrow status can trigger unexpected margin calls and account liquidations."
                 },
                 {
                     dayNumber: 26,
-                    title: "Template Consolidation 2",
+                    title: "Production MLOps: Experiment Tracking with MLflow",
                     objective:
-                        "Create a personal Python quant library with reusable templates for machine learning and backtesting.",
-                    tasks: [
-                        "Re-engineer from scratch core templates for: building a time-series forecasting pipeline, training an XGBoost classifier, vectorized backtesting with VectorBT, and event-driven backtesting with Backtrader.",
-                        "Ensure every template includes a robust cross-validation and evaluation framework.",
+                        "Implement immutable logging for quantitative models. Use `MLflow` to track training runs, hyperparameter matrices, model binaries, and evaluation artifacts to ensure exact reproducibility across the research team.",
+                    protocol: QUANT_PROTOCOL_ADV,
+                    resources: [
+                        {
+                            label: "MLflow Tracking Quickstart Guide",
+                            url: "https://mlflow.org/docs/latest/ml/tracking/quickstart/",
+                        },
+                        {
+                            label: "MLflow for PyTorch & Deep Learning",
+                            url: "https://mlflow.org/docs/latest/ml/deep-learning/pytorch/",
+                        }
                     ],
+                    practice: [
+                        {
+                            platform: "other",
+                            label: "Wrap a model training loop in an `mlflow.start_run()` context, applying `mlflow.sklearn.autolog()` to log parameters, metrics, and serialized models automatically.",
+                            url: "https://mlflow.org/docs/latest/ml/tracking/quickstart/",
+                        }
+                    ],
+                    pitfall:
+                        "Logging model weights without explicitly logging the exact environment dependencies (`requirements.txt`, python version) renders the model useless. Unpinned package updates will break deserialization of old models in production environments."
                 },
                 {
                     dayNumber: 27,
-                    title: "Mock Project: End-to-End ML Strategy",
+                    title: "Mock Project: End-to-End Live ML Deployment",
                     objective:
-                        "Simulate a complete quantitative research project from data ingestion to live trading signal generation.",
+                        "Architect a complete, automated algorithmic trading pipeline, bridging research models to live API execution.",
                     tasks: [
-                        "Select a universe of 50 stocks and download 10 years of daily price data.",
-                        "Engineer a set of predictive features.",
-                        "Train and evaluate an XGBoost model using purged cross-validation.",
-                        "Build a backtest of a strategy based on the model's signals.",
-                        "Present the results in a clear, well-commented Jupyter Notebook.",
+                        "Train a predictive ML classifier and register the production-ready model artifact in MLflow.",
+                        "Write a robust deployment script that loads the registered MLflow model.",
+                        "Fetch live intraday data via the Alpaca API and apply the exact feature transformations used in training.",
+                        "Generate a prediction and programmatically dispatch a live paper trade via Alpaca.",
+                        "Implement error handling to gracefully catch API timeouts."
                     ],
+                    protocol: QUANT_PROTOCOL_ADV
                 },
                 {
                     dayNumber: 28,
-                    title: "Final Review & Next Steps",
+                    title: "Curriculum Conclusion & Strategy Decay Operations",
                     objective:
-                        "Consolidate knowledge and plan the next phase: deep learning (PyTorch/TensorFlow) and advanced portfolio management.",
+                        "Synthesize the 28-day intensive, evaluate pipeline robustness, and establish operational protocols for monitoring model degradation (alpha decay) in live market environments.",
                     tasks: [
-                        "Review all code, templates, and notes from the past 4 weeks.",
-                        "Identify areas of weakness and plan targeted practice.",
-                        "Explore the next course in the series: 'Deep Learning & Advanced Portfolio Management for Quant Trading'.",
-                        "Rest and reset for the next intensive learning phase.",
+                        "Consolidate all template scripts into a centralized, version-controlled repository.",
+                        "Review MLflow logs to assess the out-of-sample performance consistency of the final project.",
+                        "Establish a statistical threshold (e.g., Z-score of rolling drawdown) that triggers automatic model retraining.",
+                        "Prepare for advanced studies in high-frequency tick data and deep reinforcement learning."
                     ],
-                },
-            ],
-        },
-    ],
+                    protocol: QUANT_PROTOCOL_ADV
+                }
+            ]
+        }
+    ]
 };
