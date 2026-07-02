@@ -5,13 +5,15 @@ import { useSyncExternalStore, useState, useEffect, useCallback } from "react";
 export type CsesCache = Record<string, boolean>;
 
 export interface CsesState {
-  userId: string;
+  userId: string;       // CSES username/nick
+  phpSessId: string;    // CSES PHPSESSID cookie
   cache: CsesCache;
   lastSynced: string | null; // ISO string
 }
 
 const STORAGE_KEYS = {
   USER_ID: "iqilo-cses-userid",
+  PHP_SESSID: "iqilo-cses-phpsessid",
   CACHE: "iqilo-cses-cache",
   LAST_SYNCED: "iqilo-cses-last-synced",
 };
@@ -19,6 +21,7 @@ const STORAGE_KEYS = {
 // Default empty state
 const defaultState: CsesState = {
   userId: "",
+  phpSessId: "",
   cache: {},
   lastSynced: null,
 };
@@ -32,11 +35,12 @@ function getSnapshot(): CsesState {
   if (clientState === null) {
     try {
       const userId = localStorage.getItem(STORAGE_KEYS.USER_ID) || "";
+      const phpSessId = localStorage.getItem(STORAGE_KEYS.PHP_SESSID) || "";
       const cacheStr = localStorage.getItem(STORAGE_KEYS.CACHE);
       const cache = cacheStr ? JSON.parse(cacheStr) : {};
       const lastSynced = localStorage.getItem(STORAGE_KEYS.LAST_SYNCED) || null;
       
-      clientState = { userId, cache, lastSynced };
+      clientState = { userId, phpSessId, cache, lastSynced };
     } catch {
       clientState = defaultState;
     }
@@ -57,6 +61,9 @@ function updateState(next: Partial<CsesState>) {
   try {
     if (next.userId !== undefined) {
       localStorage.setItem(STORAGE_KEYS.USER_ID, next.userId);
+    }
+    if (next.phpSessId !== undefined) {
+      localStorage.setItem(STORAGE_KEYS.PHP_SESSID, next.phpSessId);
     }
     if (next.cache !== undefined) {
       localStorage.setItem(STORAGE_KEYS.CACHE, JSON.stringify(next.cache));
@@ -79,7 +86,7 @@ function updateState(next: Partial<CsesState>) {
 export function getCsesTaskId(url: string): string | null {
   if (!url) return null;
   try {
-    const match = url.match(/cses\.fi\/problemset\/task\/(\d+)/);
+    const match = url.match(/cses\.fi\/problemset\/(?:task|view)\/(\d+)/);
     return match ? match[1] : null;
   } catch {
     return null;
@@ -95,6 +102,7 @@ export function useCses() {
     function handleStorage(e: StorageEvent) {
       if (
         e.key === STORAGE_KEYS.USER_ID ||
+        e.key === STORAGE_KEYS.PHP_SESSID ||
         e.key === STORAGE_KEYS.CACHE ||
         e.key === STORAGE_KEYS.LAST_SYNCED
       ) {
@@ -110,11 +118,17 @@ export function useCses() {
     updateState({ userId: userId.trim() });
   }, []);
 
-  const sync = useCallback(async (forcedUserId?: string) => {
+  const setPhpSessId = useCallback((phpSessId: string) => {
+    updateState({ phpSessId: phpSessId.trim() });
+  }, []);
+
+  const sync = useCallback(async (forcedUserId?: string, password?: string, phpSessId?: string) => {
     const targetUserId = (forcedUserId ?? state.userId).trim();
-    if (!targetUserId) {
+    const targetPhpSessId = (phpSessId ?? state.phpSessId).trim();
+
+    if (!targetPhpSessId && (!targetUserId || !password)) {
       setSyncStatus("error");
-      setErrorMsg("Please enter a CSES User ID");
+      setErrorMsg("Please enter Username & Password, or PHPSESSID");
       return;
     }
 
@@ -122,10 +136,21 @@ export function useCses() {
     setErrorMsg(null);
 
     try {
-      const response = await fetch(`/api/cses?userId=${encodeURIComponent(targetUserId)}`);
+      const response = await fetch("/api/cses", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nick: targetUserId,
+          pass: password,
+          phpSessId: targetPhpSessId,
+        }),
+      });
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
       }
 
       const result = await response.json();
@@ -159,6 +184,8 @@ export function useCses() {
       }
 
       updateState({
+        userId: result.username || targetUserId,
+        phpSessId: result.phpSessId || targetPhpSessId,
         cache: newCache,
         lastSynced: new Date().toISOString(),
       });
@@ -171,7 +198,7 @@ export function useCses() {
       setSyncStatus("error");
       setErrorMsg(error.message || "Sync failed");
     }
-  }, [state.userId]);
+  }, [state.userId, state.phpSessId]);
 
   const isSolved = useCallback((url: string) => {
     const taskId = getCsesTaskId(url);
@@ -181,11 +208,13 @@ export function useCses() {
 
   return {
     userId: state.userId,
+    phpSessId: state.phpSessId,
     cache: state.cache,
     lastSynced: state.lastSynced,
     syncStatus,
     errorMsg,
     setUserId,
+    setPhpSessId,
     sync,
     isSolved,
   };

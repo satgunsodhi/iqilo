@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { BrainCircuit, Search, LayoutDashboard, User, X, Code2, RefreshCw, Check, AlertCircle } from "lucide-react";
+import { Search, LayoutDashboard, User, X, Code2, RefreshCw, Check, AlertCircle } from "lucide-react";
 import { useEffect, useRef, useState, useMemo } from "react";
 
 import { ThemeToggle } from "./ThemeToggle";
@@ -33,10 +33,12 @@ export function SiteHeader() {
   
   const {
     userId: csUserId,
+    phpSessId: csPhpSessId,
     syncStatus: csesSyncStatus,
     errorMsg: csesErrorMsg,
     lastSynced: csesLastSynced,
     setUserId: setCsesUserId,
+    setPhpSessId: setCsesPhpSessId,
     sync: syncCses,
   } = useCses();
 
@@ -45,6 +47,11 @@ export function SiteHeader() {
   const [prevUsername, setPrevUsername] = useState(ltUsername);
   const [localCsesUserId, setLocalCsesUserId] = useState(csUserId);
   const [prevCsesUserId, setPrevCsesUserId] = useState(csUserId);
+
+  const [csesSyncMode, setCsesSyncMode] = useState<"credentials" | "cookie">("credentials");
+  const [localCsesPassword, setLocalCsesPassword] = useState("");
+  const [localCsesPhpSessId, setLocalCsesPhpSessId] = useState(csPhpSessId);
+  const [prevCsesPhpSessId, setPrevCsesPhpSessId] = useState(csPhpSessId);
   const leetcodeRef = useRef<HTMLDivElement>(null);
 
   // Sync state input initialization
@@ -55,6 +62,10 @@ export function SiteHeader() {
   if (csUserId !== prevCsesUserId) {
     setLocalCsesUserId(csUserId);
     setPrevCsesUserId(csUserId);
+  }
+  if (csPhpSessId !== prevCsesPhpSessId) {
+    setLocalCsesPhpSessId(csPhpSessId);
+    setPrevCsesPhpSessId(csPhpSessId);
   }
 
   // Parse active day to see if it contains LeetCode/CSES problems
@@ -435,48 +446,141 @@ export function SiteHeader() {
                     
                     {/* CSES Sync Section */}
                     <div className="mt-4 pt-4 border-t" style={{ borderColor: "var(--border-subtle)" }}>
-                      <h3 className="mb-2 text-xs font-black uppercase tracking-wider" style={{ color: "var(--text-primary)" }}>
-                        CSES Sync
-                      </h3>
-                      <div className="flex flex-col gap-2">
-                        <div>
-                          <label className="mb-1 block text-[10px] font-bold" style={{ color: "var(--text-faint)" }}>
-                            CSES User ID (numeric)
-                          </label>
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              placeholder="CSES ID"
-                              value={localCsesUserId}
-                              onChange={(e) => setLocalCsesUserId(e.target.value)}
-                              className="flex-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold outline-none transition"
-                              style={{
-                                borderColor: "var(--border-default)",
-                                background: "var(--bg-sunken)",
-                                color: "var(--text-primary)",
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setCsesUserId(localCsesUserId);
-                                syncCses(localCsesUserId);
-                              }}
-                              disabled={csesSyncStatus === "syncing"}
-                              className="flex items-center justify-center rounded-lg px-3 text-xs font-bold text-white transition-all disabled:opacity-50"
-                              style={{
-                                background: "linear-gradient(135deg, #3b82f6, #2563eb)",
-                                boxShadow: "0 2px 4px color-mix(in srgb, #3b82f6 20%, transparent)",
-                              }}
-                            >
-                              {csesSyncStatus === "syncing" ? (
-                                <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                              ) : (
-                                "Sync"
-                              )}
-                            </button>
-                          </div>
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-xs font-black uppercase tracking-wider" style={{ color: "var(--text-primary)" }}>
+                          CSES Sync
+                        </h3>
+                        <div className="flex rounded-md p-0.5" style={{ background: "var(--bg-sunken)" }}>
+                          <button
+                            type="button"
+                            onClick={() => setCsesSyncMode("credentials")}
+                            className={`rounded px-1.5 py-0.5 text-[9px] font-bold transition-all ${
+                              csesSyncMode === "credentials"
+                                ? "bg-white shadow-sm text-black"
+                                : "text-neutral-500 hover:text-neutral-300"
+                            }`}
+                            style={csesSyncMode === "credentials" ? { background: "var(--bg-surface)", color: "var(--text-primary)" } : {}}
+                          >
+                            Login
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setCsesSyncMode("cookie")}
+                            className={`rounded px-1.5 py-0.5 text-[9px] font-bold transition-all ${
+                              csesSyncMode === "cookie"
+                                ? "bg-white shadow-sm text-black"
+                                : "text-neutral-500 hover:text-neutral-300"
+                            }`}
+                            style={csesSyncMode === "cookie" ? { background: "var(--bg-surface)", color: "var(--text-primary)" } : {}}
+                          >
+                            Cookie
+                          </button>
                         </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        {csesSyncMode === "credentials" ? (
+                          <div className="flex flex-col gap-2">
+                            <div>
+                              <label className="mb-0.5 block text-[9px] font-bold" style={{ color: "var(--text-faint)" }}>
+                                Username
+                              </label>
+                              <input
+                                type="text"
+                                placeholder="CSES Username"
+                                value={localCsesUserId}
+                                onChange={(e) => setLocalCsesUserId(e.target.value)}
+                                className="w-full rounded-lg border px-2.5 py-1 text-xs font-semibold outline-none transition"
+                                style={{
+                                  borderColor: "var(--border-default)",
+                                  background: "var(--bg-sunken)",
+                                  color: "var(--text-primary)",
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-0.5 block text-[9px] font-bold" style={{ color: "var(--text-faint)" }}>
+                                Password
+                              </label>
+                              <div className="flex gap-2">
+                                <input
+                                  type="password"
+                                  placeholder="CSES Password"
+                                  value={localCsesPassword}
+                                  onChange={(e) => setLocalCsesPassword(e.target.value)}
+                                  className="flex-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold outline-none transition"
+                                  style={{
+                                    borderColor: "var(--border-default)",
+                                    background: "var(--bg-sunken)",
+                                    color: "var(--text-primary)",
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setCsesUserId(localCsesUserId);
+                                    syncCses(localCsesUserId, localCsesPassword, "");
+                                    setLocalCsesPassword(""); // clear password from memory
+                                  }}
+                                  disabled={csesSyncStatus === "syncing"}
+                                  className="flex items-center justify-center rounded-lg px-3 text-xs font-bold text-white transition-all disabled:opacity-50"
+                                  style={{
+                                    background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+                                    boxShadow: "0 2px 4px color-mix(in srgb, #3b82f6 20%, transparent)",
+                                  }}
+                                >
+                                  {csesSyncStatus === "syncing" ? (
+                                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                                  ) : (
+                                    "Sync"
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <label className="mb-0.5 block text-[9px] font-bold" style={{ color: "var(--text-faint)" }}>
+                              PHPSESSID Cookie
+                            </label>
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                placeholder="Paste PHPSESSID"
+                                value={localCsesPhpSessId}
+                                onChange={(e) => setLocalCsesPhpSessId(e.target.value)}
+                                className="flex-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold outline-none transition"
+                                style={{
+                                  borderColor: "var(--border-default)",
+                                  background: "var(--bg-sunken)",
+                                  color: "var(--text-primary)",
+                                }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setCsesPhpSessId(localCsesPhpSessId);
+                                  syncCses("", "", localCsesPhpSessId);
+                                }}
+                                disabled={csesSyncStatus === "syncing"}
+                                className="flex items-center justify-center rounded-lg px-3 text-xs font-bold text-white transition-all disabled:opacity-50"
+                                style={{
+                                  background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+                                  boxShadow: "0 2px 4px color-mix(in srgb, #3b82f6 20%, transparent)",
+                                }}
+                              >
+                                {csesSyncStatus === "syncing" ? (
+                                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  "Sync"
+                                )}
+                              </button>
+                            </div>
+                            <p className="mt-1 text-[9px] leading-tight" style={{ color: "var(--text-faint)" }}>
+                              To find: Log in to cses.fi &rarr; Inspect &rarr; Application &rarr; Cookies &rarr; copy PHPSESSID.
+                            </p>
+                          </div>
+                        )}
 
                         {csesSyncStatus === "success" && (
                           <div className="flex items-center gap-1.5 rounded-lg p-2 text-[11px] font-semibold animate-fade-in" style={{ background: "color-mix(in srgb, var(--accent-green) 10%, transparent)", color: "var(--accent-green)" }}>
